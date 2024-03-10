@@ -13,6 +13,8 @@
 		588251D82B99E106009370CF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588251D72B99E106009370CF /* ContentView.swift */; };
 		588251DA2B99E10A009370CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 588251D92B99E10A009370CF /* Assets.xcassets */; };
 		588251DE2B99E10A009370CF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 588251DD2B99E10A009370CF /* Preview Assets.xcassets */; };
+		58C765EF2B9E2510001E6068 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765EE2B9E2510001E6068 /* ViewController.swift */; };
+		58C765F12B9E2566001E6068 /* RezeptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765F02B9E2566001E6068 /* RezeptView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,8 @@
 		588251D92B99E10A009370CF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		588251DB2B99E10A009370CF /* Rezeptbuch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Rezeptbuch.entitlements; sourceTree = "<group>"; };
 		588251DD2B99E10A009370CF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		58C765EE2B9E2510001E6068 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		58C765F02B9E2566001E6068 /* RezeptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RezeptView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +63,8 @@
 				588251D02B99E106009370CF /* RezeptbuchApp.swift */,
 				588251D22B99E106009370CF /* Persistence.swift */,
 				588251D72B99E106009370CF /* ContentView.swift */,
+				58C765EE2B9E2510001E6068 /* ViewController.swift */,
+				58C765F02B9E2566001E6068 /* RezeptView.swift */,
 				588251D92B99E10A009370CF /* Assets.xcassets */,
 				588251DB2B99E10A009370CF /* Rezeptbuch.entitlements */,
 				588251D42B99E106009370CF /* Rezeptbuch.xcdatamodeld */,
@@ -145,6 +151,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58C765F12B9E2566001E6068 /* RezeptView.swift in Sources */,
+				58C765EF2B9E2510001E6068 /* ViewController.swift in Sources */,
 				588251D12B99E106009370CF /* RezeptbuchApp.swift in Sources */,
 				588251D62B99E106009370CF /* Rezeptbuch.xcdatamodeld in Sources */,
 				588251D82B99E106009370CF /* ContentView.swift in Sources */,
