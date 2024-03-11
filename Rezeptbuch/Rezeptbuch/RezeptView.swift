@@ -20,7 +20,7 @@ struct RecipeView: View {
                         .font(.title)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
-                    
+                    Divider().padding(.horizontal, 16)
                     if let imageName = recipe.image {
                         Image(imageName)
                             .resizable()
@@ -34,18 +34,25 @@ struct RecipeView: View {
                         Text("Zutaten:")
                             .font(.headline)
                             .multilineTextAlignment(.center)
+                        Divider().padding(.horizontal, 16)
                         
                         ForEach(recipe.ingredients, id: \.self) { ingredient in
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.blue, lineWidth: 1)
-                                .frame(minHeight: 30)
-                                .overlay(
-                                    Text("• \(ingredient)")
+                           
+                               
+                              
+                                    Text("\(ingredient)")
                                         .foregroundColor(.blue)
                                         .padding(.horizontal, 10)
                                         .fixedSize(horizontal: false, vertical: true)
-                                )
+                                        .frame(minHeight: 30)
+                                        .frame(width : geometry.size.width*0.6)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(Color.blue, lineWidth: 1)
+                                        )
+                                
                                 .padding(.vertical, 5)
+                            Divider().padding(.horizontal, 16)
                         }
                     }
                     
@@ -53,29 +60,33 @@ struct RecipeView: View {
                         Text("Anleitung:")
                             .font(.headline)
                             .multilineTextAlignment(.center)
+                        Divider().padding(.horizontal, 16)
                         
                         ForEach(recipe.instructions, id: \.self) { instruction in
                             
                             Text("\(instruction)")
-                                .foregroundColor(.green)
+                                .foregroundColor(.blue)
                                 .padding(.horizontal)
                                 .padding(.vertical,10)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .frame(width : geometry.size.width*0.9)
                                 .background(RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.green, lineWidth: 1))
-                                    
+                                    .stroke(Color.blue, lineWidth: 1))
+                            
                                 
                                     
                             
                                 .padding(.vertical, 5)
+                            Divider().padding(.horizontal, 16)
                         }
                     }
+//                    Buttons.cookMode(<#T##self: Buttons##Buttons#>)
                 }
                 .padding()
                 .background(Color.white)
                 .cornerRadius(15)
                 .shadow(radius: 5)
+            
             }
         }
     }
