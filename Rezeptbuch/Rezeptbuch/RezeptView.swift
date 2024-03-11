@@ -17,7 +17,14 @@ struct RecipeView: View {
                     .font(.title)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
-
+                if let imageName = recipe.image {
+                    Image(imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .cornerRadius(10)
+                        .padding(.top, 10)
+                        .frame(maxWidth: .infinity, maxHeight: 200)
+                }
                 VStack(alignment: .center, spacing: 5) {
                     Text("Zutaten:")
                         .font(.headline)
@@ -56,14 +63,7 @@ struct RecipeView: View {
                     }
                 }
 
-                if let imageName = recipe.image {
-                    Image(imageName)
-                        .resizable()
-                        .scaledToFit()
-                        .cornerRadius(10)
-                        .padding(.top, 10)
-                        .frame(maxWidth: .infinity, maxHeight: 200)
-                }
+               
             }
             .padding()
             .background(Color.white)
@@ -76,7 +76,7 @@ struct RecipeView: View {
 // Beispiel für die Verwendung
 struct contentView: View {
     var body: some View {
-        RecipeView(recipe: brownie)
+        RecipeView(recipe: pastaRecipe)
             .padding()
             .frame(maxWidth: 400)
     }
