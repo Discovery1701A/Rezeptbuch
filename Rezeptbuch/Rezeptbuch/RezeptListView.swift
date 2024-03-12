@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftUI
 
 import SwiftUI
 
@@ -19,7 +18,17 @@ struct RecipeListView: View {
             List {
                 ForEach(recipes, id: \.id) { recipe in
                     NavigationLink(destination: RecipeView(recipe: recipe)) {
-                        Text(recipe.title)
+                        HStack {
+                            Text(recipe.title)
+                            if let imageName = recipe.image {
+                                Image(imageName)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .cornerRadius(10)
+                                    .padding(.top, 10)
+                                    .frame(maxWidth: .infinity, maxHeight: 200)
+                            }
+                        }
                     }
                 }
             }
@@ -33,15 +42,13 @@ struct RecipeListView: View {
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(NSColor.controlBackgroundColor))
-                
+
                 List(recipes, id: \.id) { recipe in
                     NavigationLink(destination: RecipeView(recipe: recipe)) {
                         Text(recipe.title)
                     }
                 }
                 .frame(minWidth: 200, idealWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
-
-                
             }
             #endif
         }
