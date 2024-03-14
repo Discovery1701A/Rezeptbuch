@@ -13,18 +13,22 @@ struct RecipeCreationView: View {
     @State private var instructions: [String] = []
 
     var body: some View {
+#if os(iOS)
         NavigationView {
             content
                 .navigationTitle("Rezept erstellen")
                 .toolbar {
-                    #if !os(macOS)
                     ToolbarItem(placement: .navigationBarTrailing) {
                         EditButton()
                     }
-                    #endif
                 }
         }
+        .navigationViewStyle(StackNavigationViewStyle()) // Hier wird der Modifier hinzugefügt
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+#elseif os(macOS)
+        content
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+#endif
     }
 
     var content: some View {
@@ -46,7 +50,6 @@ struct RecipeCreationView: View {
                     }
                     .onMove { indices, newOffset in
                         ingredients.move(fromOffsets: indices, toOffset: newOffset)
-                        print(newOffset)
                     }
                 }
                 Button(action: {
