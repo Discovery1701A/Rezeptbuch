@@ -13,7 +13,8 @@ struct RezeptbuchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            contentListView(recipes: [brownie, pastaRecipe])
+//            contentListView(recipes: [brownie, pastaRecipe])
+            ContentView()
         }
     }
 }

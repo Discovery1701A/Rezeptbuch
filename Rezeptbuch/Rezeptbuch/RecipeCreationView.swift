@@ -11,27 +11,43 @@ struct RecipeCreationView: View {
     @State private var recipeTitle = ""
     @State private var ingredients: [String] = []
     @State private var instructions: [String] = []
-    
+
     var body: some View {
-#if os(macOS)
         NavigationView {
             content
-                .frame(minWidth: 300, idealWidth: 400, maxWidth: .infinity, minHeight: 300, idealHeight: 400, maxHeight: .infinity)
+                .navigationTitle("Rezept erstellen")
+                .toolbar {
+                    #if !os(macOS)
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        EditButton()
+                    }
+                    #endif
+                }
         }
-#else
-        content
-#endif
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
+
     var content: some View {
         Form {
             Section(header: Text("Allgemeine Informationen")) {
                 TextField("Rezept-Titel", text: $recipeTitle)
             }
-            
+
             Section(header: Text("Zutaten")) {
-                ForEach(0..<ingredients.count, id: \.self) { index in
-                    TextField("Zutat \(index + 1)", text: $ingredients[index])
+                List {
+                    ForEach(ingredients.indices, id: \.self) { index in
+                        HStack {
+                            Text("\(index + 1).")
+                            TextField("Zutat \(index + 1)", text: $ingredients[index])
+                        }
+                    }
+                    .onDelete { indexSet in
+                        ingredients.remove(atOffsets: indexSet)
+                    }
+                    .onMove { indices, newOffset in
+                        ingredients.move(fromOffsets: indices, toOffset: newOffset)
+                        print(newOffset)
+                    }
                 }
                 Button(action: {
                     ingredients.append("")
@@ -39,10 +55,21 @@ struct RecipeCreationView: View {
                     Label("Zutat hinzufügen", systemImage: "plus.circle")
                 }
             }
-            
+
             Section(header: Text("Anleitung")) {
-                ForEach(0..<instructions.count, id: \.self) { index in
-                    TextField("Schritt \(index + 1)", text: $instructions[index]) // Hier wurde Text durch TextField ersetzt
+                List {
+                    ForEach(instructions.indices, id: \.self) { index in
+                        HStack {
+                            Text("\(index + 1).")
+                            TextField("Schritt \(index + 1)", text: $instructions[index])
+                        }
+                    }
+                    .onDelete { indexSet in
+                        instructions.remove(atOffsets: indexSet)
+                    }
+                    .onMove { indices, newOffset in
+                        instructions.move(fromOffsets: indices, toOffset: newOffset)
+                    }
                 }
                 Button(action: {
                     instructions.append("")
@@ -51,10 +78,8 @@ struct RecipeCreationView: View {
                 }
             }
         }
-        .navigationTitle("Rezept erstellen")
     }
 }
-
 
 struct RecipeCreationView_Previews: PreviewProvider {
     static var previews: some View {
