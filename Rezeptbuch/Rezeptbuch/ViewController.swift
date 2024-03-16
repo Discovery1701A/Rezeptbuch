@@ -20,6 +20,41 @@ struct Recipe {
      }
 }
 
+enum Unit: String, CaseIterable {
+    case gram = "g"
+    case kilogram = "kg"
+    case milliliter = "ml"
+    case liter = "l"
+    case piece = "Stk"
+}
+
+
+struct Food {
+    var name: String
+    var category: String?
+    var info : String?
+//    var quantity: Double
+//    var unit: Unit
+
+    var nutritionFacts: NutritionFacts?
+}
+
+struct NutritionFacts {
+    var calories: Int?
+    var protein: Double?
+    var carbohydrates: Double?
+    var fat: Double?
+}
+
+struct FoodItem {
+    var food : Food
+    var unit: Unit
+    var quantity: Double
+}
+
+let tomate = Food(name: "Tomate", category: "Obst")
+
+
 // Beispiel für die Verwendung
 let pastaRecipe = Recipe(
     id:1,

@@ -13,8 +13,9 @@ struct RecipeListView: View {
     @ObservedObject var modelView : ViewModel
 
     var body: some View {
-        NavigationView {
+       
             #if os(iOS)
+        NavigationView {
             List {
                 Text(String(modelView.recepis.count))
                 ForEach(modelView.recepis, id: \.id) { recipe in
@@ -35,26 +36,35 @@ struct RecipeListView: View {
             }
             
             .navigationBarTitle("Alle Rezepte")
-
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        
+      
             #elseif os(macOS)
-            VStack {
-                // Text view for navigation title on macOS
-                Text("Alle Rezepte")
-                    .font(.headline)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(NSColor.controlBackgroundColor))
-
-                List(modelView.recepis, id: \.id) { recipe in
-                    NavigationLink(destination: RecipeView(recipe: recipe)) {
-                        Text(recipe.title)
+            NavigationView {
+                VStack {
+                    // Text view for navigation title on macOS
+                    Text("Alle Rezepte")
+                        .font(.headline)
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(NSColor.controlBackgroundColor))
+                    
+                    List(modelView.recepis, id: \.id) { recipe in
+                        NavigationLink(destination: RecipeView(recipe: recipe)) {
+                            Text(recipe.title)
+                        }
                     }
+                    .frame(minWidth: 200, idealWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .frame(minWidth: 200, idealWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
             }
             #endif
+            
         }
-    }
+        
+       
+       
+    
 }
 
 // ... rest of the code remains unchanged
