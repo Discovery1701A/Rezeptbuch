@@ -12,6 +12,8 @@ struct RecipeCreationView: View {
     @State private var recipeTitle = ""
     @State private var ingredients: [String] = []
     @State private var instructions: [String] = []
+    @State private var quantity = ""
+    @State private var selectedUnit: Unit = .gram
     
     #if os(macOS)
     @State private var editMode: EditMode = .inactive // Verwenden Sie den Bearbeitungsmodus von SwiftUI
@@ -80,6 +82,26 @@ struct RecipeCreationView: View {
                         HStack {
                             Text("\(index + 1).")
                             TextField("Zutat \(index + 1)", text: $ingredients[index])
+                            Section(header: Text("Menge")) {
+                                VStack {
+#if os(macOS)
+                                    TextField("Menge", text: $quantity)
+                                       
+#else
+                                    
+                                    TextField("Menge", text: $quantity)
+                                        .keyboardType(.decimalPad)
+                                    
+                                    #endif
+                                    Picker("Einheit", selection: $selectedUnit) {
+                                        ForEach(Unit.allCases, id: \.self) { unit in
+                                            Text(unit.rawValue)
+                                        }
+                                    }
+                                    .pickerStyle(SegmentedPickerStyle())
+                                }
+                                .padding() // Optional, um den Inhalt zu zentrieren oder auszurichten
+                            }
                         }
                     }
                     .onDelete { indexSet in

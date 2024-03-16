@@ -16,17 +16,53 @@ struct FoodCreationView: View {
     @State private var protein = ""
     @State private var carbohydrates = ""
     @State private var fat = ""
-    @State private var quantity = ""
-    @State private var selectedUnit: Unit = .gram
+    
+    
+    
+#if os(macOS)
     
     var body: some View {
+        
+        content
+        
+        
+    }
+    
+    
+#else
+    
+    
+    var body: some View {
+        NavigationView {
+            content
+                .navigationBarTitle("Lebensmittel erstellen")
+            
+        } .navigationViewStyle(StackNavigationViewStyle()) // Hier wird der Modifier hinzugefügt
+    }
+    
+#endif
+    
+    
+    
+    var content: some View {
         Form {
             Section(header: Text("Allgemeine Informationen")) {
                 TextField("Lebensmittelname", text: $foodName)
                 TextField("Kategorie", text: $foodCategory)
                 TextField("Info", text: $foodInfo)
             }
+#if os(macOS)
+            Section(header: Text("Nährwertangaben auf 100g")) {
+                TextField("Kalorien", text: $calories)
+                  
+                TextField("Protein (g)", text: $protein)
+                  
+                TextField("Kohlenhydrate (g)", text: $carbohydrates)
             
+                TextField("Fett (g)", text: $fat)
+                  
+            }
+#else
             Section(header: Text("Nährwertangaben auf 100g")) {
                 TextField("Kalorien", text: $calories)
                     .keyboardType(.numberPad)
@@ -38,20 +74,8 @@ struct FoodCreationView: View {
                     .keyboardType(.decimalPad)
             }
             
+#endif
             
-            Section(header: Text("Menge")) {
-                VStack {
-                    TextField("Menge", text: $quantity)
-                        .keyboardType(.decimalPad)
-                    Picker("Einheit", selection: $selectedUnit) {
-                        ForEach(Unit.allCases, id: \.self) { unit in
-                            Text(unit.rawValue)
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                .padding() // Optional, um den Inhalt zu zentrieren oder auszurichten
-            }
             
             
             
@@ -74,24 +98,25 @@ struct FoodCreationView: View {
         let info = foodInfo.isEmpty ? nil : foodInfo
         let category = foodCategory.isEmpty ? nil : foodCategory
         // Convert string inputs to numeric values, or use nil if empty
-           let caloriesValue = calories.isEmpty ? nil : Int(calories)
-           let proteinValue = protein.isEmpty ? nil : Double(protein)
-           let carbohydratesValue = carbohydrates.isEmpty ? nil : Double(carbohydrates)
-           let fatValue = fat.isEmpty ? nil : Double(fat)
-
-           // Nutritional facts with '-' for missing values
-           let nutritionFacts = NutritionFacts(calories: caloriesValue, protein: proteinValue,
-                                               carbohydrates: carbohydratesValue, fat: fatValue)
-        let food = Food(name: foodName, category: foodCategory, info: info, nutritionFacts: nutritionFacts)
+        let caloriesValue = calories.isEmpty ? nil : Int(calories)
+        let proteinValue = protein.isEmpty ? nil : Double(protein)
+        let carbohydratesValue = carbohydrates.isEmpty ? nil : Double(carbohydrates)
+        let fatValue = fat.isEmpty ? nil : Double(fat)
+        
+        // Nutritional facts with '-' for missing values
+        let nutritionFacts = NutritionFacts(calories: caloriesValue, protein: proteinValue,
+                                            carbohydrates: carbohydratesValue, fat: fatValue)
+        let food = Food(name: foodName, category: category, info: info, nutritionFacts: nutritionFacts)
         print(food)
         modelView.foods.append(food)
     }
-    
-    
-    struct FoodCreationView_Previews: PreviewProvider {
-        static var previews: some View {
-            let modelView = ViewModel()
-            FoodCreationView(modelView: modelView)
-        }
-    }
 }
+    
+//    
+//    struct FoodCreationView_Previews: PreviewProvider {
+//        static var previews: some View {
+//            let modelView = ViewModel()
+//            FoodCreationView(modelView: modelView)
+//        }
+//    }
+//}
