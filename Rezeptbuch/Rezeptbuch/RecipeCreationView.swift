@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct RecipeCreationView: View {
+    @ObservedObject var modelView : ViewModel
     @State private var recipeTitle = ""
     @State private var ingredients: [String] = []
     @State private var instructions: [String] = []
@@ -18,6 +19,15 @@ struct RecipeCreationView: View {
             content
                 .navigationTitle("Rezept erstellen")
                 .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Speichern") {
+                            modelView.appendToRecipes(recipe:
+                                                        Recipe(id: modelView.recepis.count+1, title: recipeTitle, ingredients: ingredients, instructions: instructions)
+                            )
+                        
+//                            print(modelView.recepis)
+                        }
+                    }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         EditButton()
                     }
@@ -27,7 +37,7 @@ struct RecipeCreationView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
 #elseif os(macOS)
         content
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 #endif
     }
 
@@ -84,8 +94,9 @@ struct RecipeCreationView: View {
     }
 }
 
-struct RecipeCreationView_Previews: PreviewProvider {
-    static var previews: some View {
-        RecipeCreationView()
-    }
-}
+//struct RecipeCreationView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        let modelView: ViewModel = ViewModel()
+//        RecipeCreationView(modelView: modelView)
+//    }
+//}

@@ -7,16 +7,17 @@
 
 import SwiftUI
 
-import SwiftUI
 
 struct RecipeListView: View {
-    var recipes: [Recipe]
+//    var recipes: [Recipe]
+    @ObservedObject var modelView : ViewModel
 
     var body: some View {
         NavigationView {
             #if os(iOS)
             List {
-                ForEach(recipes, id: \.id) { recipe in
+                Text(String(modelView.recepis.count))
+                ForEach(modelView.recepis, id: \.id) { recipe in
                     NavigationLink(destination: RecipeView(recipe: recipe)) {
                         HStack {
                             Text(recipe.title)
@@ -32,6 +33,7 @@ struct RecipeListView: View {
                     }
                 }
             }
+            
             .navigationBarTitle("Alle Rezepte")
 
             #elseif os(macOS)
@@ -43,7 +45,7 @@ struct RecipeListView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(NSColor.controlBackgroundColor))
 
-                List(recipes, id: \.id) { recipe in
+                List(modelView.recepis, id: \.id) { recipe in
                     NavigationLink(destination: RecipeView(recipe: recipe)) {
                         Text(recipe.title)
                     }
@@ -57,17 +59,17 @@ struct RecipeListView: View {
 
 // ... rest of the code remains unchanged
 
-// Beispiel für die Verwendung
-struct contentListView: View {
-    var recipes: [Recipe]
-
-    var body: some View {
-        RecipeListView(recipes: recipes)
-    }
-}
-
-struct ContentListView_Previews: PreviewProvider {
-    static var previews: some View {
-        contentListView(recipes: [brownie, pastaRecipe])
-    }
-}
+//// Beispiel für die Verwendung
+//struct contentListView: View {
+//    var recipes: [Recipe]
+//
+//    var body: some View {
+//        RecipeListView(recipes: recipes)
+//    }
+//}
+//
+//struct ContentListView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        contentListView(recipes: [brownie, pastaRecipe])
+//    }
+//}

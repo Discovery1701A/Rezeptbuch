@@ -9,7 +9,11 @@ import Foundation
 import SwiftUI
 
 class ViewModel: ObservableObject {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    @Published var recepis: [Recipe] = [brownie,pastaRecipe]
+    
+    
+    func appendToRecipes (recipe: Recipe){
+        recepis.append(recipe)
+        print(recepis)
     }
 }

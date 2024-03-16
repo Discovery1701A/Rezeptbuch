@@ -13,6 +13,11 @@ struct Recipe {
     var ingredients: [String]
     var instructions: [String]
     var image: String? // Pfad zur Bilddatei oder URL
+    
+     // Implementing Equatable protocol
+     static func == (lhs: Recipe, rhs: Recipe) -> Bool {
+         return lhs.id == rhs.id
+     }
 }
 
 // Beispiel für die Verwendung
