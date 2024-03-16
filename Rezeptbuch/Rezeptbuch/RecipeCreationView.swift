@@ -12,6 +12,34 @@ struct RecipeCreationView: View {
     @State private var recipeTitle = ""
     @State private var ingredients: [String] = []
     @State private var instructions: [String] = []
+    
+    #if os(macOS)
+    @State private var editMode: EditMode = .inactive // Verwenden Sie den Bearbeitungsmodus von SwiftUI
+
+    var body: some View {
+          content
+              .frame(maxWidth: .infinity, maxHeight: .infinity)
+              .toolbar {
+              
+                  ToolbarItem(placement: .confirmationAction) {
+                      Button(action: {
+                          saveRecipe()
+                      }) {
+                          Text("Speichern")
+                      }
+                      .disabled(editMode == .inactive || recipeTitle.isEmpty)
+                  }
+              }
+      }
+    
+    private func toggleEditMode() {
+            if editMode == .active {
+                editMode = .inactive
+            } else {
+                editMode = .active
+            }
+        }
+    #else
     @State private var editMode = EditMode.inactive
 
     var body: some View {
@@ -31,6 +59,8 @@ struct RecipeCreationView: View {
                 .environment(\.editMode, $editMode)
         } .navigationViewStyle(StackNavigationViewStyle()) // Hier wird der Modifier hinzugefügt
     }
+    
+    #endif
 
     private func saveRecipe() {
         modelView.appendToRecipes(recipe: Recipe(id: modelView.recepis.count + 1, title: recipeTitle, ingredients: ingredients, instructions: instructions))
