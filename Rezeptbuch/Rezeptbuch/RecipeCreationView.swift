@@ -17,20 +17,22 @@ struct RecipeCreationView: View {
     @State private var editMode: EditMode = .inactive // Verwenden Sie den Bearbeitungsmodus von SwiftUI
 
     var body: some View {
-          content
-              .frame(maxWidth: .infinity, maxHeight: .infinity)
-              .toolbar {
-              
-                  ToolbarItem(placement: .confirmationAction) {
-                      Button(action: {
-                          saveRecipe()
-                      }) {
-                          Text("Speichern")
-                      }
-                      .disabled(editMode == .inactive || recipeTitle.isEmpty)
-                  }
-              }
-      }
+      
+                content
+                   
+                    .toolbar {
+                      
+                        ToolbarItem(placement:.confirmationAction) {
+                            Button(action: {
+                                saveRecipe()
+                            }) {
+                                Text("Speichern")
+                            }
+                            .disabled(editMode == .inactive || recipeTitle.isEmpty)
+                        }
+                    }
+            }
+        
     
     private func toggleEditMode() {
             if editMode == .active {
