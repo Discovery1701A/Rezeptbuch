@@ -8,37 +8,32 @@
 import SwiftUI
 
 struct RecipeCreationView: View {
-    @ObservedObject var modelView : ViewModel
+    @ObservedObject var modelView: ViewModel
     @State private var recipeTitle = ""
     @State private var ingredients: [String] = []
     @State private var instructions: [String] = []
+    @State private var editMode = EditMode.inactive
 
     var body: some View {
-#if os(iOS)
         NavigationView {
             content
-                .navigationTitle("Rezept erstellen")
+                .navigationBarTitle("Rezept erstellen")
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button("Speichern") {
-                            modelView.appendToRecipes(recipe:
-                                                        Recipe(id: modelView.recepis.count+1, title: recipeTitle, ingredients: ingredients, instructions: instructions)
-                            )
-                        
-//                            print(modelView.recepis)
-                        }
-                    }
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        EditButton()
+                        Button(action: {
+                            saveRecipe()
+                        }) {
+                            Text("Speichern")
+                        }
+                        .disabled(editMode == .inactive || recipeTitle.isEmpty)
                     }
                 }
-        }
-        .navigationViewStyle(StackNavigationViewStyle()) // Hier wird der Modifier hinzugefügt
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-#elseif os(macOS)
-        content
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-#endif
+                .environment(\.editMode, $editMode)
+        } .navigationViewStyle(StackNavigationViewStyle()) // Hier wird der Modifier hinzugefügt
+    }
+
+    private func saveRecipe() {
+        modelView.appendToRecipes(recipe: Recipe(id: modelView.recepis.count + 1, title: recipeTitle, ingredients: ingredients, instructions: instructions))
     }
 
     var content: some View {
@@ -91,12 +86,8 @@ struct RecipeCreationView: View {
                 }
             }
         }
+        .onAppear {
+            self.editMode = .active
+        }
     }
 }
-
-//struct RecipeCreationView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        let modelView: ViewModel = ViewModel()
-//        RecipeCreationView(modelView: modelView)
-//    }
-//}
