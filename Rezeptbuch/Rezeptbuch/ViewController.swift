@@ -91,6 +91,28 @@ let emptyFood = Food(name: "")
 
 let tomate = Food(name: "Tomate", category: "Obst")
 let schoki = Food(name: "Schokolade", category: "Süßwaren")
+let zartbitterSchokolade = Food(name: "Butter", category: "Milchprodukte", info: nil, nutritionFacts: NutritionFacts(calories: 741, protein: 0.7, carbohydrates: 0.6, fat: 83 ))
+let vanilleExtrakt = Food(name: "Vanille-Extrakt", category: "Gewürze", info: nil, nutritionFacts:
+                            NutritionFacts(calories: 288,protein: 0.1,carbohydrates: 12.7,fat: 0.1))
+let zucker = Food(name: "Zucker", category: "Backzutaten", info: nil, nutritionFacts: NutritionFacts(calories: 405, protein: 0, carbohydrates: 99.8, fat: 0))
+let eier = Food(name: "Eier", category: "Eier & Eiprodukte", info: nil, nutritionFacts: NutritionFacts(
+    calories: 156,
+    protein: 13,
+    carbohydrates: 1.1,
+    fat: 11.3))
+let mehl = Food(name: "Mehl", category: "Backzutaten", info: nil, nutritionFacts: NutritionFacts(
+    calories: 348,
+    protein: 10,
+    carbohydrates: 72.3,
+    fat: 0
+))
+
+let schokostücke = Food(name: "Schokostücke", category: "Süßwaren", info: nil, nutritionFacts: NutritionFacts(
+    calories: 484,
+    protein: 7.9,
+    carbohydrates: 23,
+    fat: 36.2
+))
 
 
 // Beispiel für die Verwendung
@@ -108,13 +130,17 @@ let pastaRecipe = Recipe(
 let brownie = Recipe(
     id:2,
     title: "Brownie",
-    ingredients: [  FoodItem(food: Food(name: "Schokolade", category: "Süßwaren", info: nil, nutritionFacts: nil), unit: .gram, quantity: 250),
-                    FoodItem(food: Food(name: "Butter", category: "Milchprodukte", info: nil, nutritionFacts: nil), unit: .gram, quantity: 250),
-                    FoodItem(food: Food(name: "Vanille-Extrakt", category: "Gewürze", info: nil, nutritionFacts: nil), unit: .teaspoon, quantity: 1),
-                    FoodItem(food: Food(name: "Zucker", category: "Backzutaten", info: nil, nutritionFacts: nil), unit: .gram, quantity: 350),
-                    FoodItem(food: Food(name: "Eier", category: "Eier & Eiprodukte", info: nil, nutritionFacts: nil), unit: .piece, quantity: 6),
-                    FoodItem(food: Food(name: "Mehl", category: "Backzutaten", info: nil, nutritionFacts: nil), unit: .gram, quantity: 150),
-                    FoodItem(food: Food(name: "Schokostücke", category: "Süßwaren", info: nil, nutritionFacts: nil), unit: .gram, quantity: 200)],
+    ingredients: [  FoodItem(food: Food(name: "Zartbitter Schokolade", category: "Süßwaren", info: nil, nutritionFacts: NutritionFacts(
+        calories: 514,
+        protein: 8.1,
+        carbohydrates: 46.3,
+        fat: 31.1)), unit: .gram, quantity: 250),
+                    FoodItem(food: zartbitterSchokolade, unit: .gram, quantity: 250),
+                    FoodItem(food:vanilleExtrakt, unit: .teaspoon, quantity: 1),
+                    FoodItem(food: zucker, unit: .gram, quantity: 350),
+                    FoodItem(food: eier, unit: .piece, quantity: 6),
+                    FoodItem(food: mehl, unit: .gram, quantity: 150),
+                    FoodItem(food: schokostücke, unit: .gram, quantity: 200)],
     instructions: ["Offen auf 180C° vorheizen","Schokolade und Butter über einem Wasserbad schmelzen", "Eier mit Vanille-Extrakt und Zucker aufschlagen", "abgekühlte Schokoladen-Butter-Masse langsam zu der Eiermasse geben", "erst Mehl und dann die Schokostücke hinzugeben", "Teig in eine Form oder aufs Backblech geben", "30 minuten in den Backoffen"],
 image: "Brownie")
 
