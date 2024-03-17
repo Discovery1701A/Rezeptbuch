@@ -40,7 +40,7 @@ struct RecipeView: View {
                            
                                
                               
-                            Text("\(ingredient.quantity)" + ingredient.unit.rawValue + ingredient.food.name)
+                            Text("\(ingredient.quantity)" + ingredient.unit.rawValue + " " + ingredient.food.name)
                                         .foregroundColor(.blue)
                                         .padding(.horizontal, 10)
                                         .fixedSize(horizontal: false, vertical: true)

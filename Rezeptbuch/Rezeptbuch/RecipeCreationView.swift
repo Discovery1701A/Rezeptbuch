@@ -10,7 +10,7 @@ struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
     @State private var recipeTitle = ""
     @State private var ingredients: [FoodItem?] = []
-    @State private var foods: [Food?] = []
+    @State private var foods: [Food] = []
     @State private var instructions: [String] = []
     @State private var quantity: [String] = []
     @State private var selectedUnit: [Unit] = []
@@ -54,6 +54,15 @@ struct RecipeCreationView: View {
     #endif
 
     private func saveRecipe() {
+        
+        for i in 0..<ingredients.count{
+            if foods[i] != emptyFood{
+                ingredients[i] = FoodItem(food: foods[i],
+                                          unit:  selectedUnit[i],
+                                          quantity:  Double(quantity[i])!)
+            }
+        }
+        
         ingredients.removeAll(where: { $0 == nil })
         let recipe = Recipe(id: modelView.recepis.count + 1, title: recipeTitle, ingredients: ingredients.compactMap { $0 }, instructions: instructions)
         modelView.appendToRecipes(recipe: recipe)
@@ -72,6 +81,7 @@ struct RecipeCreationView: View {
                         HStack {
                             Text("\(index + 1).")
                             Picker("Zutat", selection: $foods[index]) {
+                                Text("") // Leere Zeichenfolge als Standardoption
                                 ForEach(modelView.foods, id: \.self) { food in
                                     Text(food.name)
                                 }
@@ -90,7 +100,10 @@ struct RecipeCreationView: View {
                                 }
                                 .padding() // Optional, um den Inhalt zu zentrieren oder auszurichten
                             }
+                        
                         }
+                
+                      
                     }
                     .onDelete { indexSet in
                         ingredients.remove(atOffsets: indexSet)
@@ -107,7 +120,7 @@ struct RecipeCreationView: View {
                 }
                 Button(action: {
                     ingredients.append(nil)
-                    foods.append(nil)
+                    foods.append(emptyFood)
                     quantity.append("")
                     selectedUnit.append(.gram)
                 }) {

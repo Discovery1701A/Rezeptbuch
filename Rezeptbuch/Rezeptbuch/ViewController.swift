@@ -87,7 +87,10 @@ struct FoodItem: Hashable, Equatable {
 }
 
 
+let emptyFood = Food(name: "")
+
 let tomate = Food(name: "Tomate", category: "Obst")
+let schoki = Food(name: "Schokolade", category: "Süßwaren")
 
 
 // Beispiel für die Verwendung
