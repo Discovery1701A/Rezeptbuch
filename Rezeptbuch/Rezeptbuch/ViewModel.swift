@@ -17,4 +17,6 @@ class ViewModel: ObservableObject {
         recepis.append(recipe)
         print(recepis)
     }
+    
+  
 }

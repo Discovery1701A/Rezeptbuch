@@ -4,45 +4,33 @@
 //
 //  Created by Anna Rieckmann on 13.03.24.
 //
-
 import SwiftUI
 
 struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
     @State private var recipeTitle = ""
-    @State private var ingredients: [String] = []
+    @State private var ingredients: [FoodItem?] = []
+    @State private var foods: [Food?] = []
     @State private var instructions: [String] = []
-    @State private var quantity = ""
-    @State private var selectedUnit: Unit = .gram
-    
+    @State private var quantity: [String] = []
+    @State private var selectedUnit: [Unit] = []
+
     #if os(macOS)
     @State private var editMode: EditMode = .inactive // Verwenden Sie den Bearbeitungsmodus von SwiftUI
 
     var body: some View {
-      
-                content
-                   
-                    .toolbar {
-                      
-                        ToolbarItem(placement:.confirmationAction) {
-                            Button(action: {
-                                saveRecipe()
-                            }) {
-                                Text("Speichern")
-                            }
-                            .disabled(editMode == .inactive || recipeTitle.isEmpty)
-                        }
+        content
+            .toolbar {
+                ToolbarItem(placement:.confirmationAction) {
+                    Button(action: {
+                        saveRecipe()
+                    }) {
+                        Text("Speichern")
                     }
+                    .disabled(editMode == .inactive || recipeTitle.isEmpty)
+                }
             }
-        
-    
-    private func toggleEditMode() {
-            if editMode == .active {
-                editMode = .inactive
-            } else {
-                editMode = .active
-            }
-        }
+    }
     #else
     @State private var editMode = EditMode.inactive
 
@@ -63,12 +51,14 @@ struct RecipeCreationView: View {
                 .environment(\.editMode, $editMode)
         } .navigationViewStyle(StackNavigationViewStyle()) // Hier wird der Modifier hinzugefügt
     }
-    
     #endif
 
     private func saveRecipe() {
-        modelView.appendToRecipes(recipe: Recipe(id: modelView.recepis.count + 1, title: recipeTitle, ingredients: ingredients, instructions: instructions))
+        ingredients.removeAll(where: { $0 == nil })
+        let recipe = Recipe(id: modelView.recepis.count + 1, title: recipeTitle, ingredients: ingredients.compactMap { $0 }, instructions: instructions)
+        modelView.appendToRecipes(recipe: recipe)
     }
+
 
     var content: some View {
         Form {
@@ -81,19 +71,17 @@ struct RecipeCreationView: View {
                     ForEach(ingredients.indices, id: \.self) { index in
                         HStack {
                             Text("\(index + 1).")
-                            TextField("Zutat \(index + 1)", text: $ingredients[index])
+                            Picker("Zutat", selection: $foods[index]) {
+                                ForEach(modelView.foods, id: \.self) { food in
+                                    Text(food.name)
+                                }
+                            }
                             Section(header: Text("Menge")) {
                                 VStack {
-#if os(macOS)
-                                    TextField("Menge", text: $quantity)
-                                       
-#else
-                                    
-                                    TextField("Menge", text: $quantity)
+                                    TextField("Menge", text: $quantity[index])
                                         .keyboardType(.decimalPad)
-                                    
-                                    #endif
-                                    Picker("Einheit", selection: $selectedUnit) {
+
+                                    Picker("Einheit", selection: $selectedUnit[index]) {
                                         ForEach(Unit.allCases, id: \.self) { unit in
                                             Text(unit.rawValue)
                                         }
@@ -106,13 +94,22 @@ struct RecipeCreationView: View {
                     }
                     .onDelete { indexSet in
                         ingredients.remove(atOffsets: indexSet)
+                        foods.remove(atOffsets: indexSet)
+                        quantity.remove(atOffsets: indexSet)
+                        selectedUnit.remove(atOffsets: indexSet)
                     }
                     .onMove { indices, newOffset in
                         ingredients.move(fromOffsets: indices, toOffset: newOffset)
+                        foods.move(fromOffsets: indices, toOffset: newOffset)
+                        quantity.move(fromOffsets: indices, toOffset: newOffset)
+                        selectedUnit.move(fromOffsets: indices, toOffset: newOffset)
                     }
                 }
                 Button(action: {
-                    ingredients.append("")
+                    ingredients.append(nil)
+                    foods.append(nil)
+                    quantity.append("")
+                    selectedUnit.append(.gram)
                 }) {
                     Label("Zutat hinzufügen", systemImage: "plus.circle")
                 }
