@@ -10,6 +10,7 @@ struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
     @State private var recipeTitle = ""
     @State private var ingredients: [FoodItem?] = []
+    @State private var foodstring: [String] = []
     @State private var foods: [Food] = []
     @State private var instructions: [String] = []
     @State private var quantity: [String] = []
@@ -80,12 +81,12 @@ struct RecipeCreationView: View {
                     ForEach(ingredients.indices, id: \.self) { index in
                         HStack {
                             Text("\(index + 1).")
-                            Picker("Zutat", selection: $foods[index]) {
-                                Text("") // Leere Zeichenfolge als Standardoption
-                                ForEach(modelView.foods, id: \.self) { food in
-                                    Text(food.name)
-                                }
-                            }
+//                            Picker("Zutat", selection: $foods[index]) {
+//                                Text("") // Leere Zeichenfolge als Standardoption
+//                                ForEach(modelView.foods, id: \.self) { food in
+//                                    Text(food.name)
+//                                }
+//                            }
                             Section(header: Text("Menge")) {
                                 VStack {
                                     TextField("Menge", text: $quantity[index])
@@ -152,6 +153,23 @@ struct RecipeCreationView: View {
         }
         .onAppear {
             self.editMode = .active
+        }
+    }
+}
+
+struct OptionsListView: View {
+    let options: [String]
+    @Binding var selectedOption: String?
+    @Binding var searchText: String
+    
+    var body: some View {
+        List(options, id: \.self) { option in
+            Button(action: {
+                selectedOption = option
+                searchText = option // Set the searchText to the selected option
+            }) {
+                Text(option)
+            }
         }
     }
 }
