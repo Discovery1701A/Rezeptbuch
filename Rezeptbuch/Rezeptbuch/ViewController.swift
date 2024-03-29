@@ -6,18 +6,43 @@
 //
 
 import Foundation
-
 struct Recipe {
     var id: Int
     var title: String
     var ingredients: [FoodItem]
     var instructions: [String]
     var image: String? // Pfad zur Bilddatei oder URL
-    
-     // Implementing Equatable protocol
-     static func == (lhs: Recipe, rhs: Recipe) -> Bool {
-         return lhs.id == rhs.id
-     }
+    var portion: PortionsInfo?
+    var cake: CakeInfo? // CakeInfo-Enum für Informationen über Kuchen
+
+    // Implementierung des Equatable-Protokolls
+    static func == (lhs: Recipe, rhs: Recipe) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+// Enum für Informationen über Portioen
+enum PortionsInfo {
+    case Portion(Double)
+    case notPortion
+}
+
+// Enum für Informationen über Kuchen
+enum CakeInfo {
+    case cake(form: Formen, size: CakeSize) // Kuchen mit Form und Größe
+    case notCake // Nicht als Kuchen klassifiziert
+}
+
+// Enum für die Form des Kuchens
+enum Formen: String, CaseIterable {
+    case rund = "rund"
+    case eckig = "eckig"
+}
+
+// Enum für die Größe des Kuchens
+enum CakeSize {
+    case round(diameter: Double) // Durchmesser für runde Formen
+    case rectangular(length: Double, width: Double) // Länge und Breite für eckige Formen
 }
 
 
@@ -142,7 +167,9 @@ let brownie = Recipe(
                     FoodItem(food: mehl, unit: .gram, quantity: 150),
                     FoodItem(food: schokostücke, unit: .gram, quantity: 200)],
     instructions: ["Offen auf 180C° vorheizen","Schokolade und Butter über einem Wasserbad schmelzen", "Eier mit Vanille-Extrakt und Zucker aufschlagen", "abgekühlte Schokoladen-Butter-Masse langsam zu der Eiermasse geben", "erst Mehl und dann die Schokostücke hinzugeben", "Teig in eine Form oder aufs Backblech geben", "30 minuten in den Backoffen"],
-image: "Brownie")
+image: "Brownie"
+    ,cake: .cake(form: .eckig, size: .rectangular(length: 35, width: 40))
+)
 
 //print("Rezepttitel: \(pastaRecipe.title)")
 //print("Zutaten: \(pastaRecipe.ingredients)")

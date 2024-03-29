@@ -8,13 +8,18 @@ import SwiftUI
 
 struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
-    @State private var recipeTitle = ""
-    @State private var ingredients: [FoodItem?] = []
-    @State private var foodstring: [String] = []
-    @State private var foods: [Food] = []
-    @State private var instructions: [String] = []
-    @State private var quantity: [String] = []
-    @State private var selectedUnit: [Unit] = []
+     @State private var recipeTitle = ""
+     @State private var ingredients: [FoodItem?] = []
+     @State private var foods: [Food] = []
+     @State private var instructions: [String] = []
+     @State private var quantity: [String] = []
+     @State private var selectedUnit: [Unit] = []
+     @State private var portionValue: String = ""
+     @State private var isCake = false
+     @State private var cakeForm: Formen = .rund
+    @State private var size :[Double] = [0.0,0.0,0.0]
+     @State private var cakeSize: CakeSize = .round(diameter: 0.0)
+    
 
     #if os(macOS)
     @State private var editMode: EditMode = .inactive // Verwenden Sie den Bearbeitungsmodus von SwiftUI
@@ -55,25 +60,97 @@ struct RecipeCreationView: View {
     #endif
 
     private func saveRecipe() {
-        
-        for i in 0..<ingredients.count{
-            if foods[i] != emptyFood{
-                ingredients[i] = FoodItem(food: foods[i],
-                                          unit:  selectedUnit[i],
-                                          quantity:  Double(quantity[i])!)
+            for i in 0..<ingredients.count {
+                if let foodItem = ingredients[i], foods[i] != emptyFood {
+                    ingredients[i] = FoodItem(food: foods[i],
+                                              unit: selectedUnit[i],
+                                              quantity: Double(quantity[i])!)
+                }
             }
+            
+            ingredients.removeAll(where: { $0 == nil })
+            let recipe: Recipe
+            if isCake {
+                recipe = Recipe(id: modelView.recipes.count + 1,
+                                title: recipeTitle,
+                                ingredients: ingredients.compactMap { $0 },
+                                instructions: instructions,
+                                image: nil,
+                                portion: .notPortion,
+                                cake: .cake(form: cakeForm, size: cakeSize))
+            } else {
+                recipe = Recipe(id: modelView.recipes.count + 1,
+                                title: recipeTitle,
+                                ingredients: ingredients.compactMap { $0 },
+                                instructions: instructions,
+                                image: nil,
+                                portion: .Portion(Double(portionValue) ?? 0.0),
+                                cake: .notCake)
+            }
+            modelView.appendToRecipes(recipe: recipe)
         }
-        
-        ingredients.removeAll(where: { $0 == nil })
-        let recipe = Recipe(id: modelView.recipes.count + 1, title: recipeTitle, ingredients: ingredients.compactMap { $0 }, instructions: instructions)
-        modelView.appendToRecipes(recipe: recipe)
-    }
+
 
 
     var content: some View {
         Form {
             Section(header: Text("Allgemeine Informationen")) {
-                TextField("Rezept-Titel", text: $recipeTitle)
+                VStack {
+                    TextField("Rezept-Titel", text: $recipeTitle)
+                    Toggle("Ist es ein Kuchen?", isOn: $isCake.animation())
+                    if isCake {
+                        Picker("Kuchenform", selection: $cakeForm) {
+                            ForEach(Formen.allCases, id: \.self) { form in
+                                Text(form.rawValue)
+                            }
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        if cakeForm == .rund {
+                            HStack{
+                                Text("Durchmesser (cm):")
+                                TextField("Durchmesser (cm)", text: Binding(
+                                    get: { "\(size[0])" },
+                                    set: {
+                                        if let value = Double($0) {
+                                            cakeSize = .round(diameter: value)
+                                        }
+                                    })
+                                )
+                                .keyboardType(.decimalPad)
+                            }
+                        } else {
+                            HStack {
+                                Text("Länge (cm):")
+                                TextField("Länge (cm)", text: Binding(
+                                    get: { "\(size[1])" },
+                                    set: {
+                                        if let value = Double($0) {
+                                            cakeSize = .rectangular(length: value, width: size[2])
+                                        }
+                                    })
+                                )
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .padding()
+                                Text("Breite (cm):")
+                                TextField("Breite (cm)", text: Binding(
+                                    get: { "\(size[2])" },
+                                    set: {
+                                        if let value = Double($0) {
+                                            cakeSize = .rectangular(length: size[1], width: value)
+                                        }
+                                    })
+                                )
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .padding()
+                            }
+                        }
+                    } else {
+                        TextField("Portion (Anzahl)", text: $portionValue)
+                            .keyboardType(.decimalPad)
+                    }
+                }
             }
 
             Section(header: Text("Zutaten")) {

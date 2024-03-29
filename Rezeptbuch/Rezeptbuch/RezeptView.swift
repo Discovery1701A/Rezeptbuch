@@ -9,9 +9,14 @@ import EventKit
 
 struct RecipeView: View {
     var recipe: Recipe
+    var ingredients: [FoodItem]
     @State private var shoppingList: [FoodItem] = []
     @State private var isReminderAdded = false
     let eventStore = EKEventStore()
+    init(recipe: Recipe) {
+        self.recipe = recipe
+        self.ingredients = recipe.ingredients
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -36,7 +41,7 @@ struct RecipeView: View {
                             .font(.headline)
                             .multilineTextAlignment(.center)
                         Divider().padding(.horizontal, 16)
-                        ForEach(recipe.ingredients, id: \.self) { ingredient in
+                        ForEach(ingredients, id: \.self) { ingredient in
                             Text("\(ingredient.quantity)" + ingredient.unit.rawValue + " " + ingredient.food.name)
                                 .foregroundColor(.blue)
                                 .padding(.horizontal, 10)
@@ -70,7 +75,13 @@ struct RecipeView: View {
                             Divider().padding(.horizontal, 16)
                         }
                     }
-                    
+                    NavigationLink(destination: CookingModeView(recipe: recipe)) {
+                                                Text("Zum Kochmodus")
+                                                    .padding()
+                                                    .foregroundColor(.white)
+                                                    .background(Color.blue)
+                                                    .cornerRadius(10)
+                                            }
                     Button(action: {
                         createShoppingList()
                         addShoppingListToReminders()
@@ -195,8 +206,6 @@ struct RecipeView: View {
     func updateExistingReminders(_ reminders: [EKReminder], with item: FoodItem, in eventStore: EKEventStore) {
         
         for reminder in reminders {
-            print(reminder.title.components(separatedBy: " ").first ?? "")
-            print(Double(reminder.title.components(separatedBy: " ").first ?? ""))
             let newTitle = "\(item.quantity + Double(reminder.title.components(separatedBy: " ").first ?? "")!)" + " " + item.unit.rawValue + " " + item.food.name
             reminder.title = newTitle
             do {
