@@ -32,8 +32,8 @@ struct ContentView: View {
         .onChange(of: recipesChanged) { _ in
             // Force update the view when recipes change
         }
-        .onReceive(modelView.$recepis) { _ in
-            print ("View2",modelView.recepis)
+        .onReceive(modelView.$recipes) { _ in
+            print ("View2",modelView.recipes)
             recipesChanged.toggle()
         }
     }

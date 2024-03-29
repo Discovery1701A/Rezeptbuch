@@ -65,7 +65,7 @@ struct RecipeCreationView: View {
         }
         
         ingredients.removeAll(where: { $0 == nil })
-        let recipe = Recipe(id: modelView.recepis.count + 1, title: recipeTitle, ingredients: ingredients.compactMap { $0 }, instructions: instructions)
+        let recipe = Recipe(id: modelView.recipes.count + 1, title: recipeTitle, ingredients: ingredients.compactMap { $0 }, instructions: instructions)
         modelView.appendToRecipes(recipe: recipe)
     }
 
