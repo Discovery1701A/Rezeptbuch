@@ -22,10 +22,22 @@ struct Recipe {
 }
 
 // Enum für Informationen über Portioen
-enum PortionsInfo {
+enum PortionsInfo: Equatable {
     case Portion(Double)
     case notPortion
+
+    static func == (lhs: PortionsInfo, rhs: PortionsInfo) -> Bool {
+        switch (lhs, rhs) {
+        case let (.Portion(value1), .Portion(value2)):
+            return value1 == value2
+        case (.notPortion, .notPortion):
+            return true
+        default:
+            return false
+        }
+    }
 }
+
 
 // Enum für Informationen über Kuchen
 enum CakeInfo {
@@ -150,7 +162,8 @@ let pastaRecipe = Recipe(
                    FoodItem(food: Food(name: "Tomatensoße", category: "Saucen", info: nil, nutritionFacts: nil), unit: .milliliter, quantity: 500),
                    FoodItem(food: Food(name: "Spaghetti", category: "Nudeln & Teigwaren", info: nil, nutritionFacts: nil), unit: .gram, quantity: 250)],
     instructions: ["Hackfleisch anbraten", "Zwiebel und Knoblauch hinzufügen", "Tomatensoße dazugeben", "Spaghetti kochen"],
-    image: "spaghetti-mit-schneller-tomatensosse"
+    image: "spaghetti-mit-schneller-tomatensosse",
+    portion: .Portion(4), cake: .notCake
 )
 let brownie = Recipe(
     id:2,

@@ -9,14 +9,24 @@ import EventKit
 
 struct RecipeView: View {
     var recipe: Recipe
-    var ingredients: [FoodItem]
-    @State private var shoppingList: [FoodItem] = []
-    @State private var isReminderAdded = false
-    let eventStore = EKEventStore()
-    init(recipe: Recipe) {
-        self.recipe = recipe
-        self.ingredients = recipe.ingredients
-    }
+        var originIngriedents: [FoodItem]
+        @State private var ingredients: [FoodItem]
+        @State private var shoppingList: [FoodItem] = []
+        @State private var isReminderAdded = false
+        let eventStore = EKEventStore()
+        @State var portion : Double
+        
+        init(recipe: Recipe) {
+           
+            self.recipe = recipe
+            self.originIngriedents = recipe.ingredients
+            self._ingredients = State(initialValue: originIngriedents)
+            if case let .Portion(portionValue) = recipe.portion {
+                self.portion = portionValue
+            } else {
+                self.portion = 0.0
+            }
+        }
     
     var body: some View {
         GeometryReader { geometry in
@@ -35,6 +45,16 @@ struct RecipeView: View {
                             .padding(.top, 10)
                             .frame(maxWidth: .infinity, maxHeight: 200)
                     }
+                    
+                    if recipe.portion != .notPortion && recipe.portion != nil
+                    {
+                        HStack{
+                            portionScaleMinus()
+                            Text(String(Int(portion)))
+                            portionScalePlus()
+                        }
+                    }
+               
                     
                     VStack(alignment: .center, spacing: 5) {
                         Text("Zutaten:")
@@ -112,7 +132,7 @@ struct RecipeView: View {
     
     func createShoppingList() {
            shoppingList.removeAll()
-           for ingredient in recipe.ingredients {
+           for ingredient in ingredients {
                if !shoppingList.contains(where: { $0.food == ingredient.food }) {
                    shoppingList.append(ingredient)
                } else {
@@ -216,5 +236,38 @@ struct RecipeView: View {
             }
         }
     }
+    @ViewBuilder
+    func portionScalePlus() -> some View {
+        Button(action: {
+            if portion > 0 {
+                portion = 1 + portion
+                scaleIngredients(portion: portion)
+            }
+            
+        }, label: {
+            Image(systemName: "plus.circle.fill")
+        })
+    }
+
+    @ViewBuilder
+    func portionScaleMinus() -> some View {
+        Button(action: {
+            if portion > 1 {
+                portion = portion - 1
+                scaleIngredients(portion: portion)
+            }
+            
+        }, label: {
+            Image(systemName: "minus.circle.fill")
+        })
+    }
+
+
+     
+     private func scaleIngredients(portion: Double) {
+         if case let .Portion(portionValue) = recipe.portion {
+             ingredients = Model().portionScale(portionOrigin: portionValue, portionNew: portion, foodItems: originIngriedents)
+         }
+     }
 
    }
