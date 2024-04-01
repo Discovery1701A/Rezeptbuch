@@ -14,19 +14,69 @@ struct RecipeView: View {
         @State private var shoppingList: [FoodItem] = []
         @State private var isReminderAdded = false
         let eventStore = EKEventStore()
-        @State var portion : Double
+        @State private var portion: Double
         
-        init(recipe: Recipe) {
-           
-            self.recipe = recipe
-            self.originIngriedents = recipe.ingredients
-            self._ingredients = State(initialValue: originIngriedents)
-            if case let .Portion(portionValue) = recipe.portion {
-                self.portion = portionValue
-            } else {
-                self.portion = 0.0
-            }
+        // Für den Picker
+    @State private var cakeFormSelection : Formen
+    @State private var diameter : Double
+    @State private var lenght : Double
+    @State private var width : Double
+    @State private var originDiameter : Double
+    @State private var originLenght : Double
+    @State private var originWidth : Double
+        
+    init(recipe: Recipe) {
+        self.recipe = recipe
+        self.originIngriedents = recipe.ingredients
+        self._ingredients = State(initialValue: originIngriedents)
+       
+        if case let .Portion(portionValue) = recipe.portion {
+            self.portion = portionValue
+        } else {
+            self.portion = 0.0
         }
+        if case let .cake(form: FormValu, size: SizeValue) = recipe.cake {
+            self.cakeFormSelection = FormValu
+           
+            if case let .rectangular(length: lenght, width: width) = SizeValue {
+                self.lenght = lenght
+                self.width = width
+                self.diameter = (sqrt((lenght*width) / Double.pi) * 2).rounded()
+                self.originLenght = lenght
+                self.originWidth = width
+                self.originDiameter = (sqrt((lenght*width) / Double.pi) * 2).rounded()
+               
+            }
+            else if case let .round(diameter: diameter) = SizeValue {
+                self.diameter = diameter
+                self.lenght = sqrt(pow((diameter/2),2) * Double.pi).rounded()
+                self.width  = sqrt(pow((diameter/2),2) * Double.pi).rounded()
+                self.originDiameter = diameter
+                self.originLenght = sqrt(pow((diameter/2),2) * Double.pi).rounded()
+                self.originWidth  = sqrt(pow((diameter/2),2) * Double.pi).rounded()
+               
+            } else {
+                self.diameter = 0
+                self.lenght = 0
+                self.width  = 0
+                self.originDiameter = 0
+                self.originLenght = 0
+                self.originWidth  = 0
+            }
+           
+            
+        } else {
+            self.cakeFormSelection = .rund
+            self.diameter = 0
+            self.lenght = 0
+            self.width  = 0
+            self.originDiameter = 0
+            self.originLenght = 0
+            self.originWidth  = 0
+         
+        }
+     
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -54,6 +104,56 @@ struct RecipeView: View {
                             portionScalePlus()
                         }
                     }
+                    if let cakeInfo = recipe.cake, case .cake = cakeInfo {
+                                            Picker("Kuchenform", selection: $cakeFormSelection) {
+                                                Text("Rund").tag(Formen.rund)
+                                                Text("Eckig").tag(Formen.eckig)
+                                            }
+                                            .pickerStyle(SegmentedPickerStyle())
+                                            .padding()
+                        HStack{
+                            if cakeFormSelection == .rund{
+                                Text("Durchmesser (cm):")
+                                TextField("Durchmesser (cm)", text: Binding(
+                                    get: { "\(diameter)" },
+                                    set: {
+                                        if let value = Double($0) {
+                                            diameter = value
+                                        }
+                                    })
+                                )
+                                .keyboardType(.decimalPad)
+                                .onChange(of: diameter) { newValue in
+                                    scaleRoundIngredients()}
+                            }
+                            
+                            if cakeFormSelection == .eckig{
+                                Text("Länge (cm):")
+                                TextField("Länge (cm)", text: Binding(
+                                    get: { "\(lenght)" },
+                                    set: {
+                                        if let value = Double($0) {
+                                            lenght = value
+                                        }
+                                    })
+                                )
+                                .keyboardType(.decimalPad)
+                                Text("Breite (cm):")
+                                TextField("Breite (cm)", text: Binding(
+                                    get: { "\(width)" },
+                                    set: {
+                                        if let value = Double($0) {
+                                            width = value
+                                        }
+                                    })
+                                )
+                                .keyboardType(.decimalPad)
+                            }
+                            
+                            
+                            
+                        }
+                                        }
                
                     
                     VStack(alignment: .center, spacing: 5) {
@@ -269,5 +369,12 @@ struct RecipeView: View {
              ingredients = Model().portionScale(portionOrigin: portionValue, portionNew: portion, foodItems: originIngriedents)
          }
      }
+    
+    private func scaleRoundIngredients() {
+       
+            ingredients = Model().roundScale(diameterOrigin: originDiameter, diameterNew: diameter, foodItems: originIngriedents)
+    }
+    
+    
 
    }

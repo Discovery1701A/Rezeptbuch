@@ -40,10 +40,22 @@ enum PortionsInfo: Equatable {
 
 
 // Enum für Informationen über Kuchen
-enum CakeInfo {
+enum CakeInfo: Equatable {
     case cake(form: Formen, size: CakeSize) // Kuchen mit Form und Größe
     case notCake // Nicht als Kuchen klassifiziert
+    static func == (lhs: CakeInfo, rhs: CakeInfo) -> Bool {
+        switch (lhs, rhs) {
+        case let (.cake(form1, size1), .cake(form2, size2)):
+            return form1 == form2 && size1 == size2
+        case (.notCake, .notCake):
+            return true
+        default:
+            return false
+        }
+    }
 }
+
+
 
 // Enum für die Form des Kuchens
 enum Formen: String, CaseIterable {
@@ -52,7 +64,7 @@ enum Formen: String, CaseIterable {
 }
 
 // Enum für die Größe des Kuchens
-enum CakeSize {
+enum CakeSize: Equatable {
     case round(diameter: Double) // Durchmesser für runde Formen
     case rectangular(length: Double, width: Double) // Länge und Breite für eckige Formen
 }

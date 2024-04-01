@@ -22,12 +22,14 @@ struct Model {
     }
     
     func roundScale(diameterOrigin: Double, diameterNew: Double, foodItems: [FoodItem]) -> [FoodItem] {
-        let scale = diameterOrigin / diameterNew
+        let scale = (pow(diameterOrigin/2,2)*Double.pi) / (pow(diameterNew/2,2)*Double.pi)
+        print(diameterOrigin,diameterNew)
         var scaledItems: [FoodItem] = []
         for i in 0..<foodItems.count {
             var item = foodItems[i]
-            item.quantity *= scale
             scaledItems.append(item)
+            scaledItems[i].quantity /= scale
+            print( scaledItems[i].quantity, item.quantity, scale)
         }
         return scaledItems
     }
