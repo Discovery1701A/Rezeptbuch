@@ -41,19 +41,20 @@ struct RecipeView: View {
             if case let .rectangular(length: lenght, width: width) = SizeValue {
                 self.lenght = lenght
                 self.width = width
-                self.diameter = (sqrt((lenght*width) / Double.pi) * 2).rounded()
+                self.diameter = (sqrt((lenght*width) / Double.pi) * 2).rounded(toPlaces: 2)
+
                 self.originLenght = lenght
                 self.originWidth = width
-                self.originDiameter = (sqrt((lenght*width) / Double.pi) * 2).rounded()
+                self.originDiameter = (sqrt((lenght*width) / Double.pi) * 2).rounded(toPlaces: 2)
                
             }
             else if case let .round(diameter: diameter) = SizeValue {
                 self.diameter = diameter
-                self.lenght = sqrt(pow((diameter/2),2) * Double.pi).rounded()
-                self.width  = sqrt(pow((diameter/2),2) * Double.pi).rounded()
+                self.lenght = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
+                self.width  = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
                 self.originDiameter = diameter
-                self.originLenght = sqrt(pow((diameter/2),2) * Double.pi).rounded()
-                self.originWidth  = sqrt(pow((diameter/2),2) * Double.pi).rounded()
+                self.originLenght = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
+                self.originWidth  = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
                
             } else {
                 self.diameter = 0
@@ -111,6 +112,17 @@ struct RecipeView: View {
                                             }
                                             .pickerStyle(SegmentedPickerStyle())
                                             .padding()
+                                            .onChange(of: cakeFormSelection) { newValue in
+                                                if newValue == Formen.rund{
+                                                    rectToRound()
+                                                    scaleRoundIngredients()
+                                                } else if newValue == Formen.eckig{
+                                                    roundToRect()
+                                                    scaleRectIngredients()
+                                                }
+                                            }
+                                        
+                                            
                         HStack{
                             if cakeFormSelection == .rund{
                                 Text("Durchmesser (cm):")
@@ -137,7 +149,12 @@ struct RecipeView: View {
                                         }
                                     })
                                 )
+                                
                                 .keyboardType(.decimalPad)
+                                .onChange(of: width) { newValue in
+                                    scaleRectIngredients()
+                                
+                            }
                                 Text("Breite (cm):")
                                 TextField("Breite (cm)", text: Binding(
                                     get: { "\(width)" },
@@ -148,6 +165,10 @@ struct RecipeView: View {
                                     })
                                 )
                                 .keyboardType(.decimalPad)
+                                .onChange(of: lenght) { newValue in
+                                    scaleRectIngredients()
+                                
+                            }
                             }
                             
                             
@@ -162,7 +183,7 @@ struct RecipeView: View {
                             .multilineTextAlignment(.center)
                         Divider().padding(.horizontal, 16)
                         ForEach(ingredients, id: \.self) { ingredient in
-                            Text("\(ingredient.quantity)" + ingredient.unit.rawValue + " " + ingredient.food.name)
+                            Text("\(ingredient.quantity.rounded(toPlaces: 2))" + ingredient.unit.rawValue + " " + ingredient.food.name)
                                 .foregroundColor(.blue)
                                 .padding(.horizontal, 10)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -373,6 +394,17 @@ struct RecipeView: View {
     private func scaleRoundIngredients() {
        
             ingredients = Model().roundScale(diameterOrigin: originDiameter, diameterNew: diameter, foodItems: originIngriedents)
+    }
+    private func scaleRectIngredients(){
+        ingredients = Model().rectScale(lengthOrigin: originLenght, widthOrigin: originWidth, lengthNew: lenght, widthNew: width, foodItems: originIngriedents)
+    }
+    
+    private func rectToRound(){
+        diameter = Model().rectToRound(length: lenght, width: width).rounded(toPlaces: 2)
+    }
+    
+    private func roundToRect(){
+        width = Model().roundToRect(diameter: diameter, length: lenght).rounded(toPlaces: 2)
     }
     
     

@@ -10,14 +10,14 @@ import Foundation
 struct Model {
     
     func roundToRect(diameter: Double, length: Double) -> Double {
-        let area = diameter * Double.pi
+        let area = pow(diameter/2,2)*Double.pi
         let width = area / length
         return width
     }
     
     func rectToRound(length: Double, width: Double) -> Double {
         let area = length * width
-        let diameter = area / Double.pi
+        let diameter = sqrt(area / Double.pi)*2
         return diameter
     }
     
@@ -26,7 +26,7 @@ struct Model {
         print(diameterOrigin,diameterNew)
         var scaledItems: [FoodItem] = []
         for i in 0..<foodItems.count {
-            var item = foodItems[i]
+            let item = foodItems[i]
             scaledItems.append(item)
             scaledItems[i].quantity /= scale
             print( scaledItems[i].quantity, item.quantity, scale)
@@ -39,7 +39,7 @@ struct Model {
         var scaledItems: [FoodItem] = []
         for i in 0..<foodItems.count {
             var item = foodItems[i]
-            item.quantity *= scale
+            item.quantity /= scale
             scaledItems.append(item)
         }
         return scaledItems
@@ -72,4 +72,10 @@ struct Model {
         return scaledItems
     }
     
+}
+extension Double {
+    func rounded(toPlaces places: Int) -> Double {
+        let divisor = pow(10.0, Double(places))
+        return (self * divisor).rounded() / divisor
+    }
 }
