@@ -9,9 +9,9 @@ import EventKit
 
 struct RecipeView: View {
     var recipe: Recipe
-        var originIngriedents: [FoodItem]
-        @State private var ingredients: [FoodItem]
-        @State private var shoppingList: [FoodItem] = []
+        var originIngriedents: [FoodItemStruct]
+        @State private var ingredients: [FoodItemStruct]
+        @State private var shoppingList: [FoodItemStruct] = []
         @State private var isReminderAdded = false
         let eventStore = EKEventStore()
         @State private var portion: Double
@@ -286,7 +286,7 @@ struct RecipeView: View {
                                         
                                         do {
                                             try eventStore.save(reminder, commit: true)
-                                            print(item.food.name)
+//                                             print(item.food.name)
                                         } catch {
                                             print("Error saving reminder: \(error.localizedDescription)")
                                         }
@@ -327,7 +327,7 @@ struct RecipeView: View {
             }
         }
        
-    func findRemindersForItem(_ item: FoodItem, in reminderList: EKCalendar?, completion: @escaping ([EKReminder]?) -> Void) {
+    func findRemindersForItem(_ item: FoodItemStruct, in reminderList: EKCalendar?, completion: @escaping ([EKReminder]?) -> Void) {
         guard let reminderList = reminderList else { completion(nil); return }
        
         if #available(iOS 17.0, *) {
@@ -348,7 +348,7 @@ struct RecipeView: View {
         }
     }
 
-    func updateExistingReminders(_ reminders: [EKReminder], with item: FoodItem, in eventStore: EKEventStore) {
+    func updateExistingReminders(_ reminders: [EKReminder], with item: FoodItemStruct, in eventStore: EKEventStore) {
         
         for reminder in reminders {
             let newTitle = "\(item.quantity + Double(reminder.title.components(separatedBy: " ").first ?? "")!)" + " " + item.unit.rawValue + " " + item.food.name

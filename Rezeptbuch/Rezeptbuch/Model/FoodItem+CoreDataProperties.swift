@@ -10,10 +10,10 @@ import Foundation
 import CoreData
 
 
-extension FoodItems {
+extension FoodItem {
 
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<FoodItems> {
-        return NSFetchRequest<FoodItems>(entityName: "FoodItem")
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<FoodItem> {
+        return NSFetchRequest<FoodItem>(entityName: "FoodItem")
     }
 
     @NSManaged public var unit: String?
@@ -22,6 +22,6 @@ extension FoodItems {
 
 }
 
-extension FoodItems : Identifiable {
+extension FoodItem : Identifiable {
 
 }

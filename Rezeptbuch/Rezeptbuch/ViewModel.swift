@@ -11,11 +11,14 @@ import SwiftUI
 class ViewModel: ObservableObject {
     @Published var recipes: [Recipe] = [brownie,pastaRecipe]
     @Published var foods: [foodstruct] =  [tomate, schoki,zartbitterSchokolade,vanilleExtrakt,zucker,eier,mehl,schokostücke]
-    
+    init() {
+        CoreDataManager().insertInitialDataIfNeeded()
+       print( CoreDataManager().fetchRecipes())
+    }
     
     func appendToRecipes (recipe: Recipe){
         recipes.append(recipe)
-        print(recipes)
+//        print(recipes)
     }
     
   

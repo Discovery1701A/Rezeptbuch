@@ -9,7 +9,7 @@ import SwiftUI
 struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
      @State private var recipeTitle = ""
-     @State private var ingredients: [FoodItem?] = []
+     @State private var ingredients: [FoodItemStruct?] = []
      @State private var foods: [foodstruct] = []
      @State private var instructions: [String] = []
      @State private var quantity: [String] = []
@@ -62,7 +62,7 @@ struct RecipeCreationView: View {
     private func saveRecipe() {
             for i in 0..<ingredients.count {
                 if let foodItem = ingredients[i], foods[i] != emptyFood {
-                    ingredients[i] = FoodItem(food: foods[i],
+                    ingredients[i] = FoodItemStruct(food: foods[i],
                                               unit: selectedUnit[i],
                                               quantity: Double(quantity[i])!)
                 }

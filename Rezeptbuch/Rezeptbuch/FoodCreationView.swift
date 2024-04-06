@@ -107,7 +107,7 @@ struct FoodCreationView: View {
         let nutritionFacts = NutritionFactsStruct(calories: caloriesValue, protein: proteinValue,
                                             carbohydrates: carbohydratesValue, fat: fatValue)
         let food = foodstruct(name: foodName, category: category, info: info, nutritionFacts: nutritionFacts)
-        print(food)
+//        print(food)
         modelView.foods.append(food)
     }
 }

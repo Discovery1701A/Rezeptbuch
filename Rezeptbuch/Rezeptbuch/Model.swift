@@ -21,22 +21,22 @@ struct Model {
         return diameter
     }
     
-    func roundScale(diameterOrigin: Double, diameterNew: Double, foodItems: [FoodItem]) -> [FoodItem] {
+    func roundScale(diameterOrigin: Double, diameterNew: Double, foodItems: [FoodItemStruct]) -> [FoodItemStruct] {
         let scale = (pow(diameterOrigin/2,2)*Double.pi) / (pow(diameterNew/2,2)*Double.pi)
-        print(diameterOrigin,diameterNew)
-        var scaledItems: [FoodItem] = []
+//        print(diameterOrigin,diameterNew)
+        var scaledItems: [FoodItemStruct] = []
         for i in 0..<foodItems.count {
             let item = foodItems[i]
             scaledItems.append(item)
             scaledItems[i].quantity /= scale
-            print( scaledItems[i].quantity, item.quantity, scale)
+//            print( scaledItems[i].quantity, item.quantity, scale)
         }
         return scaledItems
     }
     
-    func rectScale(lengthOrigin: Double, widthOrigin: Double, lengthNew: Double, widthNew: Double, foodItems: [FoodItem]) -> [FoodItem] {
+    func rectScale(lengthOrigin: Double, widthOrigin: Double, lengthNew: Double, widthNew: Double, foodItems: [FoodItemStruct]) -> [FoodItemStruct] {
         let scale = (lengthOrigin * widthOrigin) / (lengthNew * widthNew)
-        var scaledItems: [FoodItem] = []
+        var scaledItems: [FoodItemStruct] = []
         for i in 0..<foodItems.count {
             var item = foodItems[i]
             item.quantity /= scale
@@ -45,9 +45,9 @@ struct Model {
         return scaledItems
     }
     
-   public func portionScale(portionOrigin: Double, portionNew: Double, foodItems: [FoodItem]) -> [FoodItem] {
+   public func portionScale(portionOrigin: Double, portionNew: Double, foodItems: [FoodItemStruct]) -> [FoodItemStruct] {
         let scale = portionOrigin / portionNew
-        var scaledItems: [FoodItem] = []
+        var scaledItems: [FoodItemStruct] = []
         for i in 0..<foodItems.count {
             var item = foodItems[i]
             item.quantity /= scale
@@ -56,9 +56,9 @@ struct Model {
         return scaledItems
     }
     
-    public func itemScale(foodItemsOrigin: [FoodItem], foodItemsNew: [FoodItem]) -> [FoodItem] {
+    public func itemScale(foodItemsOrigin: [FoodItemStruct], foodItemsNew: [FoodItemStruct]) -> [FoodItemStruct] {
         var scale: Double = 1.0
-        var scaledItems: [FoodItem] = []
+        var scaledItems: [FoodItemStruct] = []
         for i in 0..<foodItemsOrigin.count {
             if foodItemsOrigin[i].quantity != foodItemsNew[i].quantity {
                 scale = foodItemsOrigin[i].quantity / foodItemsNew[i].quantity

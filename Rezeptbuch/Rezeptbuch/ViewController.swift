@@ -9,7 +9,7 @@ import Foundation
 struct Recipe {
     var id: Int
     var title: String
-    var ingredients: [FoodItem]
+    var ingredients: [FoodItemStruct]
     var instructions: [String]
     var image: String? // Pfad zur Bilddatei oder URL
     var portion: PortionsInfo?
@@ -199,12 +199,12 @@ struct NutritionFactsStruct: Equatable, Hashable {
 }
 
 
-struct FoodItem: Hashable, Equatable {
+struct FoodItemStruct: Hashable, Equatable {
     var food: foodstruct
     var unit: Unit
     var quantity: Double
 
-    static func == (lhs: FoodItem, rhs: FoodItem) -> Bool {
+    static func == (lhs: FoodItemStruct, rhs: FoodItemStruct) -> Bool {
         return lhs.food == rhs.food &&
                lhs.unit == rhs.unit &&
                lhs.quantity == rhs.quantity
@@ -250,11 +250,11 @@ let schokostücke = foodstruct(name: "Schokostücke", category: "Süßwaren", in
 let pastaRecipe = Recipe(
     id:1,
     title: "Spaghetti Bolognese",
-    ingredients: [ FoodItem(food: foodstruct(name: "Hackfleisch", category: "Fleisch & Wurst", info: nil, nutritionFacts: nil), unit: .gram, quantity: 500),
-                   FoodItem(food: foodstruct(name: "Zwiebel", category: "Gemüse", info: nil, nutritionFacts: nil), unit: .piece, quantity: 1),
-                   FoodItem(food: foodstruct(name: "Knoblauchzehen", category: "Gemüse", info: nil, nutritionFacts: nil), unit: .piece, quantity: 2),
-                   FoodItem(food: foodstruct(name: "Tomatensoße", category: "Saucen", info: nil, nutritionFacts: nil), unit: .milliliter, quantity: 500),
-                   FoodItem(food: foodstruct(name: "Spaghetti", category: "Nudeln & Teigwaren", info: nil, nutritionFacts: nil), unit: .gram, quantity: 250)],
+    ingredients: [ FoodItemStruct(food: foodstruct(name: "Hackfleisch", category: "Fleisch & Wurst", info: nil, nutritionFacts: nil), unit: .gram, quantity: 500),
+                   FoodItemStruct(food: foodstruct(name: "Zwiebel", category: "Gemüse", info: nil, nutritionFacts: nil), unit: .piece, quantity: 1),
+                   FoodItemStruct(food: foodstruct(name: "Knoblauchzehen", category: "Gemüse", info: nil, nutritionFacts: nil), unit: .piece, quantity: 2),
+                   FoodItemStruct(food: foodstruct(name: "Tomatensoße", category: "Saucen", info: nil, nutritionFacts: nil), unit: .milliliter, quantity: 500),
+                   FoodItemStruct(food: foodstruct(name: "Spaghetti", category: "Nudeln & Teigwaren", info: nil, nutritionFacts: nil), unit: .gram, quantity: 250)],
     instructions: ["Hackfleisch anbraten", "Zwiebel und Knoblauch hinzufügen", "Tomatensoße dazugeben", "Spaghetti kochen"],
     image: "spaghetti-mit-schneller-tomatensosse",
     portion: .Portion(4), cake: .notCake
@@ -262,17 +262,17 @@ let pastaRecipe = Recipe(
 let brownie = Recipe(
     id:2,
     title: "Brownie",
-    ingredients: [  FoodItem(food: foodstruct(name: "Zartbitter Schokolade", category: "Süßwaren", info: nil, nutritionFacts: NutritionFactsStruct(
+    ingredients: [  FoodItemStruct(food: foodstruct(name: "Zartbitter Schokolade", category: "Süßwaren", info: nil, nutritionFacts: NutritionFactsStruct(
         calories: 514,
         protein: 8.1,
         carbohydrates: 46.3,
         fat: 31.1)), unit: .gram, quantity: 250),
-                    FoodItem(food: zartbitterSchokolade, unit: .gram, quantity: 250),
-                    FoodItem(food:vanilleExtrakt, unit: .teaspoon, quantity: 1),
-                    FoodItem(food: zucker, unit: .gram, quantity: 350),
-                    FoodItem(food: eier, unit: .piece, quantity: 6),
-                    FoodItem(food: mehl, unit: .gram, quantity: 150),
-                    FoodItem(food: schokostücke, unit: .gram, quantity: 200)],
+                    FoodItemStruct(food: zartbitterSchokolade, unit: .gram, quantity: 250),
+                    FoodItemStruct(food:vanilleExtrakt, unit: .teaspoon, quantity: 1),
+                    FoodItemStruct(food: zucker, unit: .gram, quantity: 350),
+                    FoodItemStruct(food: eier, unit: .piece, quantity: 6),
+                    FoodItemStruct(food: mehl, unit: .gram, quantity: 150),
+                    FoodItemStruct(food: schokostücke, unit: .gram, quantity: 200)],
     instructions: ["Offen auf 180C° vorheizen","Schokolade und Butter über einem Wasserbad schmelzen", "Eier mit Vanille-Extrakt und Zucker aufschlagen", "abgekühlte Schokoladen-Butter-Masse langsam zu der Eiermasse geben", "erst Mehl und dann die Schokostücke hinzugeben", "Teig in eine Form oder aufs Backblech geben", "30 minuten in den Backoffen"],
 image: "Brownie"
     ,cake: .cake(form: .eckig, size: .rectangular(length: 35, width: 40))

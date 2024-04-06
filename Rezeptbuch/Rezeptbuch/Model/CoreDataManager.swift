@@ -9,7 +9,7 @@ import CoreData
 
 class CoreDataManager {
     static let shared = CoreDataManager()
-    private init() {}
+//    private init() {}
 
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Model")
@@ -67,8 +67,8 @@ class CoreDataManager {
         }
 
         // Laden von FoodItem aus Core Data und Einsortieren in FoodItem-Struktur
-    func fetchFoodItems() -> [FoodItem] {
-        let fetchRequest: NSFetchRequest<FoodItems> = FoodItems.fetchRequest()
+    func fetchFoodItems() -> [FoodItemStruct] {
+        let fetchRequest: NSFetchRequest<FoodItem> = FoodItem.fetchRequest()
 
         do {
             let foodItems = try managedContext.fetch(fetchRequest)
@@ -79,7 +79,7 @@ class CoreDataManager {
                                                                 carbohydrates: item.food?.nutritionFacts?.carbohydrates ?? 0,
                                                                 fat: item.food?.nutritionFacts?.fat ?? 0)
 
-                return FoodItem(food: foodstruct(name: item.food?.name ?? "",
+                return FoodItemStruct(food: foodstruct(name: item.food?.name ?? "",
                                                  category: item.food?.category,
                                                  info: item.food?.info,
                                                  nutritionFacts: nutritionFactsStruct),
@@ -121,12 +121,12 @@ class CoreDataManager {
         }
 
         // Speichern von FoodItem in Core Data
-        func saveFoodItem(_ item: FoodItem) {
+        func saveFoodItem(_ item: FoodItemStruct) {
             guard let entityDescription = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext) else {
                 return
             }
 
-            let foodItemManagedObject = FoodItems(entity: entityDescription, insertInto: managedContext)
+            let foodItemManagedObject = FoodItem(entity: entityDescription, insertInto: managedContext)
             foodItemManagedObject.food = saveAndGetFoodManagedObject(item.food)
             foodItemManagedObject.unit = Unit.toString(item.unit)
             foodItemManagedObject.quantity = item.quantity
@@ -175,7 +175,7 @@ class CoreDataManager {
     }
 
     // Funktion zum Speichern von Recipes
-    func saveRecipe(_ title: String, _ image: String?, _ ingredients: [FoodItem]?, _ instructions: [String]?, _ id: Int64, _ portion: String?, _ cake: String?) {
+    func saveRecipe(_ title: String, _ image: String?, _ ingredients: [FoodItemStruct]?, _ instructions: [String]?, _ id: Int64, _ portion: String?, _ cake: String?) {
         guard let entityDescription = NSEntityDescription.entity(forEntityName: "Recipes", in: managedContext) else {
             return
         }
@@ -183,7 +183,15 @@ class CoreDataManager {
         let recipe = Recipes(entity: entityDescription, insertInto: managedContext)
         recipe.titel = title
         recipe.image = image
-        recipe.ingredient = ingredients
+       
+        for ingredient in ingredients!{
+            let foodItemManagedObject = FoodItem(entity: entityDescription, insertInto: managedContext)
+            foodItemManagedObject.food = saveAndGetFoodManagedObject(ingredient.food)
+            foodItemManagedObject.unit = Unit.toString(ingredient.unit)
+            foodItemManagedObject.quantity = ingredient.quantity
+            recipe.ingredient?.append(foodItemManagedObject)
+        }
+        
         recipe.instructions = instructions
         recipe.id = id
         recipe.portion = portion
@@ -211,4 +219,47 @@ class CoreDataManager {
             print("Error editing recipe: \(error)")
         }
     }
+    func insertInitialDataIfNeeded() {
+        // Überprüfen, ob die Datenbank leer ist
+        let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
+        let count = try? managedContext.count(for: fetchRequest)
+
+        guard let recipeCount = count, recipeCount == 0 else {
+            print("Die Datenbank enthält bereits Datensätze. Keine Aktion erforderlich.")
+            return
+        }
+
+        // Datenbank ist leer, füge die initialen Daten ein
+        let recipesToInsert = [pastaRecipe, brownie] // Die zu speichernden Rezepte
+
+        for recipe in recipesToInsert {
+            let recipeEntity = Recipes(context: managedContext)
+            recipeEntity.titel = recipe.title
+            recipeEntity.id = Int64(recipe.id)
+            recipeEntity.image = recipe.image
+            recipeEntity.instructions = recipe.instructions
+            recipeEntity.ingredient = recipe.ingredients.map { foodItem in
+                let foodItemEntity = FoodItem(context: managedContext)
+                foodItemEntity.food = Food(context: managedContext)
+                foodItemEntity.food?.name = foodItem.food.name
+                foodItemEntity.food?.category = foodItem.food.category
+                foodItemEntity.food?.info = foodItem.food.info
+                // Hier musst du den Rest der Eigenschaften setzen, je nachdem, was du in deiner Datenbank benötigst
+                foodItemEntity.unit = Unit.toString(foodItem.unit) // Umwandlung der Enum-Instanz in einen String
+                foodItemEntity.quantity = foodItem.quantity
+                return foodItemEntity
+            }
+            // Hier musst du die restlichen Eigenschaften des Rezepts setzen, je nachdem, was du in deiner Datenbank benötigst
+            recipeEntity.portion = recipe.portion?.stringValue() // Umwandlung der PortionsInfo-Enum in einen String
+            recipeEntity.cake = recipe.cake?.stringValue() // Umwandlung der CakeInfo-Enum in einen String
+        }
+
+        do {
+            try managedContext.save()
+            print("Initiale Daten erfolgreich in der Datenbank gespeichert.")
+        } catch {
+            print("Fehler beim Speichern der initialen Daten: \(error)")
+        }
+    }
+
 }
