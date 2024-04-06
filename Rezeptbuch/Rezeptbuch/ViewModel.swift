@@ -10,7 +10,7 @@ import SwiftUI
 
 class ViewModel: ObservableObject {
     @Published var recipes: [Recipe] = [brownie,pastaRecipe]
-    @Published var foods: [Food] =  [tomate, schoki,zartbitterSchokolade,vanilleExtrakt,zucker,eier,mehl,schokostücke]
+    @Published var foods: [foodstruct] =  [tomate, schoki,zartbitterSchokolade,vanilleExtrakt,zucker,eier,mehl,schokostücke]
     
     
     func appendToRecipes (recipe: Recipe){

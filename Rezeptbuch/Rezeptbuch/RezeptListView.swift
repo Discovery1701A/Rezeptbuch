@@ -10,7 +10,7 @@ import SwiftUI
 struct RecipeListView: View {
     @ObservedObject var modelView: ViewModel
     @State private var searchText = ""
-    @State private var selectedIngredients: [Food] = []
+    @State private var selectedIngredients: [foodstruct] = []
 
     var filteredRecipes: [Recipe] {
         if searchText.isEmpty && selectedIngredients.isEmpty {
@@ -118,7 +118,7 @@ struct RecipeListView: View {
         
        
        
-    func toggleIngredient(_ ingredient: Food) {
+    func toggleIngredient(_ ingredient: foodstruct) {
         if let index = selectedIngredients.firstIndex(of: ingredient) {
             selectedIngredients.remove(at: index)
         } else {

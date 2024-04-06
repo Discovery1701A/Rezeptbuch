@@ -104,9 +104,9 @@ struct FoodCreationView: View {
         let fatValue = fat.isEmpty ? nil : Double(fat)
         
         // Nutritional facts with '-' for missing values
-        let nutritionFacts = NutritionFacts(calories: caloriesValue, protein: proteinValue,
+        let nutritionFacts = NutritionFactsStruct(calories: caloriesValue, protein: proteinValue,
                                             carbohydrates: carbohydratesValue, fat: fatValue)
-        let food = Food(name: foodName, category: category, info: info, nutritionFacts: nutritionFacts)
+        let food = foodstruct(name: foodName, category: category, info: info, nutritionFacts: nutritionFacts)
         print(food)
         modelView.foods.append(food)
     }
