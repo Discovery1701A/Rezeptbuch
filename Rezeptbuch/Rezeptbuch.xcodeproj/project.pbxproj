@@ -13,6 +13,7 @@
 		588251D82B99E106009370CF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588251D72B99E106009370CF /* ContentView.swift */; };
 		588251DA2B99E10A009370CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 588251D92B99E10A009370CF /* Assets.xcassets */; };
 		588251DE2B99E10A009370CF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 588251DD2B99E10A009370CF /* Preview Assets.xcassets */; };
+		588BD39C2BC13A7C0053904B /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 588BD39A2BC13A7C0053904B /* Model.xcdatamodeld */; };
 		58A204042BB709F800659D63 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A204032BB709F800659D63 /* Model.swift */; };
 		58AF20702BA1B41500298B4A /* RecipeCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AF206F2BA1B41500298B4A /* RecipeCreationView.swift */; };
 		58AF20722BA58CDA00298B4A /* MacOs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AF20712BA58CDA00298B4A /* MacOs.swift */; };
@@ -34,6 +35,7 @@
 		588251D92B99E10A009370CF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		588251DB2B99E10A009370CF /* Rezeptbuch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Rezeptbuch.entitlements; sourceTree = "<group>"; };
 		588251DD2B99E10A009370CF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		588BD39B2BC13A7C0053904B /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		58A204032BB709F800659D63 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		58AF206F2BA1B41500298B4A /* RecipeCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeCreationView.swift; sourceTree = "<group>"; };
 		58AF20712BA58CDA00298B4A /* MacOs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacOs.swift; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 				58AF20732BA5FD2B00298B4A /* FoodCreationView.swift */,
 				58C765F42B9F0415001E6068 /* ViewModel.swift */,
 				58C765F02B9E2566001E6068 /* RezeptView.swift */,
+				588BD39A2BC13A7C0053904B /* Model.xcdatamodeld */,
 				58C765F62B9F185B001E6068 /* RezeptListView.swift */,
 				58AF206F2BA1B41500298B4A /* RecipeCreationView.swift */,
 				58A204032BB709F800659D63 /* Model.swift */,
@@ -179,6 +182,7 @@
 			files = (
 				58C765F32B9F0385001E6068 /* Buttons.swift in Sources */,
 				58C765F12B9E2566001E6068 /* RezeptView.swift in Sources */,
+				588BD39C2BC13A7C0053904B /* Model.xcdatamodeld in Sources */,
 				58C765EF2B9E2510001E6068 /* ViewController.swift in Sources */,
 				58AF20702BA1B41500298B4A /* RecipeCreationView.swift in Sources */,
 				58C765F72B9F185B001E6068 /* RezeptListView.swift in Sources */,
@@ -422,6 +426,17 @@
 			);
 			currentVersion = 588251D52B99E106009370CF /* Rezeptbuch.xcdatamodel */;
 			path = Rezeptbuch.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+		588BD39A2BC13A7C0053904B /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				588BD39B2BC13A7C0053904B /* Model.xcdatamodel */,
+			);
+			currentVersion = 588BD39B2BC13A7C0053904B /* Model.xcdatamodel */;
+			name = Model.xcdatamodeld;
+			path = /Users/annarieckmann/Documents/GitHub/Rezeptbuch/Rezeptbuch/Rezeptbuch/Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

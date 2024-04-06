@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22757" systemVersion="23E214" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Category" representedClassName="Category" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="Food" representedClassName="Food" syncable="YES" codeGenerationType="class">
+        <attribute name="category" optional="YES" attributeType="Transformable"/>
+        <attribute name="info" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="nutritionFacts" optional="YES" attributeType="Transformable"/>
+    </entity>
+    <entity name="FoodItem" representedClassName="FoodItem" syncable="YES" codeGenerationType="class">
+        <attribute name="food" optional="YES" attributeType="Transformable"/>
+        <attribute name="quantity" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="unit" optional="YES" attributeType="Transformable" customClassName="Unit"/>
+    </entity>
+    <entity name="NutritionFacts" representedClassName="NutritionFacts" syncable="YES" codeGenerationType="class">
+        <attribute name="calories" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="carbohydrates" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="fat" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="protein" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="Recipes" representedClassName="Recipes" syncable="YES" codeGenerationType="class">
+        <attribute name="cake" optional="YES" attributeType="Transformable"/>
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="image" optional="YES" attributeType="Transformable"/>
+        <attribute name="ingredient" optional="YES" attributeType="Transformable"/>
+        <attribute name="instructions" optional="YES" attributeType="String"/>
+        <attribute name="portion" optional="YES" attributeType="Transformable"/>
+        <attribute name="titel" optional="YES" attributeType="String"/>
+    </entity>
+</model>

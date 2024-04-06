@@ -194,6 +194,10 @@ struct RecipeView: View {
                                         .stroke(Color.blue, lineWidth: 1)
                                 )
                                 .padding(.vertical, 5)
+                                .onChange(of: ingredient) { newValue in
+                                    itemScale()
+                                
+                            }
                             Divider().padding(.horizontal, 16)
                         }
                     }
@@ -405,6 +409,10 @@ struct RecipeView: View {
     
     private func roundToRect(){
         width = Model().roundToRect(diameter: diameter, length: lenght).rounded(toPlaces: 2)
+    }
+    
+    private func itemScale(){
+        ingredients = Model().itemScale(foodItemsOrigin: originIngriedents, foodItemsNew: ingredients)
     }
     
     
