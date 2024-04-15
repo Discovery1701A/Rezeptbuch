@@ -12,7 +12,7 @@ class CoreDataManager {
     init() {}
     
     lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "YourModelName") // Hier den Namen deines Datenmodells einfügen
+        let container = NSPersistentContainer(name: "Model") // Hier den Namen deines Datenmodells einfügen
         container.loadPersistentStores(completionHandler: { (_, error) in
             if let error = error {
                 fatalError("Unresolved error \(error)")
@@ -25,18 +25,18 @@ class CoreDataManager {
         return persistentContainer.viewContext
     }
     
-    // Funktion zum Laden von Food
-    func fetchFoods() -> [Food] {
-        let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
-        
-        do {
-            let foods = try managedContext.fetch(fetchRequest)
-            return foods
-        } catch {
-            print("Error fetching foods: \(error)")
-            return []
-        }
-    }
+//    // Funktion zum Laden von Food
+//    func fetchFoods() -> [Food] {
+//        let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
+//        
+//        do {
+//            let foods = try managedContext.fetch(fetchRequest)
+//            return foods
+//        } catch {
+//            print("Error fetching foods: \(error)")
+//            return []
+//        }
+//    }
     
     // Laden von Food aus Core Data und Einsortieren in FoodStruct
     func fetchFoods() -> [FoodStruct] {
@@ -103,43 +103,49 @@ class CoreDataManager {
     }
     
     // Speichern von Food in Core Data
-    func saveFood(_ food: FoodStruct) {
+    func saveFood(_ food: FoodStruct, nutritionFacts: NutritionFactsStruct?) {
         guard let entityDescription = NSEntityDescription.entity(forEntityName: "Food", in: managedContext) else {
             return
         }
-        
+
         let foodManagedObject = Food(entity: entityDescription, insertInto: managedContext)
         foodManagedObject.name = food.name
         foodManagedObject.category = food.category
         foodManagedObject.info = food.info
-        
-        if let nutritionFacts = food.nutritionFacts {
+
+        if let nutritionFacts = nutritionFacts {
             let nutritionFactsManagedObject = NutritionFacts(context: managedContext)
             nutritionFactsManagedObject.calories = Int64(nutritionFacts.calories ?? 0)
             nutritionFactsManagedObject.protein = nutritionFacts.protein ?? 0
             nutritionFactsManagedObject.carbohydrates = nutritionFacts.carbohydrates ?? 0
             nutritionFactsManagedObject.fat = nutritionFacts.fat ?? 0
+
+            // Verknüpfung zwischen Food und NutritionFacts herstellen
             foodManagedObject.nutritionFacts = nutritionFactsManagedObject
+
+            // Auch die inverse Beziehung von NutritionFacts zu Food aktualisieren
+            nutritionFactsManagedObject.food = foodManagedObject
         }
-        
+
         do {
             try managedContext.save()
         } catch {
             print("Error saving food: \(error)")
         }
     }
+
     
     // Speichern von FoodItem in Core Data
-    func saveFoodItem(_ item: FoodItemStruct) {
+    func saveFoodItem(_ item: FoodItemStruct, food: Food) {
         guard let entityDescription = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext) else {
             return
         }
-        
+
         let foodItemManagedObject = FoodItem(entity: entityDescription, insertInto: managedContext)
-        foodItemManagedObject.food = saveAndGetFoodManagedObject(item.food)
+        foodItemManagedObject.food = food // Die Beziehung zum übergebenen Food-Objekt setzen
         foodItemManagedObject.unit = Unit.toString(item.unit)
         foodItemManagedObject.quantity = item.quantity
-        
+
         do {
             try managedContext.save()
         } catch {
@@ -170,18 +176,33 @@ class CoreDataManager {
         return foodManagedObject
     }
     
-    // Funktion zum Laden von Recipes
-    func fetchRecipes() -> [Recipes] {
+    func fetchRecipes() -> [Recipe] {
         let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
         
         do {
             let recipes = try managedContext.fetch(fetchRequest)
-            return recipes
+            return recipes.map { recipe in
+                // Mapping der Properties von Recipes auf Recipe
+                let recipeIngredients = (recipe.ingredients?.allObjects as? [FoodItem] ?? []).map { foodItem in
+                    FoodItemStruct(food: FoodStruct(name: foodItem.food?.name ?? "", category: foodItem.food?.category, info: foodItem.food?.info), unit: Unit.fromString(foodItem.unit ?? "") ?? .gram, quantity: foodItem.quantity)
+                }
+                
+                return Recipe(
+                    id: Int(recipe.id),
+                    title: recipe.titel ?? "",
+                    ingredients: recipeIngredients,
+                    instructions: recipe.instructions ?? [],
+                    image: recipe.image,
+                    portion: PortionsInfo.fromString(recipe.portion ?? ""),
+                    cake: CakeInfo.fromString(recipe.cake ?? "")
+                )
+            }
         } catch {
             print("Error fetching recipes: \(error)")
             return []
         }
     }
+
     
     // Funktion zum Speichern von Recipes
     func saveRecipe(_ title: String, _ image: String?, _ ingredients: [FoodItemStruct]?, _ instructions: [String]?, _ id: Int64, _ portion: String?, _ cake: String?) {
@@ -223,65 +244,73 @@ class CoreDataManager {
         recipe.image = image
         // Hier wird die ingredients-Beziehung aktualisiert
         if let ingredients = ingredients {
-            var foodItems = Set<FoodItem>()
-            for ingredient in ingredients {
+            // NSSet erstellen und zuweisen
+            let foodItemSet = NSSet(array: ingredients.map { foodItem in
                 let foodItemManagedObject = FoodItem(context: managedContext)
-                foodItemManagedObject.food = saveAndGetFoodManagedObject(ingredient.food)
-                foodItemManagedObject.unit = Unit.toString(ingredient.unit)
-                foodItemManagedObject.quantity = ingredient.quantity
-                foodItems.insert(foodItemManagedObject)
-            }
-            // Wir entfernen zuerst alle vorhandenen Zutaten, bevor wir die neuen hinzufügen
-            recipe.removeFromIngredients(recipe.ingredients ?? NSSet())
-            recipe.addToIngredients(foodItems as NSSet)
+                // Umwandlung von Food zu FoodStruct
+                let foodStruct = FoodStruct(name: foodItem.food?.name ?? "",
+                                             category: foodItem.food?.category,
+                                             info: foodItem.food?.info)
+                foodItemManagedObject.food = saveAndGetFoodManagedObject(foodStruct)
+                foodItemManagedObject.unit = foodItem.unit
+                foodItemManagedObject.quantity = foodItem.quantity
+                return foodItemManagedObject
+            })
+            recipe.ingredients = foodItemSet
         } else {
             // Wenn keine neuen Zutaten angegeben sind, entfernen wir alle vorhandenen Zutaten
-            recipe.removeFromIngredients(recipe.ingredients ?? NSSet())
+            recipe.ingredients = nil
         }
         recipe.instructions = instructions
         recipe.portion = portion
         recipe.cake = cake
-        
+
         do {
             try managedContext.save()
         } catch {
             print("Error editing recipe: \(error)")
         }
     }
-    
+
     func insertInitialDataIfNeeded() {
         // Überprüfen, ob die Datenbank leer ist
         let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
         let count = try? managedContext.count(for: fetchRequest)
-        
+
         guard let recipeCount = count, recipeCount == 0 else {
             print("Die Datenbank enthält bereits Datensätze. Keine Aktion erforderlich.")
             return
         }
-        
+
         // Datenbank ist leer, füge die initialen Daten ein
         let recipesToInsert = [pastaRecipe, brownie] // Die zu speichernden Rezepte
-        
+
         for recipe in recipesToInsert {
             let recipeEntity = Recipes(context: managedContext)
             recipeEntity.titel = recipe.title
             recipeEntity.id = Int64(recipe.id)
             recipeEntity.image = recipe.image
             recipeEntity.instructions = recipe.instructions
-            recipeEntity.ingredients = recipe.ingredients.map { foodItem in
-                let foodItemEntity = FoodItem(context: managedContext)
-                foodItemEntity.food = Food(context: managedContext)
-                foodItemEntity.food?.name = foodItem.food.name
-                foodItemEntity.food?.category = foodItem.food.category
-                foodItemEntity.food?.info = foodItem.food.info
-                foodItemEntity.unit = Unit.toString(foodItem.unit)
-                foodItemEntity.quantity = foodItem.quantity
-                return foodItemEntity
+
+            // Überprüfen, ob Zutaten vorhanden sind
+            if !recipe.ingredients.isEmpty {
+                for foodItem in recipe.ingredients {
+                    let foodItemEntity = FoodItem(context: managedContext)
+                    foodItemEntity.food = Food(context: managedContext)
+                    foodItemEntity.food?.name = foodItem.food.name
+                    foodItemEntity.food?.category = foodItem.food.category
+                    foodItemEntity.food?.info = foodItem.food.info
+                    foodItemEntity.unit = Unit.toString(foodItem.unit)
+                    foodItemEntity.quantity = foodItem.quantity
+
+                    // Hinzufügen des FoodItemEntity zum Rezept
+                    recipeEntity.addToIngredients(foodItemEntity)
+                }
             }
             recipeEntity.portion = recipe.portion?.stringValue()
             recipeEntity.cake = recipe.cake?.stringValue()
         }
-        
+
         do {
             try managedContext.save()
             print("Initiale Daten erfolgreich in der Datenbank gespeichert.")
