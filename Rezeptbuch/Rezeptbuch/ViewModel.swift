@@ -15,7 +15,8 @@ class ViewModel: ObservableObject {
     init() {
         CoreDataManager().insertInitialDataIfNeeded()
         var load = CoreDataManager().fetchRecipes()
-        print("das ist ",load[0].title)
+        print("das ist ",load[0].cake)
+        print(load[1].cake)
         recipes = load
         var food = CoreDataManager().fetchFoods()
         foods = food

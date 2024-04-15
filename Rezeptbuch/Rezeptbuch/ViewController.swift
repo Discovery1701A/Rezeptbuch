@@ -133,25 +133,42 @@ extension CakeInfo {
     static func fromString(_ stringValue: String) -> CakeInfo? {
         if stringValue == "notCake" {
             return .notCake
-        } else if stringValue.hasPrefix("cake(") {
-            let components = stringValue.replacingOccurrences(of: "cake(form: ", with: "").replacingOccurrences(of: ")", with: "").split(separator: ",")
+        } else if stringValue.hasPrefix("cake(form: ") && stringValue.hasSuffix(")") {
+            let forme = stringValue.replacingOccurrences(of: "cake(form: ", with: "")
+                                         .replacingOccurrences(of: ")", with: "")
+                                         .split(separator: ",")
+                                         .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            let regex = try! NSRegularExpression(pattern: "(\\w+:\\s*\\w+\\(.*?\\))")
+            let matches = regex.matches(in: stringValue, range: NSRange(location: 0, length: stringValue.utf16.count))
+            let size = matches.map { match in
+                (stringValue as NSString).substring(with: match.range)
+            }
+            let components = [forme[0],size[0]]
+            print("conni ich dich auch")
+            print(components)
             if components.count == 2 {
-                let formString = String(components[0])
-                let sizeString = String(components[1])
+                print("John Nein")
+                let formString = String(components[0].trimmingCharacters(in: .whitespaces))
+                let sizeString = String(components[1].trimmingCharacters(in: .whitespaces))
+                print(formString)
                 let form = Formen(rawValue: formString) ?? .rund
-                if sizeString.hasPrefix("round(diameter:") {
-                    let diameterString = sizeString.replacingOccurrences(of: "round(diameter:", with: "").replacingOccurrences(of: ")", with: "")
-                    if let diameter = Double(diameterString) {
-                        return .cake(form: form, size: .round(diameter: diameter))
-                    }
-                } else if sizeString.hasPrefix("rectangular(length:") {
-                    let sizeComponents = sizeString.replacingOccurrences(of: "rectangular(length:", with: "").replacingOccurrences(of: ")", with: "").split(separator: ",")
+                print(sizeString)
+                if sizeString.hasPrefix("size: rectangular(length:") && sizeString.hasSuffix(")") {
+                    let sizeComponents = sizeString.replacingOccurrences(of: "size: rectangular(length: ", with: "").replacingOccurrences(of: ")", with: "").split(separator: ", width: ")
+                    print(sizeComponents)
                     if sizeComponents.count == 2 {
-                        let lengthString = String(sizeComponents[0])
-                        let widthString = String(sizeComponents[1])
+                        let lengthString = String(sizeComponents[0].trimmingCharacters(in: .whitespaces))
+                        let widthString = String(sizeComponents[1].trimmingCharacters(in: .whitespaces))
+                        print("Jakey baby")
+                        print(sizeComponents)
                         if let length = Double(lengthString), let width = Double(widthString) {
                             return .cake(form: form, size: .rectangular(length: length, width: width))
                         }
+                    }
+                } else if sizeString.hasPrefix("size: round(diameter: ") && sizeString.hasSuffix(")") {
+                    let diameterString = sizeString.replacingOccurrences(of: "size: round(diameter: ", with: "").replacingOccurrences(of: ")", with: "").trimmingCharacters(in: .whitespaces)
+                    if let diameter = Double(diameterString) {
+                        return .cake(form: form, size: .round(diameter: diameter))
                     }
                 }
             }

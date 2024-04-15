@@ -186,7 +186,7 @@ class CoreDataManager {
                 let recipeIngredients = (recipe.ingredients?.allObjects as? [FoodItem] ?? []).map { foodItem in
                     FoodItemStruct(food: FoodStruct(name: foodItem.food?.name ?? "", category: foodItem.food?.category, info: foodItem.food?.info), unit: Unit.fromString(foodItem.unit ?? "") ?? .gram, quantity: foodItem.quantity)
                 }
-                
+                print(recipe.cake)
                 return Recipe(
                     id: Int(recipe.id),
                     title: recipe.titel ?? "",
