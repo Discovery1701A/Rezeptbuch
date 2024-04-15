@@ -10,7 +10,7 @@ struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
      @State private var recipeTitle = ""
      @State private var ingredients: [FoodItemStruct?] = []
-     @State private var foods: [foodstruct] = []
+     @State private var foods: [FoodStruct] = []
      @State private var instructions: [String] = []
      @State private var quantity: [String] = []
      @State private var selectedUnit: [Unit] = []

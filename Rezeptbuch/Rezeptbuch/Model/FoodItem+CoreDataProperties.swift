@@ -2,7 +2,7 @@
 //  FoodItem+CoreDataProperties.swift
 //  Rezeptbuch
 //
-//  Created by Anna Rieckmann on 06.04.24.
+//  Created by Anna Rieckmann on 15.04.24.
 //
 //
 
@@ -16,9 +16,10 @@ extension FoodItem {
         return NSFetchRequest<FoodItem>(entityName: "FoodItem")
     }
 
-    @NSManaged public var unit: String?
     @NSManaged public var quantity: Double
+    @NSManaged public var unit: String?
     @NSManaged public var food: Food?
+    @NSManaged public var recipe: Recipes?
 
 }
 

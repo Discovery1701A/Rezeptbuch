@@ -162,13 +162,13 @@ extension CakeInfo {
 
 
 
-struct foodstruct: Hashable, Equatable {
+struct FoodStruct: Hashable, Equatable {
     var name: String
     var category: String?
     var info : String?
     var nutritionFacts: NutritionFactsStruct?
 
-    static func == (lhs: foodstruct, rhs: foodstruct) -> Bool {
+    static func == (lhs: FoodStruct, rhs: FoodStruct) -> Bool {
         return lhs.name == rhs.name &&
                lhs.category == rhs.category &&
                lhs.info == rhs.info &&
@@ -200,7 +200,7 @@ struct NutritionFactsStruct: Equatable, Hashable {
 
 
 struct FoodItemStruct: Hashable, Equatable {
-    var food: foodstruct
+    var food: FoodStruct
     var unit: Unit
     var quantity: Double
 
@@ -218,27 +218,27 @@ struct FoodItemStruct: Hashable, Equatable {
 }
 
 
-let emptyFood = foodstruct(name: "")
+let emptyFood = FoodStruct(name: "")
 
-let tomate = foodstruct(name: "Tomate", category: "Obst")
-let schoki = foodstruct(name: "Schokolade", category: "Süßwaren")
-let zartbitterSchokolade = foodstruct(name: "Butter", category: "Milchprodukte", info: nil, nutritionFacts: NutritionFactsStruct(calories: 741, protein: 0.7, carbohydrates: 0.6, fat: 83 ))
-let vanilleExtrakt = foodstruct(name: "Vanille-Extrakt", category: "Gewürze", info: nil, nutritionFacts:
+let tomate = FoodStruct(name: "Tomate", category: "Obst")
+let schoki = FoodStruct(name: "Schokolade", category: "Süßwaren")
+let zartbitterSchokolade = FoodStruct(name: "Butter", category: "Milchprodukte", info: nil, nutritionFacts: NutritionFactsStruct(calories: 741, protein: 0.7, carbohydrates: 0.6, fat: 83 ))
+let vanilleExtrakt = FoodStruct(name: "Vanille-Extrakt", category: "Gewürze", info: nil, nutritionFacts:
                             NutritionFactsStruct(calories: 288,protein: 0.1,carbohydrates: 12.7,fat: 0.1))
-let zucker = foodstruct(name: "Zucker", category: "Backzutaten", info: nil, nutritionFacts: NutritionFactsStruct(calories: 405, protein: 0, carbohydrates: 99.8, fat: 0))
-let eier = foodstruct(name: "Eier", category: "Eier & Eiprodukte", info: nil, nutritionFacts: NutritionFactsStruct(
+let zucker = FoodStruct(name: "Zucker", category: "Backzutaten", info: nil, nutritionFacts: NutritionFactsStruct(calories: 405, protein: 0, carbohydrates: 99.8, fat: 0))
+let eier = FoodStruct(name: "Eier", category: "Eier & Eiprodukte", info: nil, nutritionFacts: NutritionFactsStruct(
     calories: 156,
     protein: 13,
     carbohydrates: 1.1,
     fat: 11.3))
-let mehl = foodstruct(name: "Mehl", category: "Backzutaten", info: nil, nutritionFacts: NutritionFactsStruct(
+let mehl = FoodStruct(name: "Mehl", category: "Backzutaten", info: nil, nutritionFacts: NutritionFactsStruct(
     calories: 348,
     protein: 10,
     carbohydrates: 72.3,
     fat: 0
 ))
 
-let schokostücke = foodstruct(name: "Schokostücke", category: "Süßwaren", info: nil, nutritionFacts: NutritionFactsStruct(
+let schokostücke = FoodStruct(name: "Schokostücke", category: "Süßwaren", info: nil, nutritionFacts: NutritionFactsStruct(
     calories: 484,
     protein: 7.9,
     carbohydrates: 23,
@@ -250,11 +250,11 @@ let schokostücke = foodstruct(name: "Schokostücke", category: "Süßwaren", in
 let pastaRecipe = Recipe(
     id:1,
     title: "Spaghetti Bolognese",
-    ingredients: [ FoodItemStruct(food: foodstruct(name: "Hackfleisch", category: "Fleisch & Wurst", info: nil, nutritionFacts: nil), unit: .gram, quantity: 500),
-                   FoodItemStruct(food: foodstruct(name: "Zwiebel", category: "Gemüse", info: nil, nutritionFacts: nil), unit: .piece, quantity: 1),
-                   FoodItemStruct(food: foodstruct(name: "Knoblauchzehen", category: "Gemüse", info: nil, nutritionFacts: nil), unit: .piece, quantity: 2),
-                   FoodItemStruct(food: foodstruct(name: "Tomatensoße", category: "Saucen", info: nil, nutritionFacts: nil), unit: .milliliter, quantity: 500),
-                   FoodItemStruct(food: foodstruct(name: "Spaghetti", category: "Nudeln & Teigwaren", info: nil, nutritionFacts: nil), unit: .gram, quantity: 250)],
+    ingredients: [ FoodItemStruct(food: FoodStruct(name: "Hackfleisch", category: "Fleisch & Wurst", info: nil, nutritionFacts: nil), unit: .gram, quantity: 500),
+                   FoodItemStruct(food: FoodStruct(name: "Zwiebel", category: "Gemüse", info: nil, nutritionFacts: nil), unit: .piece, quantity: 1),
+                   FoodItemStruct(food: FoodStruct(name: "Knoblauchzehen", category: "Gemüse", info: nil, nutritionFacts: nil), unit: .piece, quantity: 2),
+                   FoodItemStruct(food: FoodStruct(name: "Tomatensoße", category: "Saucen", info: nil, nutritionFacts: nil), unit: .milliliter, quantity: 500),
+                   FoodItemStruct(food: FoodStruct(name: "Spaghetti", category: "Nudeln & Teigwaren", info: nil, nutritionFacts: nil), unit: .gram, quantity: 250)],
     instructions: ["Hackfleisch anbraten", "Zwiebel und Knoblauch hinzufügen", "Tomatensoße dazugeben", "Spaghetti kochen"],
     image: "spaghetti-mit-schneller-tomatensosse",
     portion: .Portion(4), cake: .notCake
@@ -262,7 +262,7 @@ let pastaRecipe = Recipe(
 let brownie = Recipe(
     id:2,
     title: "Brownie",
-    ingredients: [  FoodItemStruct(food: foodstruct(name: "Zartbitter Schokolade", category: "Süßwaren", info: nil, nutritionFacts: NutritionFactsStruct(
+    ingredients: [  FoodItemStruct(food: FoodStruct(name: "Zartbitter Schokolade", category: "Süßwaren", info: nil, nutritionFacts: NutritionFactsStruct(
         calories: 514,
         protein: 8.1,
         carbohydrates: 46.3,

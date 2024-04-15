@@ -2,7 +2,7 @@
 //  NutritionFacts+CoreDataProperties.swift
 //  Rezeptbuch
 //
-//  Created by Anna Rieckmann on 06.04.24.
+//  Created by Anna Rieckmann on 15.04.24.
 //
 //
 
@@ -17,10 +17,10 @@ extension NutritionFacts {
     }
 
     @NSManaged public var calories: Int64
-    @NSManaged public var protein: Double
     @NSManaged public var carbohydrates: Double
     @NSManaged public var fat: Double
-    @NSManaged public var food: NutritionFacts?
+    @NSManaged public var protein: Double
+    @NSManaged public var food: Food?
 
 }
 

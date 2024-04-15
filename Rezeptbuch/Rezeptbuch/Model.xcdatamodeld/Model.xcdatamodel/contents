@@ -1,31 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22757" systemVersion="23E214" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
-    <entity name="Category" representedClassName="Category" syncable="YES"/>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22757" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Category" representedClassName="Category" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="Food" representedClassName="Food" syncable="YES">
         <attribute name="category" optional="YES" attributeType="String"/>
         <attribute name="info" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <relationship name="nutritionFacts" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="NutritionFacts"/>
+        <relationship name="foodItem" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FoodItem" inverseName="food" inverseEntity="FoodItem"/>
+        <relationship name="nutritionFacts" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="NutritionFacts" inverseName="food" inverseEntity="NutritionFacts"/>
     </entity>
     <entity name="FoodItem" representedClassName="FoodItem" syncable="YES">
         <attribute name="quantity" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="unit" optional="YES" attributeType="String" customClassName="Unit"/>
-        <relationship name="food" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Food"/>
+        <relationship name="food" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Food" inverseName="foodItem" inverseEntity="Food"/>
+        <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Recipes" inverseName="ingredients" inverseEntity="Recipes"/>
     </entity>
     <entity name="NutritionFacts" representedClassName="NutritionFacts" syncable="YES">
         <attribute name="calories" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="carbohydrates" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="fat" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="protein" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <relationship name="food" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="NutritionFacts" inverseName="food" inverseEntity="NutritionFacts"/>
+        <relationship name="food" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Food" inverseName="nutritionFacts" inverseEntity="Food"/>
     </entity>
     <entity name="Recipes" representedClassName="Recipes" syncable="YES">
         <attribute name="cake" optional="YES" attributeType="String" customClassName="CakeInfo"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="image" optional="YES" attributeType="String"/>
-        <attribute name="ingredient" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[FoodItem]"/>
         <attribute name="instructions" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[String]"/>
         <attribute name="portion" optional="YES" attributeType="String" customClassName="PortionsInfo"/>
         <attribute name="titel" optional="YES" attributeType="String"/>
+        <relationship name="ingredients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FoodItem" inverseName="recipe" inverseEntity="FoodItem"/>
     </entity>
 </model>
