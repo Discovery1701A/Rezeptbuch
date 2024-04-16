@@ -61,10 +61,11 @@ struct RecipeCreationView: View {
 
     private func saveRecipe() {
             for i in 0..<ingredients.count {
-                if let foodItem = ingredients[i], foods[i] != emptyFood {
+                if foods[i] != emptyFood {
                     ingredients[i] = FoodItemStruct(food: foods[i],
                                               unit: selectedUnit[i],
                                               quantity: Double(quantity[i])!)
+                    print(ingredients[i])
                 }
             }
             
@@ -87,7 +88,10 @@ struct RecipeCreationView: View {
                                 portion: .Portion(Double(portionValue) ?? 0.0),
                                 cake: .notCake)
             }
-            modelView.appendToRecipes(recipe: recipe)
+        print("ja")
+        CoreDataManager().saveRecipe(recipe)
+//            modelView.appendToRecipes(recipe: recipe)
+        modelView.updateRecipe()
         }
 
 
@@ -158,12 +162,12 @@ struct RecipeCreationView: View {
                     ForEach(ingredients.indices, id: \.self) { index in
                         HStack {
                             Text("\(index + 1).")
-//                            Picker("Zutat", selection: $foods[index]) {
-//                                Text("") // Leere Zeichenfolge als Standardoption
-//                                ForEach(modelView.foods, id: \.self) { food in
-//                                    Text(food.name)
-//                                }
-//                            }
+                            Picker("Zutat", selection: $foods[index]) {
+                                Text("") // Leere Zeichenfolge als Standardoption
+                                ForEach(modelView.foods, id: \.self) { food in
+                                    Text(food.name)
+                                }
+                            }
                             Section(header: Text("Menge")) {
                                 VStack {
                                     TextField("Menge", text: $quantity[index])

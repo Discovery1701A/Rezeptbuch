@@ -28,5 +28,9 @@ class ViewModel: ObservableObject {
 //        print(recipes)
     }
     
+    func updateRecipe(){
+        recipes = CoreDataManager().fetchRecipes()
+    }
+    
   
 }

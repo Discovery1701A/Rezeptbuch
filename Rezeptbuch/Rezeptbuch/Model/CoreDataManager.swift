@@ -205,36 +205,47 @@ class CoreDataManager {
 
     
     // Funktion zum Speichern von Recipes
-    func saveRecipe(_ title: String, _ image: String?, _ ingredients: [FoodItemStruct]?, _ instructions: [String]?, _ id: Int64, _ portion: String?, _ cake: String?) {
+    func saveRecipe(_ recipe : Recipe) {
         guard let entityDescription = NSEntityDescription.entity(forEntityName: "Recipes", in: managedContext) else {
             return
         }
-        
-        let recipe = Recipes(entity: entityDescription, insertInto: managedContext)
-        recipe.titel = title
-        recipe.image = image
-        
-        if let ingredients = ingredients {
-            var foodItems = Set<FoodItem>() // Hier verwenden wir eine Set-Datenstruktur für FoodItem-Objekte
-            for ingredient in ingredients {
-                let foodItemManagedObject = FoodItem(entity: entityDescription, insertInto: managedContext)
-                foodItemManagedObject.food = saveAndGetFoodManagedObject(ingredient.food)
-                foodItemManagedObject.unit = Unit.toString(ingredient.unit)
-                foodItemManagedObject.quantity = ingredient.quantity
-                foodItems.insert(foodItemManagedObject) // Fügen Sie das FoodItem zum Set hinzu
+        var shoudSave = true
+        let consrecipe = fetchRecipes()
+        for existRecepie in consrecipe {
+            if existRecepie.title == recipe.title && existRecepie.instructions == recipe.instructions && existRecepie.ingredients == recipe.ingredients && existRecepie.cake == recipe.cake && existRecepie.portion == recipe.portion {
+                shoudSave = false
             }
-            recipe.addToIngredients(foodItems as NSSet) // Weisen Sie das NSSet der ingredients-Beziehung des Rezeptobjekts zu
         }
-        
-        recipe.instructions = instructions
-        recipe.id = id
-        recipe.portion = portion
-        recipe.cake = cake
-        
-        do {
-            try managedContext.save()
-        } catch {
-            print("Error saving recipe: \(error)")
+        if shoudSave {
+            let recipeEntity = Recipes(context: managedContext)
+            recipeEntity.titel = recipe.title
+            recipeEntity.id = Int64(recipe.id)
+            recipeEntity.image = recipe.image
+            recipeEntity.instructions = recipe.instructions
+            
+            // Überprüfen, ob Zutaten vorhanden sind
+            if !recipe.ingredients.isEmpty {
+                for foodItem in recipe.ingredients {
+                    let foodItemEntity = FoodItem(context: managedContext)
+                    foodItemEntity.food = Food(context: managedContext)
+                    foodItemEntity.food?.name = foodItem.food.name
+                    foodItemEntity.food?.category = foodItem.food.category
+                    foodItemEntity.food?.info = foodItem.food.info
+                    foodItemEntity.unit = Unit.toString(foodItem.unit)
+                    foodItemEntity.quantity = foodItem.quantity
+                    
+                    // Hinzufügen des FoodItemEntity zum Rezept
+                    recipeEntity.addToIngredients(foodItemEntity)
+                }
+            }
+            recipeEntity.portion = recipe.portion?.stringValue()
+            recipeEntity.cake = recipe.cake?.stringValue()
+            
+            do {
+                try managedContext.save()
+            } catch {
+                print("Error saving recipe: \(error)")
+            }
         }
     }
     
