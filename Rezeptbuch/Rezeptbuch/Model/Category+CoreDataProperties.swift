@@ -17,7 +17,6 @@ extension Category {
     }
 
     @NSManaged public var name: String?
-    @NSManaged public var tag: Tag?
 
 }
 

@@ -1,9 +1,4 @@
-//
-//  CoreDataManager.swift
-//  Rezeptbuch
-//
-//  Created by Anna Rieckmann on 06.04.24.
-//
+import Foundation
 import CoreData
 
 class CoreDataManager {
@@ -12,7 +7,7 @@ class CoreDataManager {
     init() {}
     
     lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "Model") // Hier den Namen deines Datenmodells einfügen
+        let container = NSPersistentContainer(name: "Model")
         container.loadPersistentStores(completionHandler: { (_, error) in
             if let error = error {
                 fatalError("Unresolved error \(error)")
@@ -24,19 +19,6 @@ class CoreDataManager {
     var managedContext: NSManagedObjectContext {
         return persistentContainer.viewContext
     }
-    
-//    // Funktion zum Laden von Food
-//    func fetchFoods() -> [Food] {
-//        let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
-//        
-//        do {
-//            let foods = try managedContext.fetch(fetchRequest)
-//            return foods
-//        } catch {
-//            print("Error fetching foods: \(error)")
-//            return []
-//        }
-//    }
     
     // Laden von Food aus Core Data und Einsortieren in FoodStruct
     func fetchFoods() -> [FoodStruct] {
@@ -103,7 +85,7 @@ class CoreDataManager {
     }
     
     // Speichern von Food in Core Data
-    func saveFood(_ food: FoodStruct, nutritionFacts: NutritionFactsStruct?) {
+    func saveFood(_ food: FoodStruct) {
         guard let entityDescription = NSEntityDescription.entity(forEntityName: "Food", in: managedContext) else {
             return
         }
@@ -113,7 +95,7 @@ class CoreDataManager {
         foodManagedObject.category = food.category
         foodManagedObject.info = food.info
 
-        if let nutritionFacts = nutritionFacts {
+        if let nutritionFacts = food.nutritionFacts {
             let nutritionFactsManagedObject = NutritionFacts(context: managedContext)
             nutritionFactsManagedObject.calories = Int64(nutritionFacts.calories ?? 0)
             nutritionFactsManagedObject.protein = nutritionFacts.protein ?? 0
@@ -134,7 +116,6 @@ class CoreDataManager {
         }
     }
 
-    
     // Speichern von FoodItem in Core Data
     func saveFoodItem(_ item: FoodItemStruct, food: Food) {
         guard let entityDescription = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext) else {
@@ -186,7 +167,7 @@ class CoreDataManager {
                 let recipeIngredients = (recipe.ingredients?.allObjects as? [FoodItem] ?? []).map { foodItem in
                     FoodItemStruct(food: FoodStruct(name: foodItem.food?.name ?? "", category: foodItem.food?.category, info: foodItem.food?.info), unit: Unit.fromString(foodItem.unit ?? "") ?? .gram, quantity: foodItem.quantity)
                 }
-                print(recipe.cake)
+                
                 return Recipe(
                     id: Int(recipe.id),
                     title: recipe.titel ?? "",
@@ -209,6 +190,7 @@ class CoreDataManager {
         guard let entityDescription = NSEntityDescription.entity(forEntityName: "Recipes", in: managedContext) else {
             return
         }
+        
         var shoudSave = true
         let consrecipe = fetchRecipes()
         for existRecepie in consrecipe {
@@ -216,6 +198,7 @@ class CoreDataManager {
                 shoudSave = false
             }
         }
+        
         if shoudSave {
             let recipeEntity = Recipes(context: managedContext)
             recipeEntity.titel = recipe.title
@@ -240,12 +223,12 @@ class CoreDataManager {
             }
             recipeEntity.portion = recipe.portion?.stringValue()
             recipeEntity.cake = recipe.cake?.stringValue()
-            
-            do {
-                try managedContext.save()
-            } catch {
-                print("Error saving recipe: \(error)")
-            }
+        }
+
+        do {
+            try managedContext.save()
+        } catch {
+            print("Error saving recipe: \(error)")
         }
     }
     
@@ -327,6 +310,31 @@ class CoreDataManager {
             print("Initiale Daten erfolgreich in der Datenbank gespeichert.")
         } catch {
             print("Fehler beim Speichern der initialen Daten: \(error)")
+        }
+    }
+
+    // MARK: - Adding and Removing Food Items
+
+    // Hinzufügen eines FoodItem-Objekts zu einem Food-Objekt
+    func addToFoodItem(_ foodItem: FoodItem, to food: Food) {
+        food.addToFoodItem(foodItem)
+        saveContext()
+    }
+
+    // Entfernen eines FoodItem-Objekts von einem Food-Objekt
+    func removeFromFoodItem(_ foodItem: FoodItem, from food: Food) {
+        food.removeFromFoodItem(foodItem)
+        saveContext()
+    }
+
+    // MARK: - Saving Context
+
+    // Speichern des Managed Context
+    private func saveContext() {
+        do {
+            try managedContext.save()
+        } catch {
+            print("Error saving context: \(error)")
         }
     }
 }

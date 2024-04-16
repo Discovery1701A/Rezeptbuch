@@ -32,5 +32,9 @@ class ViewModel: ObservableObject {
         recipes = CoreDataManager().fetchRecipes()
     }
     
+    func updateFood(){
+        foods = CoreDataManager().fetchFoods()
+    }
+    
   
 }

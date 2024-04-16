@@ -108,7 +108,8 @@ struct FoodCreationView: View {
                                             carbohydrates: carbohydratesValue, fat: fatValue)
         let food = FoodStruct(name: foodName, category: category, info: info, nutritionFacts: nutritionFacts)
 //        print(food)
-        modelView.foods.append(food)
+        CoreDataManager().saveFood(food)
+        modelView.updateFood()
     }
 }
     

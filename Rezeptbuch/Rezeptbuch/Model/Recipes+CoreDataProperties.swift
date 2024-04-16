@@ -23,7 +23,6 @@ extension Recipes {
     @NSManaged public var portion: String?
     @NSManaged public var titel: String?
     @NSManaged public var ingredients: NSSet?
-    @NSManaged public var tag: Tag?
 
 }
 
