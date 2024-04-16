@@ -134,7 +134,9 @@ struct RecipeView: View {
                                         }
                                     })
                                 )
+#if os(iOS)
                                 .keyboardType(.decimalPad)
+                                #endif
                                 .onChange(of: diameter) { newValue in
                                     scaleRoundIngredients()}
                             }
@@ -150,7 +152,9 @@ struct RecipeView: View {
                                     })
                                 )
                                 
+#if os(iOS)
                                 .keyboardType(.decimalPad)
+                                #endif
                                 .onChange(of: width) { newValue in
                                     scaleRectIngredients()
                                 
@@ -164,7 +168,9 @@ struct RecipeView: View {
                                         }
                                     })
                                 )
+#if os(iOS)
                                 .keyboardType(.decimalPad)
+                                #endif
                                 .onChange(of: lenght) { newValue in
                                     scaleRectIngredients()
                                 
@@ -240,19 +246,19 @@ struct RecipeView: View {
                 .shadow(radius: 5)
             }
         }
-        .alert(isPresented: $isReminderAdded) {
-            Alert(
-                title: Text("Erinnerungen hinzugefügt"),
-                message: Text("Die Einkaufsliste wurde zu den Erinnerungen hinzugefügt."),
-                primaryButton: .default(Text("Öffnen"), action: {
-                    // Öffnen Sie die Erinnerungs-App
-                    if let url = URL(string: "x-apple-reminderkit://") {
-                        UIApplication.shared.open(url)
-                    }
-                }),
-                secondaryButton: .cancel(Text("OK"))
-            )
-        }
+//        .alert(isPresented: $isReminderAdded) {
+//            Alert(
+//                title: Text("Erinnerungen hinzugefügt"),
+//                message: Text("Die Einkaufsliste wurde zu den Erinnerungen hinzugefügt."),
+//                primaryButton: .default(Text("Öffnen"), action: {
+//                    // Öffnen Sie die Erinnerungs-App
+//                    if let url = URL(string: "x-apple-reminderkit://") {
+//                        UIApplication.shared.open(url)
+//                    }
+//                }),
+//                secondaryButton: .cancel(Text("OK"))
+//            )
+//        }
     }
     
     func createShoppingList() {
@@ -271,7 +277,7 @@ struct RecipeView: View {
     func addShoppingListToReminders() {
        
         
-        if #available(iOS 17.0, *) {
+        if #available(iOS 17.0, *),   #available(macOS 14.0, *){
             eventStore.requestFullAccessToReminders() { granted, error in
                 if granted && error == nil {
                    let reminderList = findOrCreateReminderList(eventStore: eventStore, title: "Shopping List")
@@ -330,7 +336,7 @@ struct RecipeView: View {
     func findRemindersForItem(_ item: FoodItemStruct, in reminderList: EKCalendar?, completion: @escaping ([EKReminder]?) -> Void) {
         guard let reminderList = reminderList else { completion(nil); return }
        
-        if #available(iOS 17.0, *) {
+        if #available(iOS 17.0, *),   #available(macOS 14.0, *){
             
             eventStore.requestFullAccessToReminders() { granted, error in
                 if granted {

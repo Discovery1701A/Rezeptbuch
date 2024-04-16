@@ -86,7 +86,7 @@ struct CookingModeView: View {
     
     func startRecording() {
         isListening = true
-        
+        #if os (iOS)
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
@@ -106,9 +106,11 @@ struct CookingModeView: View {
         } catch {
             print("Audio engine start error: \(error.localizedDescription)")
         }
+        #endif
     }
     
     func stopRecording() {
+        #if os(iOS)
         isListening = false
         
         audioEngine.inputNode.removeTap(onBus: 0)
@@ -120,6 +122,7 @@ struct CookingModeView: View {
         } catch {
             print("Failed to deactivate audio session: \(error.localizedDescription)")
         }
+        #endif
     }
 
     

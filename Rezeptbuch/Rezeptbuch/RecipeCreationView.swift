@@ -8,18 +8,17 @@ import SwiftUI
 
 struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
-     @State private var recipeTitle = ""
-     @State private var ingredients: [FoodItemStruct?] = []
-     @State private var foods: [FoodStruct] = []
-     @State private var instructions: [String] = []
-     @State private var quantity: [String] = []
-     @State private var selectedUnit: [Unit] = []
-     @State private var portionValue: String = ""
-     @State private var isCake = false
-     @State private var cakeForm: Formen = .rund
-    @State private var size :[Double] = [0.0,0.0,0.0]
-     @State private var cakeSize: CakeSize = .round(diameter: 0.0)
-    
+    @State private var recipeTitle = ""
+    @State private var ingredients: [FoodItemStruct?] = []
+    @State private var foods: [FoodStruct] = []
+    @State private var instructions: [String] = []
+    @State private var quantity: [String] = []
+    @State private var selectedUnit: [Unit] = []
+    @State private var portionValue: String = ""
+    @State private var isCake = false
+    @State private var cakeForm: Formen = .rund
+    @State private var size: [Double] = [0.0, 0.0, 0.0]
+    @State private var cakeSize: CakeSize = .round(diameter: 0.0)
 
     #if os(macOS)
     @State private var editMode: EditMode = .inactive // Verwenden Sie den Bearbeitungsmodus von SwiftUI
@@ -27,7 +26,7 @@ struct RecipeCreationView: View {
     var body: some View {
         content
             .toolbar {
-                ToolbarItem(placement:.confirmationAction) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button(action: {
                         saveRecipe()
                     }) {
@@ -55,46 +54,44 @@ struct RecipeCreationView: View {
                     }
                 }
                 .environment(\.editMode, $editMode)
-        } .navigationViewStyle(StackNavigationViewStyle()) // Hier wird der Modifier hinzugefügt
+        }.navigationViewStyle(StackNavigationViewStyle()) // Hier wird der Modifier hinzugefügt
     }
     #endif
 
     private func saveRecipe() {
-            for i in 0..<ingredients.count {
-                if foods[i] != emptyFood {
-                    ingredients[i] = FoodItemStruct(food: foods[i],
-                                              unit: selectedUnit[i],
-                                              quantity: Double(quantity[i])!)
-                    print(ingredients[i])
-                }
+        for i in 0 ..< ingredients.count {
+            if foods[i] != emptyFood {
+                ingredients[i] = FoodItemStruct(food: foods[i],
+                                                unit: selectedUnit[i],
+                                                quantity: Double(quantity[i])!)
+                print(ingredients[i])
             }
-            
-            ingredients.removeAll(where: { $0 == nil })
-            let recipe: Recipe
-            if isCake {
-                recipe = Recipe(id: modelView.recipes.count + 1,
-                                title: recipeTitle,
-                                ingredients: ingredients.compactMap { $0 },
-                                instructions: instructions,
-                                image: nil,
-                                portion: .notPortion,
-                                cake: .cake(form: cakeForm, size: cakeSize))
-            } else {
-                recipe = Recipe(id: modelView.recipes.count + 1,
-                                title: recipeTitle,
-                                ingredients: ingredients.compactMap { $0 },
-                                instructions: instructions,
-                                image: nil,
-                                portion: .Portion(Double(portionValue) ?? 0.0),
-                                cake: .notCake)
-            }
+        }
+
+        ingredients.removeAll(where: { $0 == nil })
+        let recipe: Recipe
+        if isCake {
+            recipe = Recipe(id: modelView.recipes.count + 1,
+                            title: recipeTitle,
+                            ingredients: ingredients.compactMap { $0 },
+                            instructions: instructions,
+                            image: nil,
+                            portion: .notPortion,
+                            cake: .cake(form: cakeForm, size: cakeSize))
+        } else {
+            recipe = Recipe(id: modelView.recipes.count + 1,
+                            title: recipeTitle,
+                            ingredients: ingredients.compactMap { $0 },
+                            instructions: instructions,
+                            image: nil,
+                            portion: .Portion(Double(portionValue) ?? 0.0),
+                            cake: .notCake)
+        }
         print("ja")
         CoreDataManager().saveRecipe(recipe)
 //            modelView.appendToRecipes(recipe: recipe)
         modelView.updateRecipe()
-        }
-
-
+    }
 
     var content: some View {
         Form {
@@ -110,7 +107,7 @@ struct RecipeCreationView: View {
                         }
                         .pickerStyle(SegmentedPickerStyle())
                         if cakeForm == .rund {
-                            HStack{
+                            HStack {
                                 Text("Durchmesser (cm):")
                                 TextField("Durchmesser (cm)", text: Binding(
                                     get: { "\(size[0])" },
@@ -118,9 +115,10 @@ struct RecipeCreationView: View {
                                         if let value = Double($0) {
                                             cakeSize = .round(diameter: value)
                                         }
-                                    })
-                                )
-                                .keyboardType(.decimalPad)
+                                    }))
+                                #if os(iOS)
+                                    .keyboardType(.decimalPad)
+                                #endif
                             }
                         } else {
                             HStack {
@@ -131,11 +129,12 @@ struct RecipeCreationView: View {
                                         if let value = Double($0) {
                                             cakeSize = .rectangular(length: value, width: size[2])
                                         }
-                                    })
-                                )
+                                    }))
+#if os(iOS)
                                 .keyboardType(.decimalPad)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .padding()
+                                #endif
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .padding()
                                 Text("Breite (cm):")
                                 TextField("Breite (cm)", text: Binding(
                                     get: { "\(size[2])" },
@@ -143,16 +142,19 @@ struct RecipeCreationView: View {
                                         if let value = Double($0) {
                                             cakeSize = .rectangular(length: size[1], width: value)
                                         }
-                                    })
-                                )
+                                    }))
+#if os(iOS)
                                 .keyboardType(.decimalPad)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .padding()
+                                #endif
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .padding()
                             }
                         }
                     } else {
                         TextField("Portion (Anzahl)", text: $portionValue)
-                            .keyboardType(.decimalPad)
+#if os(iOS)
+                                .keyboardType(.decimalPad)
+                                #endif
                     }
                 }
             }
@@ -171,7 +173,9 @@ struct RecipeCreationView: View {
                             Section(header: Text("Menge")) {
                                 VStack {
                                     TextField("Menge", text: $quantity[index])
-                                        .keyboardType(.decimalPad)
+#if os(iOS)
+                                .keyboardType(.decimalPad)
+                                #endif
 
                                     Picker("Einheit", selection: $selectedUnit[index]) {
                                         ForEach(Unit.allCases, id: \.self) { unit in
@@ -182,10 +186,7 @@ struct RecipeCreationView: View {
                                 }
                                 .padding() // Optional, um den Inhalt zu zentrieren oder auszurichten
                             }
-                        
                         }
-                
-                      
                     }
                     .onDelete { indexSet in
                         ingredients.remove(atOffsets: indexSet)
@@ -242,7 +243,7 @@ struct OptionsListView: View {
     let options: [String]
     @Binding var selectedOption: String?
     @Binding var searchText: String
-    
+
     var body: some View {
         List(options, id: \.self) { option in
             Button(action: {
