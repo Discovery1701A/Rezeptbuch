@@ -6,6 +6,11 @@
 //
 import SwiftUI
 
+struct ValidationError: Identifiable {
+    let id = UUID()
+    var message: String
+}
+
 struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
     @State private var recipeTitle = ""
@@ -19,6 +24,8 @@ struct RecipeCreationView: View {
     @State private var cakeForm: Formen = .rund
     @State private var size: [Double] = [0.0, 0.0, 0.0]
     @State private var cakeSize: CakeSize = .round(diameter: 0.0)
+    
+    @State private var validationError: ValidationError?
 
     #if os(macOS)
     @State private var editMode: EditMode = .inactive // Verwenden Sie den Bearbeitungsmodus von SwiftUI
@@ -28,11 +35,17 @@ struct RecipeCreationView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(action: {
-                        saveRecipe()
+                        if validateInputs() {
+                                                    saveRecipe()
+                                                }
                     }) {
                         Text("Speichern")
                     }
-                    .disabled(editMode == .inactive || recipeTitle.isEmpty)
+                    .disabled((editMode == .inactive || recipeTitle.isEmpty) && validationError != nil)
+                   
+                    .alert(item: $validationError) { error in
+                                   Alert(title: Text("Fehler"), message: Text(error.message), dismissButton: .default(Text("OK")))
+                               }
                 }
             }
     }
@@ -46,11 +59,17 @@ struct RecipeCreationView: View {
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
-                            saveRecipe()
+                            if validateInputs() {
+                                                        saveRecipe()
+                                                    }
+                            print(validationError)
                         }) {
                             Text("Speichern")
                         }
-                        .disabled(editMode == .inactive || recipeTitle.isEmpty)
+                        .disabled((editMode == .inactive || recipeTitle.isEmpty) && validationError != nil)
+                        .alert(item: $validationError) { error in
+                                       Alert(title: Text("Fehler"), message: Text(error.message), dismissButton: .default(Text("OK")))
+                                   }
                     }
                 }
                 .environment(\.editMode, $editMode)
@@ -58,40 +77,83 @@ struct RecipeCreationView: View {
     }
     #endif
 
-    private func saveRecipe() {
-        for i in 0 ..< ingredients.count {
-            if foods[i] != emptyFood {
-                ingredients[i] = FoodItemStruct(food: foods[i],
-                                                unit: selectedUnit[i],
-                                                quantity: Double(quantity[i])!)
-                print(ingredients[i])
+    private func validateInputs() -> Bool {
+        var error: ValidationError? // Fehlerobjekt erstellen
+
+        if recipeTitle.isEmpty {
+            error = ValidationError(message: "Bitte geben Sie einen Titel für das Rezept ein.")
+        } else if isCake {
+            if cakeForm == .rund && size[0] <= 0 {
+                error = ValidationError(message: "Bitte geben Sie einen gültigen Durchmesser für den Kuchen ein.")
+            } else if cakeForm == .eckig && (size[1] <= 0 || size[2] <= 0) {
+                error = ValidationError(message: "Bitte geben Sie eine gültige Länge und Breite für den Kuchen ein.")
+            }
+        } else if Double(portionValue) ?? 0.0 <= 0 {
+            error = ValidationError(message: "Bitte geben Sie eine gültige Portionsgröße ein.")
+        }
+        print(foods.count)
+        if foods.isEmpty{
+            error = ValidationError(message: "Bitte fügen Sie eine Zutate hinzu.")
+        }
+        for (index, ingredient) in foods.enumerated() {
+            
+            if ingredient == emptyFood {
+                print("neinnnn")
+                error = ValidationError(message: "Bitte füllen Sie alle Zutaten aus.")
+            } else if quantity[index].isEmpty || Double(quantity[index]) == nil || Double(quantity[index])! <= 0 {
+                error = ValidationError(message: "Bitte geben Sie eine gültige Menge für alle Zutaten ein.")
+            }
+        }
+        if instructions.isEmpty{
+            error = ValidationError(message: "Bitte fügen Sie eine Zutate hinzu.")
+        }
+        for instruction in instructions {
+            if instruction.isEmpty {
+                error = ValidationError(message: "Bitte füllen Sie alle Anweisungen aus.")
             }
         }
 
-        ingredients.removeAll(where: { $0 == nil })
-        let recipe: Recipe
-        if isCake {
-            recipe = Recipe(id: modelView.recipes.count + 1,
-                            title: recipeTitle,
-                            ingredients: ingredients.compactMap { $0 },
-                            instructions: instructions,
-                            image: nil,
-                            portion: .notPortion,
-                            cake: .cake(form: cakeForm, size: cakeSize))
-        } else {
-            recipe = Recipe(id: modelView.recipes.count + 1,
-                            title: recipeTitle,
-                            ingredients: ingredients.compactMap { $0 },
-                            instructions: instructions,
-                            image: nil,
-                            portion: .Portion(Double(portionValue) ?? 0.0),
-                            cake: .notCake)
-        }
-        print("ja")
-        CoreDataManager().saveRecipe(recipe)
-//            modelView.appendToRecipes(recipe: recipe)
-        modelView.updateRecipe()
+        // Setze den Fehler in den Zustand
+        validationError = error
+
+        // Rückgabe, ob die Validierung erfolgreich war
+        return error == nil
     }
+
+
+        private func saveRecipe() {
+            for i in 0 ..< ingredients.count {
+                if foods[i] != emptyFood {
+                    ingredients[i] = FoodItemStruct(food: foods[i],
+                                                    unit: selectedUnit[i],
+                                                    quantity: Double(quantity[i])!)
+                    print(ingredients[i])
+                }
+            }
+
+            ingredients.removeAll(where: { $0 == nil })
+            let recipe: Recipe
+            if isCake {
+                recipe = Recipe(id: modelView.recipes.count + 1,
+                                title: recipeTitle,
+                                ingredients: ingredients.compactMap { $0 },
+                                instructions: instructions,
+                                image: nil,
+                                portion: .notPortion,
+                                cake: .cake(form: cakeForm, size: cakeSize))
+            } else {
+                recipe = Recipe(id: modelView.recipes.count + 1,
+                                title: recipeTitle,
+                                ingredients: ingredients.compactMap { $0 },
+                                instructions: instructions,
+                                image: nil,
+                                portion: .Portion(Double(portionValue) ?? 0.0),
+                                cake: .notCake)
+            }
+            print("ja")
+            CoreDataManager().saveRecipe(recipe)
+            modelView.updateRecipe()
+        }
 
     var content: some View {
         Form {
@@ -232,7 +294,8 @@ struct RecipeCreationView: View {
                     Label("Schritt hinzufügen", systemImage: "plus.circle")
                 }
             }
-        }
+        } 
+       
         .onAppear {
             self.editMode = .active
         }
