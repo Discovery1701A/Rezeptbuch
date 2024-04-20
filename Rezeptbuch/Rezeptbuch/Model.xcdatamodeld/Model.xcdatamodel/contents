@@ -32,6 +32,7 @@
         <attribute name="instructions" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="[String]"/>
         <attribute name="portion" optional="YES" attributeType="String" customClassName="PortionsInfo"/>
         <attribute name="titel" optional="YES" attributeType="String"/>
+        <attribute name="videoLink" optional="YES" attributeType="String"/>
         <relationship name="ingredients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FoodItem" inverseName="recipe" inverseEntity="FoodItem"/>
     </entity>
     <entity name="Tag" representedClassName="Tag" syncable="YES">

@@ -89,18 +89,19 @@ struct RecipeView: View {
                                 .multilineTextAlignment(.center)
 
                             Divider().padding(.horizontal, 16)
-
-                            if let imageName = recipe.image, let image = Image.loadImageFromPath(imageName) {
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                                    .cornerRadius(10)
-                                    .padding(.top, 10)
-                                    .frame(maxWidth: .infinity, maxHeight: 200)
-                            } else {
-                                Text("Bild nicht verfügbar")
-                                    .foregroundColor(.secondary)
-                                    .padding()
+                            if recipe.image != nil{
+                                if let imageName = recipe.image, let image = Image.loadImageFromPath(imageName) {
+                                    image
+                                        .resizable()
+                                        .scaledToFit()
+                                        .cornerRadius(10)
+                                        .padding(.top, 10)
+                                        .frame(maxWidth: .infinity, maxHeight: 200)
+                                } else {
+                                    Text("Bild nicht verfügbar")
+                                        .foregroundColor(.secondary)
+                                        .padding()
+                                }
                             }
                     
                     if recipe.portion != .notPortion && recipe.portion != nil
@@ -431,6 +432,7 @@ struct RecipeView: View {
 
    }
 import SwiftUI
+#if os(iOS)
 import UIKit
 
 extension Image {
@@ -441,3 +443,16 @@ extension Image {
         return nil
     }
 }
+#endif
+#if os(macOS)
+import AppKit
+
+extension Image {
+    static func loadImageFromPath(_ path: String) -> Image? {
+        if let img = NSImage(contentsOfFile: path) {
+            return Image(nsImage: img)
+        }
+        return nil
+    }
+}
+#endif
