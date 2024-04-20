@@ -81,21 +81,27 @@ struct RecipeView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            ScrollView {
-                VStack(alignment: .center, spacing: 10) {
-                    Text(recipe.title)
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.center)
-                    Divider().padding(.horizontal, 16)
-                    if let imageName = recipe.image {
-                        Image(imageName)
-                            .resizable()
-                            .scaledToFit()
-                            .cornerRadius(10)
-                            .padding(.top, 10)
-                            .frame(maxWidth: .infinity, maxHeight: 200)
-                    }
+                    ScrollView {
+                        VStack(alignment: .center, spacing: 10) {
+                            Text(recipe.title)
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+
+                            Divider().padding(.horizontal, 16)
+
+                            if let imageName = recipe.image, let image = Image.loadImageFromPath(imageName) {
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                                    .cornerRadius(10)
+                                    .padding(.top, 10)
+                                    .frame(maxWidth: .infinity, maxHeight: 200)
+                            } else {
+                                Text("Bild nicht verfügbar")
+                                    .foregroundColor(.secondary)
+                                    .padding()
+                            }
                     
                     if recipe.portion != .notPortion && recipe.portion != nil
                     {
@@ -424,3 +430,14 @@ struct RecipeView: View {
     
 
    }
+import SwiftUI
+import UIKit
+
+extension Image {
+    static func loadImageFromPath(_ path: String) -> Image? {
+        if let img = UIImage(contentsOfFile: path) {
+            return Image(uiImage: img)
+        }
+        return nil
+    }
+}

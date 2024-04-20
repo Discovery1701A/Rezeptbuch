@@ -13,19 +13,24 @@ struct ValidationError: Identifiable {
 
 struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
-    @State private var recipeTitle = ""
-    @State private var ingredients: [FoodItemStruct?] = []
-    @State private var foods: [FoodStruct] = []
-    @State private var instructions: [String] = []
-    @State private var quantity: [String] = []
-    @State private var selectedUnit: [Unit] = []
-    @State private var portionValue: String = ""
-    @State private var isCake = false
-    @State private var cakeForm: Formen = .rund
-    @State private var size: [Double] = [0.0, 0.0, 0.0]
-    @State private var cakeSize: CakeSize = .round(diameter: 0.0)
-    
-    @State private var validationError: ValidationError?
+      @State private var recipeTitle = ""
+      @State private var ingredients: [FoodItemStruct?] = []
+      @State private var foods: [FoodStruct] = []
+      @State private var instructions: [String] = []
+      @State private var quantity: [String] = []
+      @State private var selectedUnit: [Unit] = []
+      @State private var portionValue: String = ""
+      @State private var isCake = false
+      @State private var cakeForm: Formen = .rund
+      @State private var size: [Double] = [0.0, 0.0, 0.0]
+      @State private var cakeSize: CakeSize = .round(diameter: 0.0)
+      @State private var recipeImage: UIImage?
+      @State private var showingImagePicker = false
+      @State private var isTargeted = false
+      @State private var validationError: ValidationError?
+      @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary // Neue State Variable
+
+       
 
     #if os(macOS)
     @State private var editMode: EditMode = .inactive // Verwenden Sie den Bearbeitungsmodus von SwiftUI
@@ -119,6 +124,24 @@ struct RecipeCreationView: View {
         // Rückgabe, ob die Validierung erfolgreich war
         return error == nil
     }
+    
+    private func saveImageLocally(image: UIImage) -> String? {
+        guard let data = image.jpegData(compressionQuality: 0.8) else { return nil }
+        let fileManager = FileManager.default
+        let documentDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileName = UUID().uuidString + ".jpeg"
+        let fileURL = documentDirectory.appendingPathComponent(fileName)
+
+        do {
+            try data.write(to: fileURL)
+            print("Bild gespeichert unter: \(fileURL.path)")
+            return fileURL.path
+        } catch {
+            print("Fehler beim Speichern des Bildes: \(error)")
+            return nil
+        }
+    }
+
 
 
         private func saveRecipe() {
@@ -133,26 +156,42 @@ struct RecipeCreationView: View {
 
             ingredients.removeAll(where: { $0 == nil })
             let recipe: Recipe
-            if isCake {
+          
+            if let image = recipeImage, let imagePath = saveImageLocally(image: image) {
                 recipe = Recipe(id: modelView.recipes.count + 1,
-                                title: recipeTitle,
-                                ingredients: ingredients.compactMap { $0 },
-                                instructions: instructions,
-                                image: nil,
-                                portion: .notPortion,
-                                cake: .cake(form: cakeForm, size: cakeSize))
+                                    title: recipeTitle,
+                                    ingredients: ingredients.compactMap { $0 },
+                                    instructions: instructions,
+                                    image: imagePath, // Pfad zur Bilddatei
+                                    portion: isCake ? .notPortion : .Portion(Double(portionValue) ?? 0.0),
+                                    cake: isCake ? .cake(form: cakeForm, size: cakeSize) : .notCake)
             } else {
-                recipe = Recipe(id: modelView.recipes.count + 1,
-                                title: recipeTitle,
-                                ingredients: ingredients.compactMap { $0 },
-                                instructions: instructions,
-                                image: nil,
-                                portion: .Portion(Double(portionValue) ?? 0.0),
-                                cake: .notCake)
+                if isCake {
+                    recipe = Recipe(id: modelView.recipes.count + 1,
+                                    title: recipeTitle,
+                                    ingredients: ingredients.compactMap { $0 },
+                                    instructions: instructions,
+                                    image: nil,
+                                    portion: .notPortion,
+                                    cake: .cake(form: cakeForm, size: cakeSize))
+                } else {
+                    recipe = Recipe(id: modelView.recipes.count + 1,
+                                    title: recipeTitle,
+                                    ingredients: ingredients.compactMap { $0 },
+                                    instructions: instructions,
+                                    image: nil,
+                                    portion: .Portion(Double(portionValue) ?? 0.0),
+                                    cake: .notCake)
+                }
             }
+                    
             print("ja")
             CoreDataManager().saveRecipe(recipe)
             modelView.updateRecipe()
+        }
+    private func loadImage() {
+            guard let inputImage = recipeImage else { return }
+            // Additional processing of the loaded image, if needed
         }
 
     var content: some View {
@@ -160,6 +199,45 @@ struct RecipeCreationView: View {
             Section(header: Text("Allgemeine Informationen")) {
                 VStack {
                     TextField("Rezept-Titel", text: $recipeTitle)
+                    
+                    Section(header: Text("Bild auswählen")) {
+                        HStack {
+                            Button(action: {
+                                self.showingImagePicker = true
+                                self.sourceType = .camera
+                            }) {
+                                Label("Kamera", systemImage: "camera")
+                            }
+                            Button(action: {
+                                self.showingImagePicker = true
+                                self.sourceType = .photoLibrary
+                            }) {
+                                Label("Galerie", systemImage: "photo.on.rectangle")
+                            }
+                        }
+                        .sheet(isPresented: $showingImagePicker, onDismiss: loadImage) {
+                            ImagePicker(image: self.$recipeImage, sourceType: self.sourceType)
+                        }
+                        .onDrop(of: ["public.image"], isTargeted: $isTargeted) { providers, location in
+                            providers.first?.loadObject(ofClass: UIImage.self, completionHandler: { image, error in
+                                DispatchQueue.main.async {
+                                    if let image = image as? UIImage {
+                                        self.recipeImage = image
+                                    }
+                                }
+                            })
+                            return true
+                        }
+                        
+                        if let image = recipeImage {
+                            Image(uiImage: image)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height: 200)
+                        }
+                    }
+
+                    
                     Toggle("Ist es ein Kuchen?", isOn: $isCake.animation())
                     if isCake {
                         Picker("Kuchenform", selection: $cakeForm) {
@@ -315,6 +393,44 @@ struct OptionsListView: View {
             }) {
                 Text(option)
             }
+        }
+    }
+}
+
+
+
+
+
+struct ImagePicker: UIViewControllerRepresentable {
+    @Environment(\.presentationMode) var presentationMode
+    @Binding var image: UIImage?
+    var sourceType: UIImagePickerController.SourceType
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.sourceType = sourceType
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePicker>) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        var parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.image = image
+            }
+            parent.presentationMode.wrappedValue.dismiss()
         }
     }
 }
