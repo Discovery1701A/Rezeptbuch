@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import EventKit
+import WebKit
 
 struct RecipeView: View {
     var recipe: Recipe
@@ -78,6 +79,20 @@ struct RecipeView: View {
         }
      
     }
+    func extractYouTubeID(from link: String) -> String? {
+        if link.contains("youtube.com") {
+            // Extrahiere die ID aus einem normalen YouTube-Link
+            if let url = URL(string: link), let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems {
+                for item in queryItems where item.name == "v" {
+                    return item.value
+                }
+            }
+        } else if link.contains("youtu.be") {
+            // Extrahiere die ID aus einem verkürzten youtu.be Link
+            return URL(string: link)?.lastPathComponent
+        }
+        return nil
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -89,27 +104,7 @@ struct RecipeView: View {
                                 .multilineTextAlignment(.center)
 
                             Divider().padding(.horizontal, 16)
-                            if recipe.image != nil{
-                                if let imageName = recipe.image, let image = Image.loadImageFromPath(imageName) {
-                                    image
-                                        .resizable()
-                                        .scaledToFit()
-                                        .cornerRadius(10)
-                                        .padding(.top, 10)
-                                        .frame(maxWidth: .infinity, maxHeight: 200)
-                                } else if let imageName = recipe.image {
-                                    Image(imageName)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .cornerRadius(10)
-                                        .padding(.top, 10)
-                                        .frame(maxWidth: .infinity, maxHeight: 200)
-                                }else{
-                                    Text("Bild nicht verfügbar")
-                                        .foregroundColor(.secondary)
-                                        .padding()
-                                }
-                            }
+                            RecipeImageView(imagePath: recipe.image)
                     
                     if recipe.portion != .notPortion && recipe.portion != nil
                     {
@@ -222,31 +217,11 @@ struct RecipeView: View {
                         }
                     }
                     
-                    VStack(alignment: .center, spacing: 5) {
-                        Text("Anleitung:")
-                            .font(.headline)
-                            .multilineTextAlignment(.center)
-                        Divider().padding(.horizontal, 16)
-                        ForEach(recipe.instructions, id: \.self) { instruction in
-                            Text("\(instruction)")
-                                .foregroundColor(.blue)
-                                .padding(.horizontal)
-                                .padding(.vertical,10)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .frame(width : geometry.size.width*0.9)
-                                .background(RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.blue, lineWidth: 1))
-                                .padding(.vertical, 5)
-                            Divider().padding(.horizontal, 16)
-                        }
-                    }
-                    NavigationLink(destination: CookingModeView(recipe: recipe)) {
-                                                Text("Zum Kochmodus")
-                                                    .padding()
-                                                    .foregroundColor(.white)
-                                                    .background(Color.blue)
-                                                    .cornerRadius(10)
-                                            }
+                            RecipeInstructionsView(instructions: recipe.instructions)
+                            RecipeVideoView(videoLink: recipe.videoLink)
+                            
+                            Kochmodus()
+                   
                     Button(action: {
                         createShoppingList()
                         addShoppingListToReminders()
@@ -260,19 +235,19 @@ struct RecipeView: View {
                 .shadow(radius: 5)
             }
         }
-//        .alert(isPresented: $isReminderAdded) {
-//            Alert(
-//                title: Text("Erinnerungen hinzugefügt"),
-//                message: Text("Die Einkaufsliste wurde zu den Erinnerungen hinzugefügt."),
-//                primaryButton: .default(Text("Öffnen"), action: {
-//                    // Öffnen Sie die Erinnerungs-App
-//                    if let url = URL(string: "x-apple-reminderkit://") {
-//                        UIApplication.shared.open(url)
-//                    }
-//                }),
-//                secondaryButton: .cancel(Text("OK"))
-//            )
-//        }
+
+    }
+  
+    
+    @ViewBuilder
+    func Kochmodus()-> some View{
+        NavigationLink(destination: CookingModeView(recipe: recipe)) {
+                                    Text("Zum Kochmodus")
+                                        .padding()
+                                        .foregroundColor(.white)
+                                        .background(Color.blue)
+                                        .cornerRadius(10)
+                                }
     }
     
     func createShoppingList() {
@@ -438,28 +413,96 @@ struct RecipeView: View {
     
 
    }
-import SwiftUI
-#if os(iOS)
-import UIKit
 
-extension Image {
-    static func loadImageFromPath(_ path: String) -> Image? {
-        if let img = UIImage(contentsOfFile: path) {
-            return Image(uiImage: img)
+struct RecipeImageView: View {
+    var imagePath: String?
+    
+    var body: some View {
+        if let path = imagePath, let image = Image.loadImageFromPath(path) {
+            image
+                .resizable()
+                .scaledToFit()
+                .cornerRadius(10)
+                .padding(.top, 10)
+                .frame(maxWidth: .infinity, maxHeight: 200)
+        } else {
+            Text("Bild nicht verfügbar")
+                .foregroundColor(.secondary)
+                .padding()
+        }
+    }
+}
+
+struct RecipeVideoView: View {
+    var videoLink: String?
+    
+    func extractYouTubeID(from link: String) -> String? {
+        if link.contains("youtube.com"), let url = URL(string: link), let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems {
+            return queryItems.first(where: { $0.name == "v" })?.value
+        } else if link.contains("youtu.be") {
+            return URL(string: link)?.lastPathComponent
         }
         return nil
     }
-}
-#endif
-#if os(macOS)
-import AppKit
-
-extension Image {
-    static func loadImageFromPath(_ path: String) -> Image? {
-        if let img = NSImage(contentsOfFile: path) {
-            return Image(nsImage: img)
+    
+    var body: some View {
+        if let link = videoLink, let videoID = extractYouTubeID(from: link) {
+            YouTubeView(videoID: videoID)
+                
+                .scaledToFit()
+                
+              
+                .frame(maxWidth: .infinity, maxHeight: 300)
+        } else {
+            Text("Kein gültiges Video gefunden.")
         }
-        return nil
     }
 }
-#endif
+
+struct RecipeIngredientsView: View {
+    var ingredients: [FoodItemStruct]
+    
+    var body: some View {
+        VStack(alignment: .center, spacing: 5) {
+            Text("Zutaten:")
+                .font(.headline)
+                .multilineTextAlignment(.center)
+            ForEach(ingredients, id: \.self) { ingredient in
+                Text("\(ingredient.quantity.rounded(toPlaces: 2)) \(ingredient.unit.rawValue) \(ingredient.food.name)")
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+}
+
+struct RecipeInstructionsView: View {
+    var instructions: [String]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("Anleitung:")
+                .font(.headline)
+                .multilineTextAlignment(.center)
+            ForEach(instructions, id: \.self) { instruction in
+                Text(instruction)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+}
+
+struct YouTubeView: UIViewRepresentable {
+    var videoID: String
+    
+    func makeUIView(context: Context) -> WKWebView {
+        return WKWebView()
+    }
+    
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        guard let url = URL(string: "https://www.youtube.com/embed/\(videoID)?playsinline=1") else { return }
+        uiView.scrollView.isScrollEnabled = false
+        uiView.load(URLRequest(url: url))
+    }
+}

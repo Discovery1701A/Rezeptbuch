@@ -84,4 +84,13 @@ extension NSImage {
     }
 }
 
+
+extension Image {
+    static func loadImageFromPath(_ path: String) -> Image? {
+        if let img = NSImage(contentsOfFile: path) {
+            return Image(nsImage: img)
+        }
+        return nil
+    }
+}
 #endif

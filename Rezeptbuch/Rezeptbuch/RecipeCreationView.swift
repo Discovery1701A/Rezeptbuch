@@ -4,14 +4,13 @@
 //
 //  Created by Anna Rieckmann on 13.03.24.
 //
-import SwiftUI
 import AVFoundation
+import SwiftUI
 #if os(macOS)
 import AppKit
 #else
 
 #endif
-
 
 struct ValidationError: Identifiable {
     let id = UUID()
@@ -44,7 +43,7 @@ struct RecipeCreationView: View {
     @State private var showingCameraPicker = false
     @State private var showingPermissionAlert = false
     
-    
+    @State private var videoLink: String = ""
     
 #if os(macOS)
     @State private var editMode: EditMode = .inactive // Verwenden Sie den Bearbeitungsmodus von SwiftUI
@@ -111,11 +110,10 @@ struct RecipeCreationView: View {
             error = ValidationError(message: "Bitte geben Sie eine gültige Portionsgröße ein.")
         }
         print(foods.count)
-        if foods.isEmpty{
+        if foods.isEmpty {
             error = ValidationError(message: "Bitte fügen Sie eine Zutate hinzu.")
         }
         for (index, ingredient) in foods.enumerated() {
-            
             if ingredient == emptyFood {
                 print("neinnnn")
                 error = ValidationError(message: "Bitte füllen Sie alle Zutaten aus.")
@@ -123,7 +121,7 @@ struct RecipeCreationView: View {
                 error = ValidationError(message: "Bitte geben Sie eine gültige Menge für alle Zutaten ein.")
             }
         }
-        if instructions.isEmpty{
+        if instructions.isEmpty {
             error = ValidationError(message: "Bitte fügen Sie eine Zutate hinzu.")
         }
         for instruction in instructions {
@@ -138,6 +136,7 @@ struct RecipeCreationView: View {
         // Rückgabe, ob die Validierung erfolgreich war
         return error == nil
     }
+
 #if os(iOS)
     private func saveImageLocally(image: UIImage) -> String? {
         guard let data = image.jpegData(compressionQuality: 0.8) else { return nil }
@@ -158,7 +157,6 @@ struct RecipeCreationView: View {
 #endif
     
 #if os(macOS)
-    
     
     private func saveImageLocally(image: NSImage) -> String? {
         guard let data = image.jpegData(compressionQuality: 0.8) else { return nil }
@@ -193,8 +191,6 @@ struct RecipeCreationView: View {
     }
 #endif
     
-    
-    
     private func saveRecipe() {
         for i in 0 ..< ingredients.count {
             if foods[i] != emptyFood {
@@ -205,6 +201,12 @@ struct RecipeCreationView: View {
             }
         }
         
+        let videoLinkSav : String?
+        if videoLink == ""{
+            videoLinkSav = nil
+        } else{
+            videoLinkSav = videoLink
+        }
         ingredients.removeAll(where: { $0 == nil })
         let recipe: Recipe
         
@@ -215,7 +217,8 @@ struct RecipeCreationView: View {
                             instructions: instructions,
                             image: imagePath, // Pfad zur Bilddatei
                             portion: isCake ? .notPortion : .Portion(Double(portionValue) ?? 0.0),
-                            cake: isCake ? .cake(form: cakeForm, size: cakeSize) : .notCake)
+                            cake: isCake ? .cake(form: cakeForm, size: cakeSize) : .notCake,
+                            videoLink: videoLinkSav)
         } else {
             if isCake {
                 recipe = Recipe(id: modelView.recipes.count + 1,
@@ -224,7 +227,8 @@ struct RecipeCreationView: View {
                                 instructions: instructions,
                                 image: nil,
                                 portion: .notPortion,
-                                cake: .cake(form: cakeForm, size: cakeSize))
+                                cake: .cake(form: cakeForm, size: cakeSize),
+                videoLink: videoLinkSav)
             } else {
                 recipe = Recipe(id: modelView.recipes.count + 1,
                                 title: recipeTitle,
@@ -232,7 +236,10 @@ struct RecipeCreationView: View {
                                 instructions: instructions,
                                 image: nil,
                                 portion: .Portion(Double(portionValue) ?? 0.0),
-                                cake: .notCake)
+                                cake: .notCake,
+                                videoLink: videoLinkSav
+                )
+                
             }
         }
         
@@ -240,14 +247,16 @@ struct RecipeCreationView: View {
         CoreDataManager().saveRecipe(recipe)
         modelView.updateRecipe()
     }
+
     private func loadImage() {
         guard let inputImage = recipeImage else { return }
         // Additional processing of the loaded image, if needed
     }
+
     func checkCameraPermissions() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            self.showingCameraPicker = true
+            showingCameraPicker = true
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
@@ -259,12 +268,11 @@ struct RecipeCreationView: View {
                 }
             }
         case .denied, .restricted:
-            self.showingPermissionAlert = true
+            showingPermissionAlert = true
         @unknown default:
             break
         }
     }
-    
     
     var content: some View {
         Form {
@@ -287,8 +295,7 @@ struct RecipeCreationView: View {
                                 Alert(
                                     title: Text("Zugriff verweigert"),
                                     message: Text("Bitte erlaube den Zugriff auf die Kamera in den Einstellungen deines Geräts."),
-                                    dismissButton: .default(Text("OK"))
-                                )
+                                    dismissButton: .default(Text("OK")))
                             }
                          
                             Button(action: {
@@ -309,8 +316,8 @@ struct RecipeCreationView: View {
                         }
                     }
 #if os(iOS)
-                    .onDrop(of: ["public.image"], isTargeted: $isTargeted) { providers, location in
-                        providers.first?.loadObject(ofClass: UIImage.self, completionHandler: { image, error in
+                    .onDrop(of: ["public.image"], isTargeted: $isTargeted) { providers, _ in
+                        providers.first?.loadObject(ofClass: UIImage.self, completionHandler: { image, _ in
                             DispatchQueue.main.async {
                                 if let image = image as? UIImage {
                                     self.recipeImage = image
@@ -321,19 +328,18 @@ struct RecipeCreationView: View {
                     }
 #else
                     .onDrop(of: ["public.file-url"], isTargeted: $isTargeted) { providers -> Bool in
-                        providers.first?.loadDataRepresentation(forTypeIdentifier: "public.file-url", completionHandler: { (data, error) in
-                            if let data = data, let path = String(data: data, encoding: .utf8), let url = URL(string: path) {
-                                DispatchQueue.main.async {
-                                    if let image = NSImage(contentsOf: url) {
-                                        self.recipeImage = image
+                            providers.first?.loadDataRepresentation(forTypeIdentifier: "public.file-url", completionHandler: { data, _ in
+                                if let data = data, let path = String(data: data, encoding: .utf8), let url = URL(string: path) {
+                                    DispatchQueue.main.async {
+                                        if let image = NSImage(contentsOf: url) {
+                                            self.recipeImage = image
+                                        }
                                     }
                                 }
-                            }
-                        })
-                        return true
-                    }
+                            })
+                            return true
+                        }
 #endif
-                    
                     
 #if os(iOS)
                     if let image = recipeImage {
@@ -351,8 +357,12 @@ struct RecipeCreationView: View {
                     }
 #endif
                     
-                    
-                    
+                    Section(header: Text("Video Link")) {
+                                   TextField("Geben Sie den Video-Link ein", text: $videoLink)
+                                       .textFieldStyle(RoundedBorderTextFieldStyle())
+                                       .autocapitalization(.none)
+                                       .disableAutocorrection(true)
+                               }
                     
                     Toggle("Ist es ein Kuchen?", isOn: $isCake.animation())
                     if isCake {
@@ -373,7 +383,7 @@ struct RecipeCreationView: View {
                                         }
                                     }))
 #if os(iOS)
-                                .keyboardType(.decimalPad)
+                                    .keyboardType(.decimalPad)
 #endif
                             }
                         } else {
@@ -387,10 +397,10 @@ struct RecipeCreationView: View {
                                         }
                                     }))
 #if os(iOS)
-                                .keyboardType(.decimalPad)
+                                    .keyboardType(.decimalPad)
 #endif
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .padding()
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .padding()
                                 Text("Breite (cm):")
                                 TextField("Breite (cm)", text: Binding(
                                     get: { "\(size[2])" },
@@ -400,10 +410,10 @@ struct RecipeCreationView: View {
                                         }
                                     }))
 #if os(iOS)
-                                .keyboardType(.decimalPad)
+                                    .keyboardType(.decimalPad)
 #endif
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .padding()
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .padding()
                             }
                         }
                     } else {
@@ -489,14 +499,12 @@ struct RecipeCreationView: View {
                     Label("Schritt hinzufügen", systemImage: "plus.circle")
                 }
             }
-            
         }
         .onAppear {
             self.editMode = .active
         }
     }
 }
-
 
 struct OptionsListView: View {
     let options: [String]
@@ -514,5 +522,3 @@ struct OptionsListView: View {
         }
     }
 }
-
-

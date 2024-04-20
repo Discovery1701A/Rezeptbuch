@@ -44,4 +44,13 @@ struct ImagePicker: UIViewControllerRepresentable {
 }
 
 
+extension Image {
+    static func loadImageFromPath(_ path: String) -> Image? {
+        if let img = UIImage(contentsOfFile: path) {
+            return Image(uiImage: img)
+        }
+        return nil
+    }
+}
+
 #endif

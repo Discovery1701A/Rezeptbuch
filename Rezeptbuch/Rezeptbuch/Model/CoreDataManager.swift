@@ -175,7 +175,8 @@ class CoreDataManager {
                     instructions: recipe.instructions ?? [],
                     image: recipe.image,
                     portion: PortionsInfo.fromString(recipe.portion ?? ""),
-                    cake: CakeInfo.fromString(recipe.cake ?? "")
+                    cake: CakeInfo.fromString(recipe.cake ?? ""),
+                    videoLink: recipe.videoLink
                 )
             }
         } catch {
@@ -194,7 +195,7 @@ class CoreDataManager {
         var shoudSave = true
         let consrecipe = fetchRecipes()
         for existRecepie in consrecipe {
-            if existRecepie.title == recipe.title && existRecepie.instructions == recipe.instructions && existRecepie.ingredients == recipe.ingredients && existRecepie.cake == recipe.cake && existRecepie.portion == recipe.portion {
+            if existRecepie.title == recipe.title && existRecepie.instructions == recipe.instructions && existRecepie.ingredients == recipe.ingredients && existRecepie.cake == recipe.cake && existRecepie.portion == recipe.portion && existRecepie.videoLink == recipe.videoLink {
                 shoudSave = false
             }
         }
@@ -223,6 +224,7 @@ class CoreDataManager {
             }
             recipeEntity.portion = recipe.portion?.stringValue()
             recipeEntity.cake = recipe.cake?.stringValue()
+            recipeEntity.videoLink = recipe.videoLink
         }
 
         do {

@@ -14,6 +14,7 @@ struct Recipe {
     var image: String? // Pfad zur Bilddatei oder URL
     var portion: PortionsInfo?
     var cake: CakeInfo? // CakeInfo-Enum für Informationen über Kuchen
+    var videoLink: String?
 
     // Implementierung des Equatable-Protokolls
     static func == (lhs: Recipe, rhs: Recipe) -> Bool {
