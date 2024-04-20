@@ -97,7 +97,14 @@ struct RecipeView: View {
                                         .cornerRadius(10)
                                         .padding(.top, 10)
                                         .frame(maxWidth: .infinity, maxHeight: 200)
-                                } else {
+                                } else if let imageName = recipe.image {
+                                    Image(imageName)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .cornerRadius(10)
+                                        .padding(.top, 10)
+                                        .frame(maxWidth: .infinity, maxHeight: 200)
+                                }else{
                                     Text("Bild nicht verfügbar")
                                         .foregroundColor(.secondary)
                                         .padding()

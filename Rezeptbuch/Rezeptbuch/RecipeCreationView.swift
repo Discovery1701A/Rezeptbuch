@@ -281,7 +281,7 @@ struct RecipeCreationView: View {
                             Button(action: {
                                 checkCameraPermissions()
                             }) {
-                                Text("Foto aufnehmen")
+                                Label("Kamera", systemImage: "camera")
                             }
                             .alert(isPresented: $showingPermissionAlert) {
                                 Alert(
@@ -290,10 +290,7 @@ struct RecipeCreationView: View {
                                     dismissButton: .default(Text("OK"))
                                 )
                             }
-                            .sheet(isPresented: $showingCameraPicker) {
-                                ImagePicker(image: $recipeImage, sourceType: .camera)
-                            }
-                            
+                         
                             Button(action: {
                                 self.showingImagePicker = true
                                 self.sourceType = .photoLibrary
