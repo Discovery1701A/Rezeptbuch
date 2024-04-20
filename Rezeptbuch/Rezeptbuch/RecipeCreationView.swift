@@ -5,6 +5,7 @@
 //  Created by Anna Rieckmann on 13.03.24.
 //
 import SwiftUI
+import AVFoundation
 
 struct ValidationError: Identifiable {
     let id = UUID()
@@ -29,6 +30,8 @@ struct RecipeCreationView: View {
       @State private var isTargeted = false
       @State private var validationError: ValidationError?
       @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary // Neue State Variable
+    @State private var showingCameraPicker = false
+      @State private var showingPermissionAlert = false
 
        
 
@@ -193,6 +196,27 @@ struct RecipeCreationView: View {
             guard let inputImage = recipeImage else { return }
             // Additional processing of the loaded image, if needed
         }
+    func checkCameraPermissions() {
+           switch AVCaptureDevice.authorizationStatus(for: .video) {
+               case .authorized:
+                   self.showingCameraPicker = true
+               case .notDetermined:
+                   AVCaptureDevice.requestAccess(for: .video) { granted in
+                       DispatchQueue.main.async {
+                           if granted {
+                               self.showingCameraPicker = true
+                           } else {
+                               self.showingPermissionAlert = true
+                           }
+                       }
+                   }
+               case .denied, .restricted:
+                   self.showingPermissionAlert = true
+               @unknown default:
+                   break
+           }
+       }
+   
 
     var content: some View {
         Form {
@@ -203,11 +227,20 @@ struct RecipeCreationView: View {
                     Section(header: Text("Bild auswählen")) {
                         HStack {
                             Button(action: {
-                                self.showingImagePicker = true
-                                self.sourceType = .camera
-                            }) {
-                                Label("Kamera", systemImage: "camera")
-                            }
+                                        checkCameraPermissions()
+                                    }) {
+                                        Text("Foto aufnehmen")
+                                    }
+                                    .alert(isPresented: $showingPermissionAlert) {
+                                        Alert(
+                                            title: Text("Zugriff verweigert"),
+                                            message: Text("Bitte erlaube den Zugriff auf die Kamera in den Einstellungen deines Geräts."),
+                                            dismissButton: .default(Text("OK"))
+                                        )
+                                    }
+                                    .sheet(isPresented: $showingCameraPicker) {
+                                        ImagePicker(image: $recipeImage, sourceType: .camera)
+                                    }
                             Button(action: {
                                 self.showingImagePicker = true
                                 self.sourceType = .photoLibrary
