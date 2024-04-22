@@ -81,6 +81,10 @@ class CoreDataManager {
         entity.portion = recipe.portion?.stringValue()
         entity.cake = recipe.cake?.stringValue()
         entity.videoLink = recipe.videoLink
+        recipe.ingredients.forEach { foodItemStruct in
+                let foodItemEntity = findOrCreateFoodItem(foodItemStruct)
+                entity.addToIngredients(foodItemEntity) // Stellen Sie sicher, dass dies aufgerufen wird
+            }
         // Handle tags and recipebooks relationship here if applicable
     }
     
