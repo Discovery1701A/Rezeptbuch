@@ -19,6 +19,7 @@ struct ValidationError: Identifiable {
 
 struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
+    @State private var recipe: Recipe
     @State private var recipeTitle = ""
     @State private var ingredients: [FoodItemStruct?] = []
     @State private var foods: [FoodStruct] = []
@@ -45,6 +46,38 @@ struct RecipeCreationView: View {
     @State private var showingPermissionAlert = false
     
     @State private var videoLink: String = ""
+    @State private var id: UUID = UUID()
+    
+    init(recipe: Recipe? = nil, modelView: ViewModel) {
+            self.modelView = modelView
+            if let recipe = recipe {
+                _recipe = State(initialValue: recipe)
+                _recipeTitle = State(initialValue: recipe.title)
+                _ingredients = State(initialValue: recipe.ingredients)
+                _instructions = State(initialValue: recipe.instructions)
+                _portionValue = State(initialValue: recipe.portion?.stringValue() ?? "")
+                _isCake = State(initialValue: recipe.cake != nil)
+                _cakeForm = State(initialValue: recipe.cake?.form ?? .rund)
+                _cakeSize = State(initialValue: recipe.cake?.size ?? .round(diameter: 0))
+                _info = State(initialValue: recipe.info ?? "")
+                _videoLink = State(initialValue: recipe.videoLink ?? "")
+                _id = State(initialValue: recipe.id)
+                if let imagePath = recipe.image, let uiImage = UIImage(contentsOfFile: imagePath) {
+                               self._recipeImage = State(initialValue: uiImage) // Store UIImage directly
+                           }
+            } else {
+                _recipe = State(initialValue: Recipe.empty)
+                _recipeTitle = State(initialValue: "")
+                _ingredients = State(initialValue: [])
+                _instructions = State(initialValue: [])
+                _portionValue = State(initialValue: "")
+                _isCake = State(initialValue: false)
+                _cakeForm = State(initialValue: .rund)
+                _cakeSize = State(initialValue: .round(diameter: 0))
+                _info = State(initialValue: "")
+                _videoLink = State(initialValue: "")
+            }
+        }
     
 #if os(macOS)
     @State private var editMode: EditMode = .inactive // Verwenden Sie den Bearbeitungsmodus von SwiftUI

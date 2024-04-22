@@ -76,6 +76,21 @@ struct Recipe {
     var videoLink: String?
     var info: String? // Additional information about the recipe
     var tags: [TagStruct]? // Tags associated with the recipe
+    
+    static var empty: Recipe {
+          Recipe(
+              id: UUID(),
+              title: "",
+              ingredients: [],
+              instructions: [],
+              image: nil,
+              portion: nil,
+              cake: nil,
+              videoLink: nil,
+              info: "",
+              tags: []
+          )
+      }
 }
 
 // Represents a collection of recipes typically found in a cookbook
@@ -171,6 +186,25 @@ enum CakeInfo: Equatable {
             }
         case .notCake:
             return "notCake"
+        }
+    }
+}
+extension CakeInfo {
+    var form: Formen? {
+        switch self {
+        case .cake(let form, _):
+            return form
+        case .notCake:
+            return nil
+        }
+    }
+
+    var size: CakeSize? {
+        switch self {
+        case .cake(_, let size):
+            return size
+        case .notCake:
+            return nil
         }
     }
 }

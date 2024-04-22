@@ -81,6 +81,7 @@ class CoreDataManager {
         entity.portion = recipe.portion?.stringValue()
         entity.cake = recipe.cake?.stringValue()
         entity.videoLink = recipe.videoLink
+        entity.id = recipe.id
         recipe.ingredients.forEach { foodItemStruct in
                 let foodItemEntity = findOrCreateFoodItem(foodItemStruct)
                 entity.addToIngredients(foodItemEntity) // Stellen Sie sicher, dass dies aufgerufen wird
@@ -207,6 +208,40 @@ class CoreDataManager {
                 print("Could not save. \(error), \(error.userInfo)")
             }
         }
+    
+    func updateRecipe(_ recipe: Recipe) {
+        let recipeEntity = findOrCreateRecipeEntity(from: recipe)
+        
+        // Aktualisieren der Basisdaten
+        recipeEntity.titel = recipe.title
+        recipeEntity.instructions = recipe.instructions
+        recipeEntity.image = recipe.image
+        recipeEntity.portion = recipe.portion?.stringValue()
+        recipeEntity.cake = recipe.cake?.stringValue()
+        recipeEntity.videoLink = recipe.videoLink
+        recipeEntity.info = recipe.info
+        
+        // Aktualisieren der Zutatenliste
+        updateIngredients(for: recipeEntity, with: recipe.ingredients)
+        
+        // Tags und andere Verknüpfungen können hier ebenfalls aktualisiert werden
+
+        // Speichern der Änderungen im Kontext
+        saveContext()
+    }
+
+    private func updateIngredients(for entity: Recipes, with newIngredients: [FoodItemStruct]) {
+        // Optional: Löschen oder aktualisieren bestehender Zutaten
+        entity.removeFromIngredients(entity.ingredients as! NSSet)
+        
+        // Hinzufügen der neuen oder aktualisierten Zutaten
+        for foodItemStruct in newIngredients {
+            let foodItemEntity = findOrCreateFoodItem(foodItemStruct)
+            entity.addToIngredients(foodItemEntity)
+        }
+    }
+
+   
 
 
    
