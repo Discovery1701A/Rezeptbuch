@@ -192,7 +192,9 @@ struct RecipeView: View {
                                         }
                
                     RecipeIngredientsView(ingredients: ingredients)
-                    
+                                .onAppear {
+                                           print("Angezeigte Zutaten: \(ingredients)")
+                                       }
                             RecipeInstructionsView(instructions: recipe.instructions)
                             RecipeVideoView(videoLink: recipe.videoLink)
                             

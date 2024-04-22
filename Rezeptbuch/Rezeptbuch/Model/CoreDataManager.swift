@@ -4,15 +4,13 @@ import CoreData
 class CoreDataManager {
     static let shared = CoreDataManager()
     
-    init() {}
-    
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Model")
-        container.loadPersistentStores(completionHandler: { (_, error) in
+        container.loadPersistentStores { _, error in
             if let error = error {
                 fatalError("Unresolved error \(error)")
             }
-        })
+        }
         return container
     }()
     
@@ -20,275 +18,80 @@ class CoreDataManager {
         return persistentContainer.viewContext
     }
     
-    // Laden von Food aus Core Data und Einsortieren in FoodStruct
+    // MARK: Fetching Methods
+
     func fetchFoods() -> [FoodStruct] {
         let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
-        
         do {
-            let foods = try managedContext.fetch(fetchRequest)
-            return foods.map { food in
-                return FoodStruct(name: food.name ?? "",
-                                  category: food.category,
-                                  info: food.info,
-                                  nutritionFacts: food.nutritionFacts != nil ? NutritionFactsStruct(calories: Int(food.nutritionFacts!.calories),
-                                                                                                    protein: food.nutritionFacts!.protein,
-                                                                                                    carbohydrates: food.nutritionFacts!.carbohydrates,
-                                                                                                    fat: food.nutritionFacts!.fat) : nil)
-            }
+            return try managedContext.fetch(fetchRequest).map { FoodStruct(from: $0) }
         } catch {
             print("Error fetching foods: \(error)")
             return []
         }
     }
     
-    // Laden von NutritionFacts aus Core Data und Einsortieren in NutritionFactsStruct
-    func fetchNutritionFacts() -> [NutritionFactsStruct] {
-        let fetchRequest: NSFetchRequest<NutritionFacts> = NutritionFacts.fetchRequest()
-        
-        do {
-            let nutritionFacts = try managedContext.fetch(fetchRequest)
-            return nutritionFacts.map { facts in
-                return NutritionFactsStruct(calories: Int(facts.calories),
-                                            protein: facts.protein,
-                                            carbohydrates: facts.carbohydrates,
-                                            fat: facts.fat)
-            }
-        } catch {
-            print("Error fetching nutrition facts: \(error)")
-            return []
-        }
-    }
-    
-    // Laden von FoodItem aus Core Data und Einsortieren in FoodItemStruct
-    func fetchFoodItems() -> [FoodItemStruct] {
-        let fetchRequest: NSFetchRequest<FoodItem> = FoodItem.fetchRequest()
-        
-        do {
-            let foodItems = try managedContext.fetch(fetchRequest)
-            return foodItems.map { item in
-                let nutritionFactsStruct = NutritionFactsStruct(calories: Int(item.food?.nutritionFacts?.calories ?? 0),
-                                                                protein: item.food?.nutritionFacts?.protein ?? 0,
-                                                                carbohydrates: item.food?.nutritionFacts?.carbohydrates ?? 0,
-                                                                fat: item.food?.nutritionFacts?.fat ?? 0)
-                
-                return FoodItemStruct(food: FoodStruct(name: item.food?.name ?? "",
-                                                       category: item.food?.category,
-                                                       info: item.food?.info,
-                                                       nutritionFacts: nutritionFactsStruct),
-                                      unit: Unit.fromString(item.unit ?? "") ?? .gram,
-                                      quantity: item.quantity)
-            }
-        } catch {
-            print("Error fetching food items: \(error)")
-            return []
-        }
-    }
-    
-    // Speichern von Food in Core Data
-    func saveFood(_ food: FoodStruct) {
-        guard let entityDescription = NSEntityDescription.entity(forEntityName: "Food", in: managedContext) else {
-            return
-        }
-
-        let foodManagedObject = Food(entity: entityDescription, insertInto: managedContext)
-        foodManagedObject.name = food.name
-        foodManagedObject.category = food.category
-        foodManagedObject.info = food.info
-
-        if let nutritionFacts = food.nutritionFacts {
-            let nutritionFactsManagedObject = NutritionFacts(context: managedContext)
-            nutritionFactsManagedObject.calories = Int64(nutritionFacts.calories ?? 0)
-            nutritionFactsManagedObject.protein = nutritionFacts.protein ?? 0
-            nutritionFactsManagedObject.carbohydrates = nutritionFacts.carbohydrates ?? 0
-            nutritionFactsManagedObject.fat = nutritionFacts.fat ?? 0
-
-            // Verknüpfung zwischen Food und NutritionFacts herstellen
-            foodManagedObject.nutritionFacts = nutritionFactsManagedObject
-
-            // Auch die inverse Beziehung von NutritionFacts zu Food aktualisieren
-            nutritionFactsManagedObject.food = foodManagedObject
-        }
-
-        do {
-            try managedContext.save()
-        } catch {
-            print("Error saving food: \(error)")
-        }
-    }
-
-    // Speichern von FoodItem in Core Data
-    func saveFoodItem(_ item: FoodItemStruct, food: Food) {
-        guard let entityDescription = NSEntityDescription.entity(forEntityName: "FoodItem", in: managedContext) else {
-            return
-        }
-
-        let foodItemManagedObject = FoodItem(entity: entityDescription, insertInto: managedContext)
-        foodItemManagedObject.food = food // Die Beziehung zum übergebenen Food-Objekt setzen
-        foodItemManagedObject.unit = Unit.toString(item.unit)
-        foodItemManagedObject.quantity = item.quantity
-
-        do {
-            try managedContext.save()
-        } catch {
-            print("Error saving food item: \(error)")
-        }
-    }
-    
-    // Funktion zum Speichern von Food und Rückgabe des entsprechenden Food-NSManagedObjects
-    private func saveAndGetFoodManagedObject(_ food: FoodStruct) -> Food {
-        guard let entityDescription = NSEntityDescription.entity(forEntityName: "Food", in: managedContext) else {
-            fatalError("Entity not found")
-        }
-        
-        let foodManagedObject = Food(entity: entityDescription, insertInto: managedContext)
-        foodManagedObject.name = food.name
-        foodManagedObject.category = food.category
-        foodManagedObject.info = food.info
-        
-        if let nutritionFacts = food.nutritionFacts {
-            let nutritionFactsManagedObject = NutritionFacts(context: managedContext)
-            nutritionFactsManagedObject.calories = Int64(nutritionFacts.calories ?? 0)
-            nutritionFactsManagedObject.protein = nutritionFacts.protein ?? 0
-            nutritionFactsManagedObject.carbohydrates = nutritionFacts.carbohydrates ?? 0
-            nutritionFactsManagedObject.fat = nutritionFacts.fat ?? 0
-            foodManagedObject.nutritionFacts = nutritionFactsManagedObject
-        }
-        
-        return foodManagedObject
-    }
-    
     func fetchRecipes() -> [Recipe] {
         let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
-        
         do {
-            let recipes = try managedContext.fetch(fetchRequest)
-            return recipes.map { recipe in
-                // Mapping der Properties von Recipes auf Recipe
-                let recipeIngredients = (recipe.ingredients?.allObjects as? [FoodItem] ?? []).map { foodItem in
-                    FoodItemStruct(food: FoodStruct(name: foodItem.food?.name ?? "", category: foodItem.food?.category, info: foodItem.food?.info), unit: Unit.fromString(foodItem.unit ?? "") ?? .gram, quantity: foodItem.quantity)
-                }
-                
-                return Recipe(
-                    id: Int(recipe.id),
-                    title: recipe.titel ?? "",
-                    ingredients: recipeIngredients,
-                    instructions: recipe.instructions ?? [],
-                    image: recipe.image,
-                    portion: PortionsInfo.fromString(recipe.portion ?? ""),
-                    cake: CakeInfo.fromString(recipe.cake ?? ""),
-                    videoLink: recipe.videoLink
-                )
-            }
+            return try managedContext.fetch(fetchRequest).map { Recipe(from: $0) }
         } catch {
             print("Error fetching recipes: \(error)")
             return []
         }
     }
-
     
-    // Suche oder Erstellung eines Food-Objekts
-        private func findOrCreateFood(_ food: FoodStruct) -> Food {
-            let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "name == %@", food.name)
-
-            do {
-                let results = try managedContext.fetch(fetchRequest)
-                if let existingFood = results.first {
-                    return existingFood
-                }
-            } catch {
-                print("Error fetching Food: \(error)")
-            }
-
-            let newFood = Food(context: managedContext)
-            newFood.name = food.name
-            newFood.category = food.category
-            newFood.info = food.info
-            return newFood
-        }
-
-        // Suche oder Erstellung eines FoodItem-Objekts
-        private func findOrCreateFoodItem(_ item: FoodItemStruct) -> FoodItem {
-            let fetchRequest: NSFetchRequest<FoodItem> = FoodItem.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "food.name == %@ AND unit == %@", item.food.name, Unit.toString(item.unit))
-
-            do {
-                let results = try managedContext.fetch(fetchRequest)
-                if let existingFoodItem = results.first {
-                    existingFoodItem.quantity = item.quantity
-                    return existingFoodItem
-                }
-            } catch {
-                print("Error fetching FoodItem: \(error)")
-            }
-
-            let newFoodItem = FoodItem(context: managedContext)
-            newFoodItem.food = findOrCreateFood(item.food)
-            newFoodItem.unit = Unit.toString(item.unit)
-            newFoodItem.quantity = item.quantity
-            return newFoodItem
-        }
-
-        // Speichern eines Rezepts
-        func saveRecipe(_ recipe: Recipe) {
-            let recipeEntity = Recipes(context: managedContext)
-            recipeEntity.titel = recipe.title
-            recipeEntity.id = Int64(recipe.id)
-            recipeEntity.image = recipe.image
-            recipeEntity.instructions = recipe.instructions
-            recipeEntity.portion = recipe.portion?.stringValue()
-            recipeEntity.cake = recipe.cake?.stringValue()
-            recipeEntity.videoLink = recipe.videoLink
-
-            // Überprüfen, ob Zutaten vorhanden sind
-            if !recipe.ingredients.isEmpty {
-                recipe.ingredients.forEach { foodItemStruct in
-                    let foodItem = findOrCreateFoodItem(foodItemStruct)
-                    recipeEntity.addToIngredients(foodItem)
-                }
-            }
-
-            do {
-                try managedContext.save()
-            } catch {
-                print("Error saving recipe: \(error)")
-            }
-        }
-    
-    // Funktion zum Bearbeiten von Recipes
-    func editRecipe(_ recipe: Recipes, title: String, image: String?, ingredients: [FoodItem]?, instructions: [String]?, portion: String?, cake: String?) {
-        recipe.titel = title
-        recipe.image = image
-        // Hier wird die ingredients-Beziehung aktualisiert
-        if let ingredients = ingredients {
-            // NSSet erstellen und zuweisen
-            let foodItemSet = NSSet(array: ingredients.map { foodItem in
-                let foodItemManagedObject = FoodItem(context: managedContext)
-                // Umwandlung von Food zu FoodStruct
-                let foodStruct = FoodStruct(name: foodItem.food?.name ?? "",
-                                             category: foodItem.food?.category,
-                                             info: foodItem.food?.info)
-                foodItemManagedObject.food = saveAndGetFoodManagedObject(foodStruct)
-                foodItemManagedObject.unit = foodItem.unit
-                foodItemManagedObject.quantity = foodItem.quantity
-                return foodItemManagedObject
-            })
-            recipe.ingredients = foodItemSet
-        } else {
-            // Wenn keine neuen Zutaten angegeben sind, entfernen wir alle vorhandenen Zutaten
-            recipe.ingredients = nil
-        }
-        recipe.instructions = instructions
-        recipe.portion = portion
-        recipe.cake = cake
-
+    func fetchRecipebooks() -> [RecipebookStruct] {
+        let fetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
         do {
-            try managedContext.save()
+            return try managedContext.fetch(fetchRequest).map { RecipebookStruct(from: $0) }
         } catch {
-            print("Error editing recipe: \(error)")
+            print("Error fetching recipebooks: \(error)")
+            return []
         }
     }
 
+    // MARK: Saving Methods
+
+    func saveRecipe(_ recipe: Recipe) {
+        let recipeEntity = findOrCreateRecipeEntity(from: recipe)
+        populateRecipeEntity(recipeEntity, from: recipe)
+        saveContext()
+    }
+    
+    private func findOrCreateRecipeEntity(from recipe: Recipe) -> Recipes {
+        let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
+        // Update the predicate to match UUIDs
+        fetchRequest.predicate = NSPredicate(format: "id == %@", recipe.id as CVarArg)
+
+        // Try to fetch existing recipe or create a new one
+        if let existing = try? managedContext.fetch(fetchRequest).first {
+            return existing
+        } else {
+            let new = Recipes(context: managedContext)
+            new.id = recipe.id // Directly set the UUID without conversion
+            return new
+        }
+    }
+
+    
+    private func populateRecipeEntity(_ entity: Recipes, from recipe: Recipe) {
+        entity.titel = recipe.title
+        entity.instructions = recipe.instructions
+        entity.image = recipe.image
+        entity.portion = recipe.portion?.stringValue()
+        entity.cake = recipe.cake?.stringValue()
+        entity.videoLink = recipe.videoLink
+        // Handle tags and recipebooks relationship here if applicable
+    }
+    
+    func saveContext() {
+        do {
+            try managedContext.save()
+        } catch {
+            print("Error saving context: \(error)")
+        }
+    }
+    
     func insertInitialDataIfNeeded() {
         // Überprüfen, ob die Datenbank leer ist
         let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
@@ -300,32 +103,32 @@ class CoreDataManager {
         }
 
         // Datenbank ist leer, füge die initialen Daten ein
-        let recipesToInsert = [pastaRecipe, brownie] // Die zu speichernden Rezepte
+        let recipesToInsert = [pastaRecipe, brownieRecipe] // Die zu speichernden Rezepte
 
         for recipe in recipesToInsert {
             let recipeEntity = Recipes(context: managedContext)
             recipeEntity.titel = recipe.title
-            recipeEntity.id = Int64(recipe.id)
+            recipeEntity.id = recipe.id // Direct use of UUID
             recipeEntity.image = recipe.image
             recipeEntity.instructions = recipe.instructions
 
             // Überprüfen, ob Zutaten vorhanden sind
             if !recipe.ingredients.isEmpty {
-                for foodItem in recipe.ingredients {
-                    let foodItemEntity = FoodItem(context: managedContext)
-                    foodItemEntity.food = Food(context: managedContext)
-                    foodItemEntity.food?.name = foodItem.food.name
-                    foodItemEntity.food?.category = foodItem.food.category
-                    foodItemEntity.food?.info = foodItem.food.info
-                    foodItemEntity.unit = Unit.toString(foodItem.unit)
-                    foodItemEntity.quantity = foodItem.quantity
-
-                    // Hinzufügen des FoodItemEntity zum Rezept
+                for foodItemStruct in recipe.ingredients {
+                    let foodItemEntity = findOrCreateFoodItem(foodItemStruct)
                     recipeEntity.addToIngredients(foodItemEntity)
                 }
             }
+
             recipeEntity.portion = recipe.portion?.stringValue()
             recipeEntity.cake = recipe.cake?.stringValue()
+
+            if let tags = recipe.tags {
+                for tagName in tags {
+                    let tag = findOrCreateTag(name: tagName.name)
+                    recipeEntity.addToTags(tag)
+                }
+            }
         }
 
         do {
@@ -336,29 +139,127 @@ class CoreDataManager {
         }
     }
 
-    // MARK: - Adding and Removing Food Items
-
-    // Hinzufügen eines FoodItem-Objekts zu einem Food-Objekt
-    func addToFoodItem(_ foodItem: FoodItem, to food: Food) {
-        food.addToFoodItem(foodItem)
-        saveContext()
+    private func findOrCreateTag(name: String) -> Tag {
+        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", name)
+        if let existingTag = try? managedContext.fetch(fetchRequest).first {
+            return existingTag
+        } else {
+            let newTag = Tag(context: managedContext)
+            newTag.name = name
+            return newTag
+        }
     }
 
-    // Entfernen eines FoodItem-Objekts von einem Food-Objekt
-    func removeFromFoodItem(_ foodItem: FoodItem, from food: Food) {
-        food.removeFromFoodItem(foodItem)
-        saveContext()
+    private func findOrCreateFoodItem(_ item: FoodItemStruct) -> FoodItem {
+        let fetchRequest: NSFetchRequest<FoodItem> = FoodItem.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "food.name == %@ AND unit == %@", item.food.name, Unit.toString(item.unit))
+
+        if let existingItem = try? managedContext.fetch(fetchRequest).first {
+            existingItem.quantity += item.quantity // Update quantity if the item already exists
+            return existingItem
+        } else {
+            let newFoodItem = FoodItem(context: managedContext)
+            let food = findOrCreateFood(foodStruct: item.food)
+            newFoodItem.food = food
+            newFoodItem.unit = Unit.toString(item.unit)
+            newFoodItem.quantity = item.quantity
+            return newFoodItem
+        }
     }
 
-    // MARK: - Saving Context
+    private func findOrCreateFood(foodStruct: FoodStruct) -> Food {
+        let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", foodStruct.name)
+        if let existingFood = try? managedContext.fetch(fetchRequest).first {
+            return existingFood
+        } else {
+            let newFood = Food(context: managedContext)
+            newFood.name = foodStruct.name
+            newFood.category = foodStruct.category
+            newFood.info = foodStruct.info
+            return newFood
+        }
+    }
+    
+    func saveFood(foodStruct: FoodStruct) {
+            let food = Food(context: managedContext)
+        food.name = foodStruct.name
+        food.category = foodStruct.category
+        food.info = foodStruct.info
+            
+        if let facts = foodStruct.nutritionFacts {
+                let nutrition = NutritionFacts(context: managedContext)
+                nutrition.calories = Int64(facts.calories ?? 0)
+                nutrition.protein = facts.protein ?? 0.0
+                nutrition.carbohydrates = facts.carbohydrates ?? 0.0
+                nutrition.fat = facts.fat ?? 0.0
+                food.nutritionFacts = nutrition
+            }
+            
+            do {
+                try managedContext.save()
+            } catch let error as NSError {
+                print("Could not save. \(error), \(error.userInfo)")
+            }
+        }
 
-    // Speichern des Managed Context
-    private func saveContext() {
-        do {
-            try managedContext.save()
-        } catch {
-            print("Error saving context: \(error)")
+
+   
+}
+
+extension FoodItemStruct {
+    init(from managedObject: FoodItem) {
+        food = FoodStruct(from: managedObject.food!)
+        unit = Unit.fromString(managedObject.unit ?? "") ?? .gram
+        quantity = managedObject.quantity
+    }
+}
+
+// Extensions for handling conversion from managed objects to structs might also be needed:
+extension FoodStruct {
+    init(from managedObject: Food) {
+        self.name = managedObject.name ?? ""
+        self.category = managedObject.category
+        self.info = managedObject.info
+        self.nutritionFacts = NutritionFactsStruct(from: managedObject.nutritionFacts)
+        self.id = managedObject.id ?? UUID()
+    }
+}
+
+extension Recipe {
+    init(from managedObject: Recipes) {
+        id = managedObject.id ?? UUID()  // Achten Sie darauf, dass IDs korrekt behandelt werden
+        title = managedObject.titel ?? "Unbekanntes Rezept"
+        instructions = managedObject.instructions ?? []
+        image = managedObject.image
+        portion = PortionsInfo.fromString(managedObject.portion ?? "")
+        cake = CakeInfo.fromString(managedObject.cake ?? "")
+        videoLink = managedObject.videoLink
+        info = managedObject.info
+        
+        if let ingredientsSet = managedObject.ingredients as? Set<FoodItem> {
+            ingredients = ingredientsSet.map(FoodItemStruct.init)
+        } else {
+            ingredients = []
         }
     }
 }
 
+extension NutritionFactsStruct {
+    init(from managedObject: NutritionFacts?) {
+           self.calories = Int(managedObject?.calories ?? 0)
+           self.protein = managedObject?.protein ?? 0
+           self.carbohydrates = managedObject?.carbohydrates ?? 0
+           self.fat = managedObject?.fat ?? 0
+       }
+}
+
+extension RecipebookStruct {
+    init(from managedObject: Recipebook) {
+        self.id = managedObject.id ?? UUID() // Stellen Sie sicher, dass die Entity Recipebook ein Attribut `id` vom Typ UUID hat
+        self.name = managedObject.name ?? ""
+        self.recipes = (managedObject.recipes?.allObjects as? [Recipes] ?? []).map(Recipe.init)
+        self.tags = (managedObject.tag?.allObjects as? [Tag] ?? []).map(TagStruct.init)
+    }
+}

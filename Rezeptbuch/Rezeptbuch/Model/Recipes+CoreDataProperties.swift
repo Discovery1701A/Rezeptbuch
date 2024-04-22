@@ -2,7 +2,7 @@
 //  Recipes+CoreDataProperties.swift
 //  Rezeptbuch
 //
-//  Created by Anna Rieckmann on 21.04.24.
+//  Created by Anna Rieckmann on 22.04.24.
 //
 //
 
@@ -17,12 +17,13 @@ extension Recipes {
     }
 
     @NSManaged public var cake: String?
-    @NSManaged public var id: Int64
+    @NSManaged public var id: UUID?
     @NSManaged public var image: String?
     @NSManaged public var instructions: [String]?
     @NSManaged public var portion: String?
     @NSManaged public var titel: String?
     @NSManaged public var videoLink: String?
+    @NSManaged public var info: String?
     @NSManaged public var ingredients: NSSet?
     @NSManaged public var recipesBooks: NSSet?
     @NSManaged public var tags: NSSet?

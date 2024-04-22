@@ -30,6 +30,7 @@ struct RecipeCreationView: View {
     @State private var cakeForm: Formen = .rund
     @State private var size: [Double] = [0.0, 0.0, 0.0]
     @State private var cakeSize: CakeSize = .round(diameter: 0.0)
+    @State private var info: String = ""
 #if os(macOS)
     @State private var recipeImage: NSImage?
 #else
@@ -201,45 +202,52 @@ struct RecipeCreationView: View {
             }
         }
         
-        let videoLinkSav : String?
-        if videoLink == ""{
+        let videoLinkSav: String?
+        if videoLink == "" {
             videoLinkSav = nil
-        } else{
+        } else {
             videoLinkSav = videoLink
+        }
+        let infoSav: String?
+        if info == "" {
+            infoSav = nil
+        } else {
+            infoSav = info
         }
         ingredients.removeAll(where: { $0 == nil })
         let recipe: Recipe
         
         if let image = recipeImage, let imagePath = saveImageLocally(image: image) {
-            recipe = Recipe(id: modelView.recipes.count + 1,
+            recipe = Recipe(id: UUID(),
                             title: recipeTitle,
                             ingredients: ingredients.compactMap { $0 },
                             instructions: instructions,
                             image: imagePath, // Pfad zur Bilddatei
                             portion: isCake ? .notPortion : .Portion(Double(portionValue) ?? 0.0),
                             cake: isCake ? .cake(form: cakeForm, size: cakeSize) : .notCake,
-                            videoLink: videoLinkSav)
+                            videoLink: videoLinkSav,
+                            info: infoSav)
         } else {
             if isCake {
-                recipe = Recipe(id: modelView.recipes.count + 1,
+                recipe = Recipe(id: UUID(),
                                 title: recipeTitle,
                                 ingredients: ingredients.compactMap { $0 },
                                 instructions: instructions,
                                 image: nil,
                                 portion: .notPortion,
                                 cake: .cake(form: cakeForm, size: cakeSize),
-                videoLink: videoLinkSav)
+                                videoLink: videoLinkSav,
+                                info: infoSav)
             } else {
-                recipe = Recipe(id: modelView.recipes.count + 1,
+                recipe = Recipe(id: UUID(),
                                 title: recipeTitle,
                                 ingredients: ingredients.compactMap { $0 },
                                 instructions: instructions,
                                 image: nil,
                                 portion: .Portion(Double(portionValue) ?? 0.0),
                                 cake: .notCake,
-                                videoLink: videoLinkSav
-                )
-                
+                                videoLink: videoLinkSav,
+                                info: infoSav)
             }
         }
         
@@ -357,13 +365,18 @@ struct RecipeCreationView: View {
                             .frame(height: 200)
                     }
 #endif
-                    
+                    Section(header: Text("info")) {
+                        TextField("infos Zum Rezept", text: $info)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .autocapitalization(.none)
+                            
+                    }
                     Section(header: Text("YouTube_Link")) {
-                                   TextField("Geben Sie den YouTube-Link ein", text: $videoLink)
-                                       .textFieldStyle(RoundedBorderTextFieldStyle())
-                                       .autocapitalization(.none)
-                                       .disableAutocorrection(true)
-                               }
+                        TextField("Geben Sie den YouTube-Link ein", text: $videoLink)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
+                    }
                     
                     Toggle("Ist es ein Kuchen?", isOn: $isCake.animation())
                     if isCake {

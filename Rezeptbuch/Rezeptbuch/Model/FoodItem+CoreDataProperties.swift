@@ -2,7 +2,7 @@
 //  FoodItem+CoreDataProperties.swift
 //  Rezeptbuch
 //
-//  Created by Anna Rieckmann on 21.04.24.
+//  Created by Anna Rieckmann on 22.04.24.
 //
 //
 
@@ -18,6 +18,7 @@ extension FoodItem {
 
     @NSManaged public var quantity: Double
     @NSManaged public var unit: String?
+    @NSManaged public var id: UUID?
     @NSManaged public var food: Food?
     @NSManaged public var recipe: Recipes?
 
