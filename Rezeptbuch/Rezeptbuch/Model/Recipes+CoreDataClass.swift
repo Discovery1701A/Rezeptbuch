@@ -2,7 +2,7 @@
 //  Recipes+CoreDataClass.swift
 //  Rezeptbuch
 //
-//  Created by Anna Rieckmann on 20.04.24.
+//  Created by Anna Rieckmann on 21.04.24.
 //
 //
 

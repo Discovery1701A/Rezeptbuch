@@ -191,31 +191,7 @@ struct RecipeView: View {
                         }
                                         }
                
-                    
-                    VStack(alignment: .center, spacing: 5) {
-                        Text("Zutaten:")
-                            .font(.headline)
-                            .multilineTextAlignment(.center)
-                        Divider().padding(.horizontal, 16)
-                        ForEach(ingredients, id: \.self) { ingredient in
-                            Text("\(ingredient.quantity.rounded(toPlaces: 2))" + ingredient.unit.rawValue + " " + ingredient.food.name)
-                                .foregroundColor(.blue)
-                                .padding(.horizontal, 10)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .frame(minHeight: 30)
-                                .frame(width : geometry.size.width*0.6)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.blue, lineWidth: 1)
-                                )
-                                .padding(.vertical, 5)
-                                .onChange(of: ingredient) { newValue in
-                                    itemScale()
-                                
-                            }
-                            Divider().padding(.horizontal, 16)
-                        }
-                    }
+                    RecipeIngredientsView(ingredients: ingredients)
                     
                             RecipeInstructionsView(instructions: recipe.instructions)
                             RecipeVideoView(videoLink: recipe.videoLink)
@@ -426,9 +402,18 @@ struct RecipeImageView: View {
                 .padding(.top, 10)
                 .frame(maxWidth: .infinity, maxHeight: 200)
         } else {
-            Text("Bild nicht verfügbar")
-                .foregroundColor(.secondary)
-                .padding()
+            if let imageName = imagePath {
+                                  Image(imageName)
+                                      .resizable()
+                                      .scaledToFit()
+                                      .cornerRadius(10)
+                                      .padding(.top, 10)
+                                      .frame(maxWidth: .infinity, maxHeight: 200)
+            } else{
+                Text("Bild nicht verfügbar")
+                    .foregroundColor(.secondary)
+                    .padding()
+            }
         }
     }
 }
@@ -454,21 +439,24 @@ struct RecipeVideoView: View {
               
                 .frame(maxWidth: .infinity, maxHeight: 300)
         } else {
-            Text("Kein gültiges Video gefunden.")
+            if videoLink != nil {
+                Text("Kein gültiges Video gefunden.")
+            }
         }
     }
 }
 
 struct RecipeIngredientsView: View {
     var ingredients: [FoodItemStruct]
+
     
     var body: some View {
-        VStack(alignment: .center, spacing: 5) {
+        VStack(alignment: .leading, spacing: 5) {
             Text("Zutaten:")
                 .font(.headline)
                 .multilineTextAlignment(.center)
             ForEach(ingredients, id: \.self) { ingredient in
-                Text("\(ingredient.quantity.rounded(toPlaces: 2)) \(ingredient.unit.rawValue) \(ingredient.food.name)")
+                Text("\(ingredient.quantity.rounded(toPlaces: 2).formatted(toPlaces: 2)) \(ingredient.unit.rawValue) \(ingredient.food.name)")
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -504,5 +492,14 @@ struct YouTubeView: UIViewRepresentable {
         guard let url = URL(string: "https://www.youtube.com/embed/\(videoID)?playsinline=1") else { return }
         uiView.scrollView.isScrollEnabled = false
         uiView.load(URLRequest(url: url))
+    }
+}
+extension Double {
+    func formatted(toPlaces places: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = places
+        formatter.numberStyle = .decimal
+        return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
     }
 }

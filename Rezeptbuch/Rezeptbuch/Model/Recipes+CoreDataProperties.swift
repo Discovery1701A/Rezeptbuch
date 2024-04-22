@@ -2,7 +2,7 @@
 //  Recipes+CoreDataProperties.swift
 //  Rezeptbuch
 //
-//  Created by Anna Rieckmann on 20.04.24.
+//  Created by Anna Rieckmann on 21.04.24.
 //
 //
 
@@ -24,6 +24,8 @@ extension Recipes {
     @NSManaged public var titel: String?
     @NSManaged public var videoLink: String?
     @NSManaged public var ingredients: NSSet?
+    @NSManaged public var recipesBooks: NSSet?
+    @NSManaged public var tags: NSSet?
 
 }
 
@@ -41,6 +43,40 @@ extension Recipes {
 
     @objc(removeIngredients:)
     @NSManaged public func removeFromIngredients(_ values: NSSet)
+
+}
+
+// MARK: Generated accessors for recipesBooks
+extension Recipes {
+
+    @objc(addRecipesBooksObject:)
+    @NSManaged public func addToRecipesBooks(_ value: Recipebook)
+
+    @objc(removeRecipesBooksObject:)
+    @NSManaged public func removeFromRecipesBooks(_ value: Recipebook)
+
+    @objc(addRecipesBooks:)
+    @NSManaged public func addToRecipesBooks(_ values: NSSet)
+
+    @objc(removeRecipesBooks:)
+    @NSManaged public func removeFromRecipesBooks(_ values: NSSet)
+
+}
+
+// MARK: Generated accessors for tags
+extension Recipes {
+
+    @objc(addTagsObject:)
+    @NSManaged public func addToTags(_ value: Tag)
+
+    @objc(removeTagsObject:)
+    @NSManaged public func removeFromTags(_ value: Tag)
+
+    @objc(addTags:)
+    @NSManaged public func addToTags(_ values: NSSet)
+
+    @objc(removeTags:)
+    @NSManaged public func removeFromTags(_ values: NSSet)
 
 }
 

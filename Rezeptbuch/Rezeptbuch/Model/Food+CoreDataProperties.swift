@@ -2,7 +2,7 @@
 //  Food+CoreDataProperties.swift
 //  Rezeptbuch
 //
-//  Created by Anna Rieckmann on 15.04.24.
+//  Created by Anna Rieckmann on 21.04.24.
 //
 //
 
@@ -19,8 +19,9 @@ extension Food {
     @NSManaged public var category: String?
     @NSManaged public var info: String?
     @NSManaged public var name: String?
-    @NSManaged public var nutritionFacts: NutritionFacts?
     @NSManaged public var foodItem: NSSet?
+    @NSManaged public var nutritionFacts: NutritionFacts?
+    @NSManaged public var tags: NSSet?
 
 }
 
@@ -38,6 +39,23 @@ extension Food {
 
     @objc(removeFoodItem:)
     @NSManaged public func removeFromFoodItem(_ values: NSSet)
+
+}
+
+// MARK: Generated accessors for tags
+extension Food {
+
+    @objc(addTagsObject:)
+    @NSManaged public func addToTags(_ value: Tag)
+
+    @objc(removeTagsObject:)
+    @NSManaged public func removeFromTags(_ value: Tag)
+
+    @objc(addTags:)
+    @NSManaged public func addToTags(_ values: NSSet)
+
+    @objc(removeTags:)
+    @NSManaged public func removeFromTags(_ values: NSSet)
 
 }
 

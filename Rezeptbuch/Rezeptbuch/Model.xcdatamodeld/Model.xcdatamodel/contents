@@ -6,6 +6,7 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="foodItem" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FoodItem" inverseName="food" inverseEntity="FoodItem"/>
         <relationship name="nutritionFacts" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="NutritionFacts" inverseName="food" inverseEntity="NutritionFacts"/>
+        <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="foods" inverseEntity="Tag"/>
     </entity>
     <entity name="FoodItem" representedClassName="FoodItem" syncable="YES">
         <attribute name="quantity" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -22,8 +23,8 @@
     </entity>
     <entity name="Recipebook" representedClassName="Recipebook" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String"/>
-        <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipes"/>
-        <relationship name="tag" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Tag" inverseName="recipebook" inverseEntity="Tag"/>
+        <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipes" inverseName="recipesBooks" inverseEntity="Recipes"/>
+        <relationship name="tag" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="recipebook" inverseEntity="Tag"/>
     </entity>
     <entity name="Recipes" representedClassName="Recipes" syncable="YES">
         <attribute name="cake" optional="YES" attributeType="String" customClassName="CakeInfo"/>
@@ -34,10 +35,13 @@
         <attribute name="titel" optional="YES" attributeType="String"/>
         <attribute name="videoLink" optional="YES" attributeType="String"/>
         <relationship name="ingredients" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FoodItem" inverseName="recipe" inverseEntity="FoodItem"/>
+        <relationship name="recipesBooks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipebook" inverseName="recipes" inverseEntity="Recipebook"/>
+        <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="recipe" inverseEntity="Tag"/>
     </entity>
     <entity name="Tag" representedClassName="Tag" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String"/>
-        <relationship name="recipe" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipes"/>
+        <relationship name="foods" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Food" inverseName="tags" inverseEntity="Food"/>
+        <relationship name="recipe" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipes" inverseName="tags" inverseEntity="Recipes"/>
         <relationship name="recipebook" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipebook" inverseName="tag" inverseEntity="Recipebook"/>
     </entity>
 </model>

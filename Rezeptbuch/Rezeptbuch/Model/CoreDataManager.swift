@@ -186,53 +186,74 @@ class CoreDataManager {
     }
 
     
-    // Funktion zum Speichern von Recipes
-    func saveRecipe(_ recipe : Recipe) {
-        guard let entityDescription = NSEntityDescription.entity(forEntityName: "Recipes", in: managedContext) else {
-            return
-        }
-        
-        var shoudSave = true
-        let consrecipe = fetchRecipes()
-        for existRecepie in consrecipe {
-            if existRecepie.title == recipe.title && existRecepie.instructions == recipe.instructions && existRecepie.ingredients == recipe.ingredients && existRecepie.cake == recipe.cake && existRecepie.portion == recipe.portion && existRecepie.videoLink == recipe.videoLink {
-                shoudSave = false
+    // Suche oder Erstellung eines Food-Objekts
+        private func findOrCreateFood(_ food: FoodStruct) -> Food {
+            let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "name == %@", food.name)
+
+            do {
+                let results = try managedContext.fetch(fetchRequest)
+                if let existingFood = results.first {
+                    return existingFood
+                }
+            } catch {
+                print("Error fetching Food: \(error)")
             }
+
+            let newFood = Food(context: managedContext)
+            newFood.name = food.name
+            newFood.category = food.category
+            newFood.info = food.info
+            return newFood
         }
-        
-        if shoudSave {
+
+        // Suche oder Erstellung eines FoodItem-Objekts
+        private func findOrCreateFoodItem(_ item: FoodItemStruct) -> FoodItem {
+            let fetchRequest: NSFetchRequest<FoodItem> = FoodItem.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "food.name == %@ AND unit == %@", item.food.name, Unit.toString(item.unit))
+
+            do {
+                let results = try managedContext.fetch(fetchRequest)
+                if let existingFoodItem = results.first {
+                    existingFoodItem.quantity = item.quantity
+                    return existingFoodItem
+                }
+            } catch {
+                print("Error fetching FoodItem: \(error)")
+            }
+
+            let newFoodItem = FoodItem(context: managedContext)
+            newFoodItem.food = findOrCreateFood(item.food)
+            newFoodItem.unit = Unit.toString(item.unit)
+            newFoodItem.quantity = item.quantity
+            return newFoodItem
+        }
+
+        // Speichern eines Rezepts
+        func saveRecipe(_ recipe: Recipe) {
             let recipeEntity = Recipes(context: managedContext)
             recipeEntity.titel = recipe.title
             recipeEntity.id = Int64(recipe.id)
             recipeEntity.image = recipe.image
             recipeEntity.instructions = recipe.instructions
-            
-            // Überprüfen, ob Zutaten vorhanden sind
-            if !recipe.ingredients.isEmpty {
-                for foodItem in recipe.ingredients {
-                    let foodItemEntity = FoodItem(context: managedContext)
-                    foodItemEntity.food = Food(context: managedContext)
-                    foodItemEntity.food?.name = foodItem.food.name
-                    foodItemEntity.food?.category = foodItem.food.category
-                    foodItemEntity.food?.info = foodItem.food.info
-                    foodItemEntity.unit = Unit.toString(foodItem.unit)
-                    foodItemEntity.quantity = foodItem.quantity
-                    
-                    // Hinzufügen des FoodItemEntity zum Rezept
-                    recipeEntity.addToIngredients(foodItemEntity)
-                }
-            }
             recipeEntity.portion = recipe.portion?.stringValue()
             recipeEntity.cake = recipe.cake?.stringValue()
             recipeEntity.videoLink = recipe.videoLink
-        }
 
-        do {
-            try managedContext.save()
-        } catch {
-            print("Error saving recipe: \(error)")
+            // Überprüfen, ob Zutaten vorhanden sind
+            if !recipe.ingredients.isEmpty {
+                recipe.ingredients.forEach { foodItemStruct in
+                    let foodItem = findOrCreateFoodItem(foodItemStruct)
+                    recipeEntity.addToIngredients(foodItem)
+                }
+            }
+
+            do {
+                try managedContext.save()
+            } catch {
+                print("Error saving recipe: \(error)")
+            }
         }
-    }
     
     // Funktion zum Bearbeiten von Recipes
     func editRecipe(_ recipe: Recipes, title: String, image: String?, ingredients: [FoodItem]?, instructions: [String]?, portion: String?, cake: String?) {
@@ -340,3 +361,4 @@ class CoreDataManager {
         }
     }
 }
+

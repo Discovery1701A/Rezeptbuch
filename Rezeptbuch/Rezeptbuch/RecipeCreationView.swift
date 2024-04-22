@@ -246,6 +246,7 @@ struct RecipeCreationView: View {
         print("ja")
         CoreDataManager().saveRecipe(recipe)
         modelView.updateRecipe()
+        modelView.updateFood()
     }
 
     private func loadImage() {
@@ -357,8 +358,8 @@ struct RecipeCreationView: View {
                     }
 #endif
                     
-                    Section(header: Text("Video Link")) {
-                                   TextField("Geben Sie den Video-Link ein", text: $videoLink)
+                    Section(header: Text("YouTube_Link")) {
+                                   TextField("Geben Sie den YouTube-Link ein", text: $videoLink)
                                        .textFieldStyle(RoundedBorderTextFieldStyle())
                                        .autocapitalization(.none)
                                        .disableAutocorrection(true)
