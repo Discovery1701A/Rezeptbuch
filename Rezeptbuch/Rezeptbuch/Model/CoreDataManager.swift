@@ -55,6 +55,7 @@ class CoreDataManager {
     func saveRecipe(_ recipe: Recipe) {
         let recipeEntity = findOrCreateRecipeEntity(from: recipe)
         populateRecipeEntity(recipeEntity, from: recipe)
+        print("saveRecepie Core: ",recipeEntity)
         saveContext()
     }
     
@@ -161,7 +162,7 @@ class CoreDataManager {
         fetchRequest.predicate = NSPredicate(format: "food.name == %@ AND unit == %@", item.food.name, Unit.toString(item.unit))
 
         if let existingItem = try? managedContext.fetch(fetchRequest).first {
-            existingItem.quantity += item.quantity // Update quantity if the item already exists
+           
             return existingItem
         } else {
             let newFoodItem = FoodItem(context: managedContext)

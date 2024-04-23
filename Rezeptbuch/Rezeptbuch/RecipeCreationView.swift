@@ -29,7 +29,7 @@ struct RecipeCreationView: View {
     @State private var portionValue: String = ""
     @State private var isCake = false
     @State private var cakeForm: Formen = .rund
-    @State private var size: [Double] = [0.0, 0.0, 0.0]
+    @State private var size: [String] = ["0.0", "0.0", "0.0"]
     @State private var cakeSize: CakeSize = .round(diameter: 0.0)
     @State private var info: String = ""
 #if os(macOS)
@@ -55,13 +55,37 @@ struct RecipeCreationView: View {
                 _recipeTitle = State(initialValue: recipe.title)
                 _ingredients = State(initialValue: recipe.ingredients)
                 _instructions = State(initialValue: recipe.instructions)
-                _portionValue = State(initialValue: recipe.portion?.stringValue() ?? "")
+                if case let .Portion(portionValue) = recipe.portion {
+                           self._portionValue = State(initialValue: String(portionValue))
+                       } else {
+                           self._portionValue = State(initialValue: "0.0")
+                       }
                 _isCake = State(initialValue: recipe.cake != nil)
                 _cakeForm = State(initialValue: recipe.cake?.form ?? .rund)
                 _cakeSize = State(initialValue: recipe.cake?.size ?? .round(diameter: 0))
                 _info = State(initialValue: recipe.info ?? "")
                 _videoLink = State(initialValue: recipe.videoLink ?? "")
                 _id = State(initialValue: recipe.id)
+               
+                _foods = State(initialValue: ingredients.compactMap { $0?.food })
+                _quantity = State(initialValue: ingredients.compactMap { ingredient in
+                            if let quantity = ingredient?.quantity {
+                                return String(quantity)
+                            } else {
+                                return nil
+                            }
+                        })
+                _selectedUnit = State(initialValue: ingredients.compactMap { $0?.unit })
+                
+                switch recipe.cake?.size {
+                       case .round(diameter: let dia):
+                           self._size = State(initialValue: [String(dia), "0.0", "0.0"])
+                       case .rectangular(length: let len, width: let wid):
+                           self._size = State(initialValue: ["0.0", String(len), String(wid)])
+                       case .none:
+                           self._size = State(initialValue: ["0.0", "0.0", "0.0"])
+                       }
+                
                 if let imagePath = recipe.image, let uiImage = UIImage(contentsOfFile: imagePath) {
                                self._recipeImage = State(initialValue: uiImage) // Store UIImage directly
                            }
@@ -122,34 +146,48 @@ struct RecipeCreationView: View {
                         .alert(item: $validationError) { error in
                             Alert(title: Text("Fehler"), message: Text(error.message), dismissButton: .default(Text("OK")))
                         }
+                       
                     }
                 }
                 .environment(\.editMode, $editMode)
         }.navigationViewStyle(StackNavigationViewStyle()) // Hier wird der Modifier hinzugefügt
     }
 #endif
-    
+    private func resetFormFields() {
+        recipeTitle = ""
+        ingredients = []
+        instructions = []
+        portionValue = ""
+        isCake = false
+        size = ["0.0", "0.0", "0.0"]
+        info = ""
+        videoLink = ""
+        foods = []
+        quantity = []
+        selectedUnit = []
+        id = UUID()
+    }
     private func validateInputs() -> Bool {
         var error: ValidationError? // Fehlerobjekt erstellen
         
         if recipeTitle.isEmpty {
             error = ValidationError(message: "Bitte geben Sie einen Titel für das Rezept ein.")
         } else if isCake {
-            if cakeForm == .rund && size[0] <= 0 {
+            if cakeForm == .rund && Double(size[0])! <= 0 {
                 error = ValidationError(message: "Bitte geben Sie einen gültigen Durchmesser für den Kuchen ein.")
-            } else if cakeForm == .eckig && (size[1] <= 0 || size[2] <= 0) {
+            } else if cakeForm == .eckig && (Double(size[1])! <= 0 || Double(size[2])! <= 0) {
                 error = ValidationError(message: "Bitte geben Sie eine gültige Länge und Breite für den Kuchen ein.")
             }
         } else if Double(portionValue) ?? 0.0 <= 0 {
             error = ValidationError(message: "Bitte geben Sie eine gültige Portionsgröße ein.")
         }
-        print(foods.count)
+//        print(foods.count)
         if foods.isEmpty {
             error = ValidationError(message: "Bitte fügen Sie eine Zutate hinzu.")
         }
         for (index, ingredient) in foods.enumerated() {
             if ingredient == emptyFood {
-                print("neinnnn")
+//                print("neinnnn")
                 error = ValidationError(message: "Bitte füllen Sie alle Zutaten aus.")
             } else if quantity[index].isEmpty || Double(quantity[index]) == nil || Double(quantity[index])! <= 0 {
                 error = ValidationError(message: "Bitte geben Sie eine gültige Menge für alle Zutaten ein.")
@@ -231,7 +269,7 @@ struct RecipeCreationView: View {
                 ingredients[i] = FoodItemStruct(food: foods[i],
                                                 unit: selectedUnit[i],
                                                 quantity: Double(quantity[i])!)
-                print(ingredients[i])
+//                print(ingredients[i])
             }
         }
         
@@ -247,11 +285,19 @@ struct RecipeCreationView: View {
         } else {
             infoSav = info
         }
+        
+        if cakeForm == .rund{
+            cakeSize = .round(diameter: Double(size[0])!)
+        } else if cakeForm == .eckig {
+            cakeSize = .rectangular(length: Double(size[1])!, width: Double(size[2])!)
+        }
+     
+        
         ingredients.removeAll(where: { $0 == nil })
         let recipe: Recipe
         
         if let image = recipeImage, let imagePath = saveImageLocally(image: image) {
-            recipe = Recipe(id: UUID(),
+            recipe = Recipe(id: id,
                             title: recipeTitle,
                             ingredients: ingredients.compactMap { $0 },
                             instructions: instructions,
@@ -262,7 +308,7 @@ struct RecipeCreationView: View {
                             info: infoSav)
         } else {
             if isCake {
-                recipe = Recipe(id: UUID(),
+                recipe = Recipe(id: id,
                                 title: recipeTitle,
                                 ingredients: ingredients.compactMap { $0 },
                                 instructions: instructions,
@@ -272,7 +318,7 @@ struct RecipeCreationView: View {
                                 videoLink: videoLinkSav,
                                 info: infoSav)
             } else {
-                recipe = Recipe(id: UUID(),
+                recipe = Recipe(id: id,
                                 title: recipeTitle,
                                 ingredients: ingredients.compactMap { $0 },
                                 instructions: instructions,
@@ -284,10 +330,12 @@ struct RecipeCreationView: View {
             }
         }
         
-        print("ja")
+//        print("ja")
         CoreDataManager().saveRecipe(recipe)
         modelView.updateRecipe()
         modelView.updateFood()
+        resetFormFields()
+        
     }
 
     private func loadImage() {
@@ -422,13 +470,7 @@ struct RecipeCreationView: View {
                         if cakeForm == .rund {
                             HStack {
                                 Text("Durchmesser (cm):")
-                                TextField("Durchmesser (cm)", text: Binding(
-                                    get: { "\(size[0])" },
-                                    set: {
-                                        if let value = Double($0) {
-                                            cakeSize = .round(diameter: value)
-                                        }
-                                    }))
+                                TextField("Durchmesser (cm)", text: $size[0] )
 #if os(iOS)
                                     .keyboardType(.decimalPad)
 #endif
@@ -436,26 +478,14 @@ struct RecipeCreationView: View {
                         } else {
                             HStack {
                                 Text("Länge (cm):")
-                                TextField("Länge (cm)", text: Binding(
-                                    get: { "\(size[1])" },
-                                    set: {
-                                        if let value = Double($0) {
-                                            cakeSize = .rectangular(length: value, width: size[2])
-                                        }
-                                    }))
+                                TextField("Länge (cm)", text: $size[1])
 #if os(iOS)
                                     .keyboardType(.decimalPad)
 #endif
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                     .padding()
                                 Text("Breite (cm):")
-                                TextField("Breite (cm)", text: Binding(
-                                    get: { "\(size[2])" },
-                                    set: {
-                                        if let value = Double($0) {
-                                            cakeSize = .rectangular(length: size[1], width: value)
-                                        }
-                                    }))
+                                TextField("Breite (cm)", text: $size[2])
 #if os(iOS)
                                     .keyboardType(.decimalPad)
 #endif
@@ -516,7 +546,7 @@ struct RecipeCreationView: View {
                 }
                 Button(action: {
                     ingredients.append(nil)
-                    print(ingredients.count)
+//                    print(ingredients.count)
                     foods.append(emptyFood)
                     quantity.append("")
                     selectedUnit.append(.gram)

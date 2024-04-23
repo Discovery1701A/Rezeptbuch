@@ -15,12 +15,12 @@ class ViewModel: ObservableObject {
     init() {
         CoreDataManager().insertInitialDataIfNeeded()
         var load = CoreDataManager().fetchRecipes()
-        print("das ist ",load[0].ingredients)
-        print(load[1].cake)
+//        print("das ist ",load[0].ingredients)
+//        print(load[1].cake)
         recipes = load
         var food = CoreDataManager().fetchFoods()
         foods = food
-        print("issss",food)
+//        print("issss",food)
     }
     
     func appendToRecipes (recipe: Recipe){
@@ -30,6 +30,7 @@ class ViewModel: ObservableObject {
     
     func updateRecipe(){
         recipes = CoreDataManager().fetchRecipes()
+        print("rezepteModelView:", recipes)
     }
     
     func updateFood(){

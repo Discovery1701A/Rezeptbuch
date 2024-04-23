@@ -78,7 +78,7 @@ struct RecipeListView: View {
                        }
 
                        List(filteredRecipes, id: \.id) { recipe in
-                           NavigationLink(destination: RecipeView(recipe: recipe)) {
+                           NavigationLink(destination: RecipeView(recipe: recipe, modelView: modelView)) {
                                HStack {
                                    Text(recipe.title)
                                    // Additional recipe details if needed

@@ -10,6 +10,7 @@ import WebKit
 
 struct RecipeView: View {
     var recipe: Recipe
+    var modelView: ViewModel
         var originIngriedents: [FoodItemStruct]
         @State private var ingredients: [FoodItemStruct]
         @State private var shoppingList: [FoodItemStruct] = []
@@ -26,8 +27,9 @@ struct RecipeView: View {
     @State private var originLenght : Double
     @State private var originWidth : Double
         
-    init(recipe: Recipe) {
+    init(recipe: Recipe, modelView: ViewModel) {
         self.recipe = recipe
+        self.modelView = modelView
         self.originIngriedents = recipe.ingredients
         self._ingredients = State(initialValue: originIngriedents)
        
@@ -96,7 +98,15 @@ struct RecipeView: View {
     
     var body: some View {
         GeometryReader { geometry in
+           
                     ScrollView {
+                        NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
+                                                    Text("Bearbeiten")
+                                                        .padding()
+                                                        .foregroundColor(.white)
+                                                        .background(Color.blue)
+                                                        .cornerRadius(10)
+                                                }
                         VStack(alignment: .center, spacing: 10) {
                             Text(recipe.title)
                                 .font(.title)
@@ -193,7 +203,7 @@ struct RecipeView: View {
                
                     RecipeIngredientsView(ingredients: ingredients)
                                 .onAppear {
-                                           print("Angezeigte Zutaten: \(ingredients)")
+                                           print("Angezeigte Zutatenin der View: \(ingredients)")
                                        }
                             RecipeInstructionsView(instructions: recipe.instructions)
                             RecipeVideoView(videoLink: recipe.videoLink)
@@ -307,7 +317,7 @@ struct RecipeView: View {
             
             eventStore.requestFullAccessToReminders() { granted, error in
                 if granted {
-                    print("ja")
+//                    print("ja")
                     let predicate = eventStore.predicateForReminders(in: [reminderList])
                     eventStore.fetchReminders(matching: predicate) { reminders in
                         let filteredReminders = reminders?.filter { $0.title?.contains(item.unit.rawValue + " " + item.food.name) ?? false }
