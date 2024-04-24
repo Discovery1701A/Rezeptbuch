@@ -77,6 +77,8 @@ struct Recipe {
     var info: String? // Additional information about the recipe
     var tags: [TagStruct]? // Tags associated with the recipe
     
+    var recipeBookIDs: [UUID]?  // Änderung hier
+   
     static var empty: Recipe {
           Recipe(
               id: UUID(),
@@ -89,6 +91,7 @@ struct Recipe {
               videoLink: nil,
               info: "",
               tags: []
+    
           )
       }
 }
@@ -273,8 +276,19 @@ func createTags(_ names: [String]) -> [TagStruct] {
 let emptyFood = FoodStruct(id: UUID(), name: "")
 
 let tomate = FoodStruct(id: UUID(), name: "Tomate", category: "Obst")
-let schoki = FoodStruct(id: UUID(), name: "Schokolade", category: "Süßwaren")
 let zartbitterSchokolade = FoodStruct(
+    id: UUID(),
+    name: "Zartbitter Schokolade",
+    category: "Süßwaren",
+    info: "Dunkle Schokolade mit einem hohen Kakaoanteil, die weniger Zucker enthält als Milchschokolade und als eine gesündere Option gilt.",
+    nutritionFacts: NutritionFactsStruct(
+        calories: 530,
+        protein: 4.9,
+        carbohydrates: 45.9,
+        fat: 31.8
+    )
+)
+let butter = FoodStruct(
     id: UUID(),
     name: "Butter",
     category: "Milchprodukte",
@@ -338,6 +352,7 @@ let brownieRecipe = Recipe(
     title: "Brownie",
     ingredients: [
         FoodItemStruct(food: zartbitterSchokolade, unit: .gram, quantity: 250),
+        FoodItemStruct(food: butter, unit: .gram, quantity: 250),
         FoodItemStruct(food: vanilleExtrakt, unit: .teaspoon, quantity: 1),
         FoodItemStruct(food: zucker, unit: .gram, quantity: 350),
         FoodItemStruct(food: eier, unit: .piece, quantity: 6),

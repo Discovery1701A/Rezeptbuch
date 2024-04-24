@@ -29,6 +29,17 @@ class CoreDataManager {
             return []
         }
     }
+    func fetchTags() -> [TagStruct] {
+        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+        
+        do {
+            let fetchedTags = try managedContext.fetch(fetchRequest)
+            return fetchedTags.map { TagStruct(from: $0) }
+        } catch {
+            print("Error fetching tags: \(error)")
+            return []
+        }
+    }
     
     func fetchRecipes() -> [Recipe] {
         let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
@@ -52,12 +63,44 @@ class CoreDataManager {
 
     // MARK: Saving Methods
 
-    func saveRecipe(_ recipe: Recipe) {
+    func saveRecipe(_ recipe: Recipe, selectedRecipeBookID: UUID?) {
         let recipeEntity = findOrCreateRecipeEntity(from: recipe)
         populateRecipeEntity(recipeEntity, from: recipe)
-        print("saveRecepie Core: ",recipeEntity)
+        
+        if let bookID = selectedRecipeBookID {
+            addRecipe(recipe, toRecipeBookWithID: bookID)
+        } else {
+            print("Kein Rezeptbuch ausgewählt, Rezept wird ohne Buchzuordnung gespeichert.")
+        }
+        
         saveContext()
     }
+    func saveRecipe(_ recipe: Recipe) {
+           let recipeEntity = findOrCreateRecipeEntity(from: recipe)
+           populateRecipeEntity(recipeEntity, from: recipe)
+           print("saveRecepie Core: ",recipeEntity)
+           saveContext()
+       }
+    
+    // Funktion zum Hinzufügen eines Rezepts zu einem Rezeptbuch
+    func addRecipe(_ recipe: Recipe, toRecipeBookWithID bookID: UUID) {
+        let bookFetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
+        bookFetchRequest.predicate = NSPredicate(format: "id == %@", bookID as CVarArg)
+
+        do {
+            if let recipeBook = try managedContext.fetch(bookFetchRequest).first {
+                let recipeEntity = findOrCreateRecipeEntity(from: recipe)
+                recipeBook.addToRecipes(recipeEntity)  // Angenommen, 'addToRecipes' ist die Methode, die von CoreData automatisch generiert wird
+                saveContext()
+                print("Rezept wurde dem Rezeptbuch hinzugefügt.")
+            } else {
+                print("Rezeptbuch nicht gefunden.")
+            }
+        } catch {
+            print("Fehler beim Hinzufügen des Rezepts zum Rezeptbuch: \(error)")
+        }
+    }
+
     
     private func findOrCreateRecipeEntity(from recipe: Recipe) -> Recipes {
         let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
@@ -87,6 +130,13 @@ class CoreDataManager {
                 let foodItemEntity = findOrCreateFoodItem(foodItemStruct)
                 entity.addToIngredients(foodItemEntity) // Stellen Sie sicher, dass dies aufgerufen wird
             }
+        if let tags = recipe.tags {
+            for tag in tags {
+                let tage = findOrCreateTag(tag)
+                entity.addToTags(tage)
+            }
+        }
+        
         // Handle tags and recipebooks relationship here if applicable
     }
     
@@ -184,6 +234,20 @@ class CoreDataManager {
             newFood.name = foodStruct.name
             newFood.category = foodStruct.category
             newFood.info = foodStruct.info
+            if let tags = foodStruct.tags {
+                for tag in tags {
+                    let tage = findOrCreateTag(tag)
+                    newFood.addToTags(tage)
+                }
+            }
+            if let facts = foodStruct.nutritionFacts {
+                    let nutrition = NutritionFacts(context: managedContext)
+                    nutrition.calories = Int64(facts.calories ?? 0)
+                    nutrition.protein = facts.protein ?? 0.0
+                    nutrition.carbohydrates = facts.carbohydrates ?? 0.0
+                    nutrition.fat = facts.fat ?? 0.0
+                    newFood.nutritionFacts = nutrition
+                }
             return newFood
         }
     }
@@ -194,6 +258,12 @@ class CoreDataManager {
         food.category = foodStruct.category
         food.info = foodStruct.info
             
+        if let tags = foodStruct.tags {
+            for tag in tags {
+                let tage = findOrCreateTag(tag)
+                food.addToTags(tage)
+            }
+        }
         if let facts = foodStruct.nutritionFacts {
                 let nutrition = NutritionFacts(context: managedContext)
                 nutrition.calories = Int64(facts.calories ?? 0)
@@ -209,11 +279,31 @@ class CoreDataManager {
                 print("Could not save. \(error), \(error.userInfo)")
             }
         }
-    
     func updateRecipe(_ recipe: Recipe) {
+            let recipeEntity = findOrCreateRecipeEntity(from: recipe)
+            
+            // Aktualisieren der Basisdaten
+            recipeEntity.titel = recipe.title
+            recipeEntity.instructions = recipe.instructions
+            recipeEntity.image = recipe.image
+            recipeEntity.portion = recipe.portion?.stringValue()
+            recipeEntity.cake = recipe.cake?.stringValue()
+            recipeEntity.videoLink = recipe.videoLink
+            recipeEntity.info = recipe.info
+            
+            // Aktualisieren der Zutatenliste
+            updateIngredients(for: recipeEntity, with: recipe.ingredients)
+            updateTags(for: recipeEntity, with: recipe.tags!)
+            // Tags und andere Verknüpfungen können hier ebenfalls aktualisiert werden
+
+            // Speichern der Änderungen im Kontext
+            saveContext()
+        }
+    
+    func updateRecipe(_ recipe: Recipe, withNewRecipeBookID bookID: UUID?) {
         let recipeEntity = findOrCreateRecipeEntity(from: recipe)
         
-        // Aktualisieren der Basisdaten
+        // Basisdaten aktualisieren
         recipeEntity.titel = recipe.title
         recipeEntity.instructions = recipe.instructions
         recipeEntity.image = recipe.image
@@ -222,13 +312,84 @@ class CoreDataManager {
         recipeEntity.videoLink = recipe.videoLink
         recipeEntity.info = recipe.info
         
-        // Aktualisieren der Zutatenliste
+        // Zutaten aktualisieren
         updateIngredients(for: recipeEntity, with: recipe.ingredients)
-        
-        // Tags und andere Verknüpfungen können hier ebenfalls aktualisiert werden
 
-        // Speichern der Änderungen im Kontext
+        // Update der Rezeptbuch-Beziehung
+        updateRecipeBookAssociation(for: recipeEntity, withNewBookID: bookID)
+
+        // Tags und andere Verknüpfungen können hier ebenfalls aktualisiert werden
+        updateTags(for: recipeEntity, with: recipe.tags!)
+
+        // Änderungen im Kontext speichern
         saveContext()
+    }
+    
+    func syncTag(with tagStruct: TagStruct) {
+        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", tagStruct.id as CVarArg)
+
+        do {
+            let results = try managedContext.fetch(fetchRequest)
+            let tag = results.first ?? Tag(context: managedContext)
+            tag.id = tagStruct.id
+            tag.name = tagStruct.name
+
+            saveContext()
+        } catch {
+            print("Failed to fetch or save tag: \(error)")
+        }
+    }
+    func updateTags(for recipeEntity: Recipes, with newTags: [TagStruct]) {
+        let existingTags = (recipeEntity.tags as? Set<Tag>) ?? Set()
+        
+        // Erstellen Sie ein Set der aktuellen Tag-IDs
+        let currentTagIDs = existingTags.map { $0.id }
+        
+        // Entfernen Sie alle Tags, die nicht mehr in den neuen Tags enthalten sind
+        for tag in existingTags {
+            if !newTags.contains(where: { $0.id == tag.id }) {
+                recipeEntity.removeFromTags(tag)
+            }
+        }
+
+        // Fügen Sie neue Tags hinzu, die noch nicht existieren
+        for tagStruct in newTags {
+            if !currentTagIDs.contains(tagStruct.id) {
+                let newTag = findOrCreateTag(tagStruct)
+                recipeEntity.addToTags(newTag)
+            }
+        }
+    }
+
+    func findOrCreateTag(_ tagStruct: TagStruct) -> Tag {
+        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", tagStruct.id as CVarArg)
+        let results = try? managedContext.fetch(fetchRequest)
+
+        if let existingTag = results?.first {
+            return existingTag
+        } else {
+            let newTag = Tag(context: managedContext)
+            newTag.id = tagStruct.id
+            newTag.name = tagStruct.name
+            return newTag
+        }
+    }
+
+
+    private func updateRecipeBookAssociation(for recipe: Recipes, withNewBookID bookID: UUID?) {
+        if let newBookID = bookID {
+            let bookFetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
+            bookFetchRequest.predicate = NSPredicate(format: "id == %@", newBookID as CVarArg)
+            
+            if let newBook = try? managedContext.fetch(bookFetchRequest).first {
+                // Hier sollten Sie überprüfen, ob das Rezept bereits dem Buch zugeordnet ist
+                // und entsprechend handeln, falls es bereits zugeordnet oder noch nicht zugeordnet ist
+                newBook.addToRecipes(recipe)
+            }
+        }
+        // Optional: Alte Buchzuordnungen entfernen, falls notwendig
     }
 
     private func updateIngredients(for entity: Recipes, with newIngredients: [FoodItemStruct]) {

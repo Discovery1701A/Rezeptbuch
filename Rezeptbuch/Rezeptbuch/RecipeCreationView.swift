@@ -48,8 +48,27 @@ struct RecipeCreationView: View {
     @State private var videoLink: String = ""
     @State private var id: UUID = UUID()
     
+    @State private var selectedRecipeBookIDs: Set<UUID> = []
+    
+    @State private var showingNewRecipeBookDialog = false
+    @State private var selectedRecipeBookID: UUID?
+    @State private var newRecipeBookName = ""
+    @State private var newRecipeBookDummyID = UUID()
+    
+    @State private var selectedTags: Set<UUID> = []
+    @State private var allTags: [TagStruct]
+    @State private var newTagName = ""
+    @State private var showingAddTagField = false
+    
+    @State private var tagSearchText = ""
+    @State private var filteredTags: [TagStruct] = []
+    
+    
+    
     init(recipe: Recipe? = nil, modelView: ViewModel) {
             self.modelView = modelView
+        allTags = modelView.tags
+      
             if let recipe = recipe {
                 _recipe = State(initialValue: recipe)
                 _recipeTitle = State(initialValue: recipe.title)
@@ -101,6 +120,7 @@ struct RecipeCreationView: View {
                 _info = State(initialValue: "")
                 _videoLink = State(initialValue: "")
             }
+       
         }
     
 #if os(macOS)
@@ -264,38 +284,24 @@ struct RecipeCreationView: View {
 #endif
     
     private func saveRecipe() {
-        for i in 0 ..< ingredients.count {
-            if foods[i] != emptyFood {
-                ingredients[i] = FoodItemStruct(food: foods[i],
-                                                unit: selectedUnit[i],
-                                                quantity: Double(quantity[i])!)
-//                print(ingredients[i])
-            }
-        }
-        
-        let videoLinkSav: String?
-        if videoLink == "" {
-            videoLinkSav = nil
-        } else {
-            videoLinkSav = videoLink
-        }
-        let infoSav: String?
-        if info == "" {
-            infoSav = nil
-        } else {
-            infoSav = info
-        }
-        
-        if cakeForm == .rund{
-            cakeSize = .round(diameter: Double(size[0])!)
-        } else if cakeForm == .eckig {
-            cakeSize = .rectangular(length: Double(size[1])!, width: Double(size[2])!)
-        }
-     
-        
-        ingredients.removeAll(where: { $0 == nil })
-        let recipe: Recipe
-        
+        // Vorbereitung der Zutaten und Prüfung des Rezepts wie bisher
+           for i in 0 ..< ingredients.count {
+               if foods[i] != emptyFood {
+                   ingredients[i] = FoodItemStruct(food: foods[i],
+                                                   unit: selectedUnit[i],
+                                                   quantity: Double(quantity[i])!)
+               }
+           }
+
+           let videoLinkSav: String? = videoLink.isEmpty ? nil : videoLink
+           let infoSav: String? = info.isEmpty ? nil : info
+
+           let cakeInfo: CakeInfo = isCake ? .cake(form: cakeForm, size: cakeSize) : .notCake
+           let portionInfo: PortionsInfo = isCake ? .notPortion : .Portion(Double(portionValue) ?? 0.0)
+
+         
+           // Nach dem Speichern, Formular zurücksetzen und eventuell zur Detailansicht navigieren
+           resetFormFields()
         if let image = recipeImage, let imagePath = saveImageLocally(image: image) {
             recipe = Recipe(id: id,
                             title: recipeTitle,
@@ -331,13 +337,29 @@ struct RecipeCreationView: View {
         }
         
 //        print("ja")
+        // Speichern des Rezepts im Datenmanager
+       
+
+        // Zuordnen des Rezepts zum ausgewählten Rezeptbuch
+       
+
         CoreDataManager().saveRecipe(recipe)
+        CoreDataManager().updateRecipe(recipe)
         modelView.updateRecipe()
         modelView.updateFood()
+        if let bookID = selectedRecipeBookID {
+            CoreDataManager.shared.addRecipe(recipe, toRecipeBookWithID: bookID)
+        }
         resetFormFields()
         
     }
-
+    func addNewRecipeBook() {
+        let newBook = RecipebookStruct(name: newRecipeBookName, recipes: [])
+        modelView.recipeBooks.append(newBook)
+        selectedRecipeBookIDs.insert(newBook.id) // Optional: automatisch auswählen
+        newRecipeBookName = "" // Reset
+        showingNewRecipeBookDialog = false
+    }
     private func loadImage() {
         guard let inputImage = recipeImage else { return }
         // Additional processing of the loaded image, if needed
@@ -363,6 +385,42 @@ struct RecipeCreationView: View {
             break
         }
     }
+    var recipeBookPicker: some View {
+        Picker("Wählen Sie ein Rezeptbuch", selection: $selectedRecipeBookID) {
+                     ForEach(modelView.recipeBooks, id: \.id) { book in
+                         Text(book.name).tag(book.id as UUID?)
+                     }
+                     // Verwenden der konstanten Dummy-UUID
+                     Text("Neues Rezeptbuch hinzufügen").tag(newRecipeBookDummyID as UUID?)
+                 }
+                 .onChange(of: selectedRecipeBookID) { newValue in
+                     if newValue == newRecipeBookDummyID { // Überprüfen, ob die Dummy-UUID ausgewählt wurde
+                         self.showingNewRecipeBookDialog = true
+                         // Zurücksetzen der Auswahl
+                         self.selectedRecipeBookID = nil
+                     }
+                 }
+                 .pickerStyle(MenuPickerStyle())
+    }
+
+    var newRecipeBookView: some View {
+        VStack {
+            Text("Neues Rezeptbuch erstellen")
+            TextField("Name des Rezeptbuchs", text: $newRecipeBookName)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+            Button("Hinzufügen") {
+                let newBook = RecipebookStruct(id: UUID(), name: newRecipeBookName)
+                modelView.recipeBooks.append(newBook)
+                selectedRecipeBookID = newBook.id
+                showingNewRecipeBookDialog = false
+                newRecipeBookName = ""
+                self.newRecipeBookDummyID = UUID()
+            }
+            .disabled(newRecipeBookName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+        .padding()
+    }
+
     
     var content: some View {
         Form {
@@ -452,6 +510,77 @@ struct RecipeCreationView: View {
                             .autocapitalization(.none)
                             
                     }
+                    Section(header: Text("Rezeptbücher")) {
+                                if modelView.recipeBooks.isEmpty {
+                                    Button("Neues Rezeptbuch erstellen") {
+                                        self.showingNewRecipeBookDialog = true
+                                    }
+                                } else {
+                                    recipeBookPicker
+                                }
+                            }
+                            .sheet(isPresented: $showingNewRecipeBookDialog) {
+                                newRecipeBookView
+                            }
+                    
+                    Section(header: Text("Tags")) {
+                        TextField("Tag suchen...", text: $tagSearchText)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .onChange(of: tagSearchText) { newValue in
+                                if newValue.isEmpty {
+                                    filteredTags = allTags
+                                } else {
+                                    filteredTags = allTags.filter { $0.name.lowercased().contains(newValue.lowercased()) }
+                                }
+                            }
+                            .onAppear {
+                                filteredTags = allTags // Initialfüllung beim Erscheinen der Ansicht
+                            }
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack {
+                                ForEach(filteredTags, id: \.id) { tag in
+                                    Text(tag.name)
+                                        .padding()
+                                        .background(selectedTags.contains(tag.id) ? Color.blue : Color.gray)
+                                        .foregroundColor(.white)
+                                        .clipShape(Capsule())
+                                        .onTapGesture {
+                                            if selectedTags.contains(tag.id) {
+                                                selectedTags.remove(tag.id)
+                                            } else {
+                                                selectedTags.insert(tag.id)
+                                            }
+                                        }
+                                }
+                            }
+                        }
+
+                        Button("Neuen Tag hinzufügen") {
+                            showingAddTagField = true
+                        }
+                    }
+
+                    .sheet(isPresented: $showingAddTagField) {
+                        VStack {
+                            TextField("Neuen Tag eingeben", text: $newTagName)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            Button("Tag hinzufügen") {
+                                let newTag = TagStruct(name: newTagName, id: UUID())
+                                allTags.append(newTag)
+                                selectedTags.insert(newTag.id)
+                                newTagName = ""
+                                filteredTags = allTags
+                                showingAddTagField = false
+                            }
+                            .disabled(newTagName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        }
+                        .padding()
+                    }
+
+
+                    
+                   
                     Section(header: Text("YouTube_Link")) {
                         TextField("Geben Sie den YouTube-Link ein", text: $videoLink)
                             .textFieldStyle(RoundedBorderTextFieldStyle())

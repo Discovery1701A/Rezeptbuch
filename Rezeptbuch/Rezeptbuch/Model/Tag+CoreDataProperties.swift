@@ -2,7 +2,7 @@
 //  Tag+CoreDataProperties.swift
 //  Rezeptbuch
 //
-//  Created by Anna Rieckmann on 22.04.24.
+//  Created by Anna Rieckmann on 24.04.24.
 //
 //
 
@@ -16,11 +16,28 @@ extension Tag {
         return NSFetchRequest<Tag>(entityName: "Tag")
     }
 
-    @NSManaged public var name: String?
     @NSManaged public var id: UUID?
+    @NSManaged public var name: String?
+    @NSManaged public var foods: NSSet?
     @NSManaged public var recipe: NSSet?
     @NSManaged public var recipebook: NSSet?
-    @NSManaged public var foods: NSSet?
+
+}
+
+// MARK: Generated accessors for foods
+extension Tag {
+
+    @objc(addFoodsObject:)
+    @NSManaged public func addToFoods(_ value: Food)
+
+    @objc(removeFoodsObject:)
+    @NSManaged public func removeFromFoods(_ value: Food)
+
+    @objc(addFoods:)
+    @NSManaged public func addToFoods(_ values: NSSet)
+
+    @objc(removeFoods:)
+    @NSManaged public func removeFromFoods(_ values: NSSet)
 
 }
 
@@ -55,23 +72,6 @@ extension Tag {
 
     @objc(removeRecipebook:)
     @NSManaged public func removeFromRecipebook(_ values: NSSet)
-
-}
-
-// MARK: Generated accessors for foods
-extension Tag {
-
-    @objc(addFoodsObject:)
-    @NSManaged public func addToFoods(_ value: Food)
-
-    @objc(removeFoodsObject:)
-    @NSManaged public func removeFromFoods(_ value: Food)
-
-    @objc(addFoods:)
-    @NSManaged public func addToFoods(_ values: NSSet)
-
-    @objc(removeFoods:)
-    @NSManaged public func removeFromFoods(_ values: NSSet)
 
 }
 

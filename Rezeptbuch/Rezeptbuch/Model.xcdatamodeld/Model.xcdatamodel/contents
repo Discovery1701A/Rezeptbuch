@@ -14,7 +14,7 @@
         <attribute name="quantity" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="unit" optional="YES" attributeType="String" customClassName="Unit"/>
         <relationship name="food" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Food" inverseName="foodItem" inverseEntity="Food"/>
-        <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Recipes" inverseName="ingredients" inverseEntity="Recipes"/>
+        <relationship name="recipe" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipes" inverseName="ingredients" inverseEntity="Recipes"/>
     </entity>
     <entity name="NutritionFacts" representedClassName="NutritionFacts" syncable="YES">
         <attribute name="calories" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
