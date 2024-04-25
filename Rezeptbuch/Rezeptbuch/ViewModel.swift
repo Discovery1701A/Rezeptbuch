@@ -17,7 +17,7 @@ class ViewModel: ObservableObject {
     init() {
         CoreDataManager().insertInitialDataIfNeeded()
         var load = CoreDataManager().fetchRecipes()
-//        print("das ist ",load[0].ingredients)
+      print("das ist ",load[0].tags)
 //        print(load[1].cake)
         recipeBooks = CoreDataManager().fetchRecipebooks()
         tags = CoreDataManager().fetchTags()
@@ -40,6 +40,14 @@ class ViewModel: ObservableObject {
     
     func updateFood(){
         foods = CoreDataManager().fetchFoods()
+    }
+    
+    func updateTags(){
+        tags = CoreDataManager().fetchTags()
+    }
+    
+    func updateBooks(){
+        recipeBooks = CoreDataManager().fetchRecipebooks()
     }
     
   

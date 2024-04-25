@@ -51,9 +51,11 @@ struct RecipeCreationView: View {
     @State private var selectedRecipeBookIDs: Set<UUID> = []
     
     @State private var showingNewRecipeBookDialog = false
-    @State private var selectedRecipeBookID: UUID?
+//    @State private var selectedRecipeBookID: UUID?
     @State private var newRecipeBookName = ""
     @State private var newRecipeBookDummyID = UUID()
+    @State private var recipeBookSearchText: String = ""
+    @State private var filteredRecipeBooks: [RecipebookStruct]
     
     @State private var selectedTags: Set<UUID> = []
     @State private var allTags: [TagStruct]
@@ -62,14 +64,17 @@ struct RecipeCreationView: View {
     
     @State private var tagSearchText = ""
     @State private var filteredTags: [TagStruct] = []
+    @State private var newRecipe: Bool = true
     
     
     
     init(recipe: Recipe? = nil, modelView: ViewModel) {
             self.modelView = modelView
         allTags = modelView.tags
+        filteredRecipeBooks = modelView.recipeBooks
       
             if let recipe = recipe {
+                newRecipe = false
                 _recipe = State(initialValue: recipe)
                 _recipeTitle = State(initialValue: recipe.title)
                 _ingredients = State(initialValue: recipe.ingredients)
@@ -108,6 +113,15 @@ struct RecipeCreationView: View {
                 if let imagePath = recipe.image, let uiImage = UIImage(contentsOfFile: imagePath) {
                                self._recipeImage = State(initialValue: uiImage) // Store UIImage directly
                            }
+                if let tags = recipe.tags {
+                    _selectedTags = State(initialValue: Set(tags.map { $0.id }))
+                }
+//                print(selectedTags)
+//                print(allTags)
+                if let id = recipe.recipeBookIDs {
+                    _selectedRecipeBookIDs = State(initialValue: Set(id))
+                }
+                
             } else {
                 _recipe = State(initialValue: Recipe.empty)
                 _recipeTitle = State(initialValue: "")
@@ -186,6 +200,8 @@ struct RecipeCreationView: View {
         quantity = []
         selectedUnit = []
         id = UUID()
+        selectedRecipeBookIDs = []
+        selectedTags = []
     }
     private func validateInputs() -> Bool {
         var error: ValidationError? // Fehlerobjekt erstellen
@@ -298,10 +314,20 @@ struct RecipeCreationView: View {
 
            let cakeInfo: CakeInfo = isCake ? .cake(form: cakeForm, size: cakeSize) : .notCake
            let portionInfo: PortionsInfo = isCake ? .notPortion : .Portion(Double(portionValue) ?? 0.0)
-
+       
+       
+            var tagsSav: [TagStruct] = []
+            for tagID in selectedTags {
+                let filteredTags = allTags.filter { $0.id == tagID }
+                tagsSav.append(contentsOf: filteredTags)
+            }
+        var bookSav: [RecipebookStruct] = []
+        for bookID in selectedRecipeBookIDs {
+            let filteredBooks = filteredRecipeBooks.filter { $0.id == bookID }
+            bookSav.append(contentsOf: filteredBooks)
+        }
+       
          
-           // Nach dem Speichern, Formular zurücksetzen und eventuell zur Detailansicht navigieren
-           resetFormFields()
         if let image = recipeImage, let imagePath = saveImageLocally(image: image) {
             recipe = Recipe(id: id,
                             title: recipeTitle,
@@ -311,7 +337,9 @@ struct RecipeCreationView: View {
                             portion: isCake ? .notPortion : .Portion(Double(portionValue) ?? 0.0),
                             cake: isCake ? .cake(form: cakeForm, size: cakeSize) : .notCake,
                             videoLink: videoLinkSav,
-                            info: infoSav)
+                            info: infoSav,
+                            tags: tagsSav,
+            recipeBookIDs: Array(selectedRecipeBookIDs))
         } else {
             if isCake {
                 recipe = Recipe(id: id,
@@ -322,7 +350,9 @@ struct RecipeCreationView: View {
                                 portion: .notPortion,
                                 cake: .cake(form: cakeForm, size: cakeSize),
                                 videoLink: videoLinkSav,
-                                info: infoSav)
+                                info: infoSav,
+                                tags: tagsSav,
+                                recipeBookIDs: Array(selectedRecipeBookIDs))
             } else {
                 recipe = Recipe(id: id,
                                 title: recipeTitle,
@@ -332,7 +362,10 @@ struct RecipeCreationView: View {
                                 portion: .Portion(Double(portionValue) ?? 0.0),
                                 cake: .notCake,
                                 videoLink: videoLinkSav,
-                                info: infoSav)
+                                info: infoSav,
+                tags: tagsSav,
+                                recipeBookIDs: Array(selectedRecipeBookIDs)
+                )
             }
         }
         
@@ -342,15 +375,24 @@ struct RecipeCreationView: View {
 
         // Zuordnen des Rezepts zum ausgewählten Rezeptbuch
        
-
-        CoreDataManager().saveRecipe(recipe)
-        CoreDataManager().updateRecipe(recipe)
+print(recipe)
+        if newRecipe{
+            CoreDataManager().saveRecipe(recipe)
+        } else {
+            print("updatteeeee")
+            CoreDataManager().updateRecipe(recipe)
+            print("perfekt")
+        }
+        
+        for book in bookSav{
+            CoreDataManager().addRecipe(recipe, toRecipeBook: book)
+        }
         modelView.updateRecipe()
         modelView.updateFood()
-        if let bookID = selectedRecipeBookID {
-            CoreDataManager.shared.addRecipe(recipe, toRecipeBookWithID: bookID)
-        }
+        modelView.updateTags()
+        modelView.updateBooks()
         resetFormFields()
+        print("durch")
         
     }
     func addNewRecipeBook() {
@@ -386,21 +428,43 @@ struct RecipeCreationView: View {
         }
     }
     var recipeBookPicker: some View {
-        Picker("Wählen Sie ein Rezeptbuch", selection: $selectedRecipeBookID) {
-                     ForEach(modelView.recipeBooks, id: \.id) { book in
-                         Text(book.name).tag(book.id as UUID?)
-                     }
-                     // Verwenden der konstanten Dummy-UUID
-                     Text("Neues Rezeptbuch hinzufügen").tag(newRecipeBookDummyID as UUID?)
-                 }
-                 .onChange(of: selectedRecipeBookID) { newValue in
-                     if newValue == newRecipeBookDummyID { // Überprüfen, ob die Dummy-UUID ausgewählt wurde
-                         self.showingNewRecipeBookDialog = true
-                         // Zurücksetzen der Auswahl
-                         self.selectedRecipeBookID = nil
-                     }
-                 }
-                 .pickerStyle(MenuPickerStyle())
+        VStack {
+            TextField("Rezeptbuch suchen...", text: $recipeBookSearchText)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .onChange(of: recipeBookSearchText) { newValue in
+                    if newValue.isEmpty {
+                        filteredRecipeBooks = modelView.recipeBooks
+                    } else {
+                        filteredRecipeBooks = modelView.recipeBooks.filter { $0.name.lowercased().contains(newValue.lowercased()) }
+                    }
+                }
+                .onAppear {
+                    filteredRecipeBooks = modelView.recipeBooks // Initialfüllung beim Erscheinen der Ansicht
+                }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(filteredRecipeBooks, id: \.id) { book in
+                        Text(book.name)
+                            .padding()
+                            .background(selectedRecipeBookIDs.contains(book.id) ? Color.blue : Color.gray)
+                            .foregroundColor(.white)
+                            .clipShape(Capsule())
+                            .onTapGesture {
+                                if selectedRecipeBookIDs.contains(book.id) {
+                                    selectedRecipeBookIDs.remove(book.id)
+                                } else {
+                                    selectedRecipeBookIDs.insert(book.id)
+                                }
+                            }
+                    }
+                }
+            }
+
+            Button("Neues Rezeptbuch hinzufügen") {
+                showingNewRecipeBookDialog = true
+            }
+        }
     }
 
     var newRecipeBookView: some View {
@@ -411,7 +475,7 @@ struct RecipeCreationView: View {
             Button("Hinzufügen") {
                 let newBook = RecipebookStruct(id: UUID(), name: newRecipeBookName)
                 modelView.recipeBooks.append(newBook)
-                selectedRecipeBookID = newBook.id
+                selectedRecipeBookIDs.insert(newBook.id)
                 showingNewRecipeBookDialog = false
                 newRecipeBookName = ""
                 self.newRecipeBookDummyID = UUID()

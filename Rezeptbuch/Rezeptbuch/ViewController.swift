@@ -116,6 +116,7 @@ struct FoodItemStruct: Hashable, Equatable {
     var food: FoodStruct
     var unit: Unit
     var quantity: Double
+    
 
     static func == (lhs: FoodItemStruct, rhs: FoodItemStruct) -> Bool {
         return lhs.food == rhs.food &&

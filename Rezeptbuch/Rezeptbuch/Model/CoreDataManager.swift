@@ -63,15 +63,13 @@ class CoreDataManager {
 
     // MARK: Saving Methods
 
-    func saveRecipe(_ recipe: Recipe, selectedRecipeBookID: UUID?) {
+    func saveRecipe(_ recipe: Recipe, selectedRecipeBook: RecipebookStruct) {
         let recipeEntity = findOrCreateRecipeEntity(from: recipe)
         populateRecipeEntity(recipeEntity, from: recipe)
+
         
-        if let bookID = selectedRecipeBookID {
-            addRecipe(recipe, toRecipeBookWithID: bookID)
-        } else {
-            print("Kein Rezeptbuch ausgewählt, Rezept wird ohne Buchzuordnung gespeichert.")
-        }
+            addRecipe(recipe, toRecipeBook: selectedRecipeBook)
+       
         
         saveContext()
     }
@@ -83,24 +81,41 @@ class CoreDataManager {
        }
     
     // Funktion zum Hinzufügen eines Rezepts zu einem Rezeptbuch
-    func addRecipe(_ recipe: Recipe, toRecipeBookWithID bookID: UUID) {
+    func addRecipe(_ recipe: Recipe, toRecipeBook book: RecipebookStruct) {
         let bookFetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
-        bookFetchRequest.predicate = NSPredicate(format: "id == %@", bookID as CVarArg)
+        bookFetchRequest.predicate = NSPredicate(format: "id == %@", book.id as CVarArg)
 
         do {
             if let recipeBook = try managedContext.fetch(bookFetchRequest).first {
                 let recipeEntity = findOrCreateRecipeEntity(from: recipe)
-                recipeBook.addToRecipes(recipeEntity)  // Angenommen, 'addToRecipes' ist die Methode, die von CoreData automatisch generiert wird
+                recipeBook.addToRecipes(recipeEntity)
                 saveContext()
                 print("Rezept wurde dem Rezeptbuch hinzugefügt.")
             } else {
-                print("Rezeptbuch nicht gefunden.")
+                print("Rezeptbuch nicht gefunden, wird erstellt.")
+                let newRecipeBook = createNewRecipeBook(recipeBookStruct: book) // Anpassen oder dynamisieren des Namens nach Bedarf
+                newRecipeBook.addToRecipes(findOrCreateRecipeEntity(from: recipe))
+                saveContext()
             }
         } catch {
             print("Fehler beim Hinzufügen des Rezepts zum Rezeptbuch: \(error)")
         }
     }
+    
+    func createNewRecipeBook(recipeBookStruct : RecipebookStruct) -> Recipebook {
+        let newBook = Recipebook(context: managedContext)
+        newBook.id = recipeBookStruct.id
+        newBook.name = recipeBookStruct.name
 
+        do {
+            try managedContext.save()
+            print("Neues Rezeptbuch erstellt: \(recipeBookStruct.name)")
+        } catch {
+            print("Fehler beim Erstellen des Rezeptbuchs: \(error)")
+        }
+        return newBook
+    }
+ 
     
     private func findOrCreateRecipeEntity(from recipe: Recipe) -> Recipes {
         let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
@@ -181,7 +196,7 @@ class CoreDataManager {
 
             if let tags = recipe.tags {
                 for tagName in tags {
-                    let tag = findOrCreateTag(name: tagName.name)
+                    let tag = findOrCreateTag(tagName)
                     recipeEntity.addToTags(tag)
                 }
             }
@@ -209,12 +224,20 @@ class CoreDataManager {
 
     private func findOrCreateFoodItem(_ item: FoodItemStruct) -> FoodItem {
         let fetchRequest: NSFetchRequest<FoodItem> = FoodItem.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "food.name == %@ AND unit == %@", item.food.name, Unit.toString(item.unit))
+        // Hier fügen wir auch die Menge als Bedingung hinzu
+        let predicateName = NSPredicate(format: "food.name == %@", item.food.name)
+        let predicateUnit = NSPredicate(format: "unit == %@", Unit.toString(item.unit))
+        let predicateQuantity = NSPredicate(format: "quantity == %lf", item.quantity)
+        
+        // Kombiniere alle drei Predikate zu einem einzigen zusammengesetzten Prädikat
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicateName, predicateUnit, predicateQuantity])
+        fetchRequest.predicate = compoundPredicate
 
         if let existingItem = try? managedContext.fetch(fetchRequest).first {
-           
+            // Wenn ein Element gefunden wird, das alle Kriterien erfüllt, geben Sie dieses zurück
             return existingItem
         } else {
+            // Kein passendes Element gefunden, also erstellen Sie ein neues
             let newFoodItem = FoodItem(context: managedContext)
             let food = findOrCreateFood(foodStruct: item.food)
             newFoodItem.food = food
@@ -223,6 +246,7 @@ class CoreDataManager {
             return newFoodItem
         }
     }
+
 
     private func findOrCreateFood(foodStruct: FoodStruct) -> Food {
         let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
@@ -279,28 +303,28 @@ class CoreDataManager {
                 print("Could not save. \(error), \(error.userInfo)")
             }
         }
-    func updateRecipe(_ recipe: Recipe) {
-            let recipeEntity = findOrCreateRecipeEntity(from: recipe)
-            
-            // Aktualisieren der Basisdaten
-            recipeEntity.titel = recipe.title
-            recipeEntity.instructions = recipe.instructions
-            recipeEntity.image = recipe.image
-            recipeEntity.portion = recipe.portion?.stringValue()
-            recipeEntity.cake = recipe.cake?.stringValue()
-            recipeEntity.videoLink = recipe.videoLink
-            recipeEntity.info = recipe.info
-            
-            // Aktualisieren der Zutatenliste
-            updateIngredients(for: recipeEntity, with: recipe.ingredients)
-            updateTags(for: recipeEntity, with: recipe.tags!)
-            // Tags und andere Verknüpfungen können hier ebenfalls aktualisiert werden
-
-            // Speichern der Änderungen im Kontext
-            saveContext()
-        }
+//    func updateRecipe(_ recipe: Recipe) {
+//            let recipeEntity = findOrCreateRecipeEntity(from: recipe)
+//            
+//            // Aktualisieren der Basisdaten
+//            recipeEntity.titel = recipe.title
+//            recipeEntity.instructions = recipe.instructions
+//            recipeEntity.image = recipe.image
+//            recipeEntity.portion = recipe.portion?.stringValue()
+//            recipeEntity.cake = recipe.cake?.stringValue()
+//            recipeEntity.videoLink = recipe.videoLink
+//            recipeEntity.info = recipe.info
+//            
+//            // Aktualisieren der Zutatenliste
+//            updateIngredients(for: recipeEntity, with: recipe.ingredients)
+//            updateTags(for: recipeEntity, with: recipe.tags!)
+//            // Tags und andere Verknüpfungen können hier ebenfalls aktualisiert werden
+//
+//            // Speichern der Änderungen im Kontext
+//            saveContext()
+//        }
     
-    func updateRecipe(_ recipe: Recipe, withNewRecipeBookID bookID: UUID?) {
+    func updateRecipe(_ recipe: Recipe) {
         let recipeEntity = findOrCreateRecipeEntity(from: recipe)
         
         // Basisdaten aktualisieren
@@ -316,7 +340,7 @@ class CoreDataManager {
         updateIngredients(for: recipeEntity, with: recipe.ingredients)
 
         // Update der Rezeptbuch-Beziehung
-        updateRecipeBookAssociation(for: recipeEntity, withNewBookID: bookID)
+        updateRecipeBookAssociation(for: recipeEntity, withNewBookID: recipe.recipeBookIDs)
 
         // Tags und andere Verknüpfungen können hier ebenfalls aktualisiert werden
         updateTags(for: recipeEntity, with: recipe.tags!)
@@ -378,18 +402,22 @@ class CoreDataManager {
     }
 
 
-    private func updateRecipeBookAssociation(for recipe: Recipes, withNewBookID bookID: UUID?) {
-        if let newBookID = bookID {
-            let bookFetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
-            bookFetchRequest.predicate = NSPredicate(format: "id == %@", newBookID as CVarArg)
-            
-            if let newBook = try? managedContext.fetch(bookFetchRequest).first {
-                // Hier sollten Sie überprüfen, ob das Rezept bereits dem Buch zugeordnet ist
-                // und entsprechend handeln, falls es bereits zugeordnet oder noch nicht zugeordnet ist
-                newBook.addToRecipes(recipe)
+    private func updateRecipeBookAssociation(for recipe: Recipes, withNewBookID bookIDs: [UUID]?) {
+        if let bookIDss = bookIDs{
+            for newBookID in bookIDss{
+                
+                    let bookFetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
+                    bookFetchRequest.predicate = NSPredicate(format: "id == %@", newBookID as CVarArg)
+                    
+                    if let newBook = try? managedContext.fetch(bookFetchRequest).first {
+                        // Hier sollten Sie überprüfen, ob das Rezept bereits dem Buch zugeordnet ist
+                        // und entsprechend handeln, falls es bereits zugeordnet oder noch nicht zugeordnet ist
+                        newBook.addToRecipes(recipe)
+                    }
+                
+                // Optional: Alte Buchzuordnungen entfernen, falls notwendig
             }
         }
-        // Optional: Alte Buchzuordnungen entfernen, falls notwendig
     }
 
     private func updateIngredients(for entity: Recipes, with newIngredients: [FoodItemStruct]) {
@@ -438,7 +466,16 @@ extension Recipe {
         cake = CakeInfo.fromString(managedObject.cake ?? "")
         videoLink = managedObject.videoLink
         info = managedObject.info
-        
+        if let tagsSet = managedObject.tags as? Set<Tag> {
+                   tags = tagsSet.map(TagStruct.init)  // Assuming TagStruct has an initializer that takes a Tag managed object
+               } else {
+                   tags = []  // If there are no tags, initialize to an empty array
+               }
+        if let recipeBooksSet = managedObject.recipesBooks as? Set<Recipebook> {
+        recipeBookIDs = recipeBooksSet.compactMap { $0.id }
+        } else {
+        recipeBookIDs = [] // If there are no recipe books, initialize to an empty array
+        }
         if let ingredientsSet = managedObject.ingredients as? Set<FoodItem> {
             ingredients = ingredientsSet.map(FoodItemStruct.init)
         } else {
