@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		58245C782BE515BE00F4179E /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58245C772BE515BE00F4179E /* ShareSheet.swift */; };
 		5854E8932BD3E11300682265 /* iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5854E8922BD3E11300682265 /* iOS.swift */; };
 		586AC7882BD93CFF0060B08D /* Food+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AC77C2BD93CFF0060B08D /* Food+CoreDataClass.swift */; };
 		586AC7892BD93CFF0060B08D /* Food+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AC77D2BD93CFF0060B08D /* Food+CoreDataProperties.swift */; };
@@ -42,6 +43,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		58245C772BE515BE00F4179E /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		5854E8922BD3E11300682265 /* iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOS.swift; sourceTree = "<group>"; };
 		586AC77C2BD93CFF0060B08D /* Food+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Food+CoreDataClass.swift"; sourceTree = "<group>"; };
 		586AC77D2BD93CFF0060B08D /* Food+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Food+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 				586AC7862BD93CFF0060B08D /* Recipes+CoreDataClass.swift */,
 				586AC7872BD93CFF0060B08D /* Recipes+CoreDataProperties.swift */,
 				588BD3F62BC176610053904B /* CoreDataManager.swift */,
+				58245C772BE515BE00F4179E /* ShareSheet.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -235,6 +238,7 @@
 			files = (
 				58C765F32B9F0385001E6068 /* Buttons.swift in Sources */,
 				58C765F12B9E2566001E6068 /* RezeptView.swift in Sources */,
+				58245C782BE515BE00F4179E /* ShareSheet.swift in Sources */,
 				58C765EF2B9E2510001E6068 /* ViewController.swift in Sources */,
 				58AF20702BA1B41500298B4A /* RecipeCreationView.swift in Sources */,
 				58C765F72B9F185B001E6068 /* RezeptListView.swift in Sources */,
@@ -389,7 +393,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Rezeptbuch/Rezeptbuch.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Rezeptbuch/Preview Content\"";
@@ -416,6 +420,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Discovery.Rezeptbuch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -430,7 +435,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Rezeptbuch/Rezeptbuch.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Rezeptbuch/Preview Content\"";
@@ -457,6 +462,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Discovery.Rezeptbuch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;

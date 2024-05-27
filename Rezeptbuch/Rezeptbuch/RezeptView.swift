@@ -17,6 +17,7 @@ struct RecipeView: View {
         @State private var isReminderAdded = false
         let eventStore = EKEventStore()
         @State private var portion: Double
+    @State private var showingShareSheet = false
         
         // Für den Picker
     @State private var cakeFormSelection : Formen
@@ -100,6 +101,12 @@ struct RecipeView: View {
         GeometryReader { geometry in
            
                     ScrollView {
+                        VStack(alignment: .leading, spacing: 20) {
+                           
+                                    ShareSheetView(recipe: recipe)
+                                
+                            
+                        }
                         NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
                                                     Text("Bearbeiten")
                                                         .padding()

@@ -67,18 +67,17 @@ struct FoodStruct: Hashable, Equatable {
 // Recipe structure containing details about food preparation
 struct Recipe {
     var id: UUID
-    var title: String
-    var ingredients: [FoodItemStruct]
-    var instructions: [String]
-    var image: String? // Path to an image file or URL
-    var portion: PortionsInfo?
-    var cake: CakeInfo? // Enum for cake information
-    var videoLink: String?
-    var info: String? // Additional information about the recipe
-    var tags: [TagStruct]? // Tags associated with the recipe
+        var title: String
+        var ingredients: [FoodItemStruct]
+        var instructions: [String]
+        var image: String?
+        var portion: PortionsInfo?
+        var cake: CakeInfo?
+        var videoLink: String?
+        var info: String?
+        var tags: [TagStruct]?
+        var recipeBookIDs: [UUID]?
     
-    var recipeBookIDs: [UUID]?  // Änderung hier
-   
     static var empty: Recipe {
           Recipe(
               id: UUID(),

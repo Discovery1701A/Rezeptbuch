@@ -133,7 +133,7 @@ class CoreDataManager {
     }
 
     
-    private func populateRecipeEntity(_ entity: Recipes, from recipe: Recipe) {
+     func populateRecipeEntity(_ entity: Recipes, from recipe: Recipe) {
         entity.titel = recipe.title
         entity.instructions = recipe.instructions
         entity.image = recipe.image
@@ -340,7 +340,7 @@ class CoreDataManager {
         updateIngredients(for: recipeEntity, with: recipe.ingredients)
 
         // Update der Rezeptbuch-Beziehung
-        updateRecipeBookAssociation(for: recipeEntity, withNewBookID: recipe.recipeBookIDs)
+        updateRecipeBookAssociation(for: recipeEntity, withNewBookIDs: recipe.recipeBookIDs)
 
         // Tags und andere Verknüpfungen können hier ebenfalls aktualisiert werden
         updateTags(for: recipeEntity, with: recipe.tags!)
@@ -402,23 +402,40 @@ class CoreDataManager {
     }
 
 
-    private func updateRecipeBookAssociation(for recipe: Recipes, withNewBookID bookIDs: [UUID]?) {
-        if let bookIDss = bookIDs{
-            for newBookID in bookIDss{
-                
-                    let bookFetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
-                    bookFetchRequest.predicate = NSPredicate(format: "id == %@", newBookID as CVarArg)
-                    
-                    if let newBook = try? managedContext.fetch(bookFetchRequest).first {
-                        // Hier sollten Sie überprüfen, ob das Rezept bereits dem Buch zugeordnet ist
-                        // und entsprechend handeln, falls es bereits zugeordnet oder noch nicht zugeordnet ist
-                        newBook.addToRecipes(recipe)
-                    }
-                
-                // Optional: Alte Buchzuordnungen entfernen, falls notwendig
+  func updateRecipeBookAssociation(for recipeEntity: Recipes, withNewBookIDs bookIDs: [UUID]?) {
+        guard let newBookIDs = bookIDs else { return }
+
+        // Bestehende Rezeptbücher zu diesem Rezept holen
+        if let currentBooks = recipeEntity.recipesBooks as? Set<Recipebook> {
+            let currentBookIDs = currentBooks.map { $0.id! }
+
+            // Entferne das Rezept aus allen Büchern, die nicht mehr in den neuen IDs sind
+            for book in currentBooks {
+                if !newBookIDs.contains(book.id!) {
+                    book.removeFromRecipes(recipeEntity)
+                }
             }
         }
+
+        // Füge das Rezept zu den neuen Büchern hinzu
+        for newBookID in newBookIDs {
+            let bookFetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
+            bookFetchRequest.predicate = NSPredicate(format: "id == %@", newBookID as CVarArg)
+            if let newBook = try? managedContext.fetch(bookFetchRequest).first {
+                if !((newBook.recipes as? Set<Recipes>)?.contains(recipeEntity))! ?? true {
+                    newBook.addToRecipes(recipeEntity)
+                }
+            } else {
+                let newBook = Recipebook(context: managedContext)
+                newBook.id = newBookID
+                newBook.addToRecipes(recipeEntity)
+                // Optional: Weitere Initialisierung des neuen Rezeptbuchs
+            }
+        }
+
+        saveContext()
     }
+
 
     private func updateIngredients(for entity: Recipes, with newIngredients: [FoodItemStruct]) {
         // Optional: Löschen oder aktualisieren bestehender Zutaten
