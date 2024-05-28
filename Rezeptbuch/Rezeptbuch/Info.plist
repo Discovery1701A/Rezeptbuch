@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleURLTypes</key>
+<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
@@ -13,15 +13,45 @@
 			</array>
 		</dict>
 	</array>
-	<key></key>
-	<string></string>
-	<key>NSCameraUsageDescription</key>
-	<string>App möchte auf die Kamera zugrifen</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>App möchte auf das microfon zugreifen</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>App möchte auf das Mikrofon zugreifen</string>
-	<key>NSRemindersFullAccessUsageDescription</key>
-	<string>App möchte auf die Erinnerungen zugreifen</string>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>Recipe File</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.Discovery.recipe</string>
+            </array>
+        </dict>
+    </array>
+    <key>UTExportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.Discovery.recipe</string>
+            <key>UTTypeDescription</key>
+            <string>Recipe File</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <string>recipe</string>
+                <key>public.mime-type</key>
+                <string>application/xml</string>
+            </dict>
+        </dict>
+    </array>
+    <key>NSCameraUsageDescription</key>
+    <string>App möchte auf die Kamera zugrifen</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>App möchte auf das Mikrofon zugreifen</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>App möchte auf das Mikrofon zugreifen</string>
+    <key>NSRemindersFullAccessUsageDescription</key>
+    <string>App möchte auf die Erinnerungen zugreifen</string>
 </dict>
 </plist>
+

@@ -12,6 +12,7 @@ struct ShareSheet: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
         let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        print(activityItems)
         return controller
     }
 
@@ -60,11 +61,29 @@ func serializeRecipeToPlist(recipe: Recipe, completion: @escaping (URL?, URL?) -
     dict["id"] = recipe.id.uuidString
     dict["title"] = recipe.title
     dict["instructions"] = recipe.instructions
-    dict["image"] = recipe.image ?? ""
+   
     dict["videoLink"] = recipe.videoLink ?? ""
     dict["info"] = recipe.info ?? ""
     dict["recipeBookIDs"] = recipe.recipeBookIDs?.map { $0.uuidString }
-
+    if let imagePath = recipe.image {
+        if let image = UIImage(contentsOfFile: imagePath) {
+            if let imageData = image.jpegData(compressionQuality: 1.0) {
+                dict["imageData"] = imageData
+            }
+        } else {
+            print("Das Bild konnte nicht geladen werden.")
+        }
+    } else if let imageName = recipe.image {
+        // Hier wird versucht, ein Bild aus den Asset-Katalogen zu laden
+        if let image = UIImage(named: imageName) {
+            if let imageData = image.jpegData(compressionQuality: 1.0) {
+                dict["imageData"] = imageData
+            }
+        } else {
+            print("Das Bild konnte nicht aus den Assets geladen werden.")
+        }
+    }
+  
     if let portion = recipe.portion {
         dict["portion"] = portion.stringValue()
     }
@@ -84,16 +103,19 @@ func serializeRecipeToPlist(recipe: Recipe, completion: @escaping (URL?, URL?) -
      
        
     do {
-           let plistData = try PropertyListSerialization.data(fromPropertyList: dict, format: .xml, options: 0)
-           try plistData.write(to: filePath)
-           let customURL = URL(string: "recipe://open?path=\(filePath)") // Create custom URL
-           print("Plist written to \(filePath)")
-           completion(filePath, customURL) // Pass the file path and the custom URL
+           let data = try JSONSerialization.data(withJSONObject: dict, options: [])
+           let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+           let fileURL = documentsDirectory.appendingPathComponent("\(recipe.title).recipe")
+
+           try data.write(to: fileURL)
+           let customURL = URL(string: "recipe://open?path=\(fileURL)")
+           completion(fileURL, customURL)
        } catch {
-           print("Failed to write plist: \(error)")
+           print("Failed to write recipe file: \(error)")
            completion(nil, nil)
        }
-}
+   }
+
 
 extension URL {
     var queryParameters: [String: String] {
@@ -123,36 +145,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
 
     func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        print("Received URL with scheme: \(url.scheme ?? "Unknown")")
-
-        guard url.scheme == "recipe", let host = url.host, host == "open" else {
-            print("URL scheme or host is incorrect")
+        guard url.scheme == "recipe", let path = url.queryParameters["path"] else {
             return false
         }
-
-        guard let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems,
-              let pathItem = queryItems.first(where: { $0.name == "path" }),
-              let path = pathItem.value else {
-            print("Path parameter is missing in URL")
-            return false
-        }
-
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let fileURL = documentsDirectory.appendingPathComponent(path)
-        print("Attempting to load file from: \(fileURL.path)")
-
-        if FileManager.default.fileExists(atPath: fileURL.path), let data = try? Data(contentsOf: fileURL) {
-            print("Recipe file found, processing...")
-            // Process the data
-            DispatchQueue.main.async {
-                // Display an alert or update UI in the main thread
-            }
-            return true
-        } else {
-            print("File does not exist at the provided path")
-            return false
-        }
+        
+        let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(path)
+        print(fileURL)
+        print("Angekommen yhaeeeee")
+        //        if let data = try? Data(contentsOf: fileURL), let recipe = deserializeRecipeData(data) {
+        //            // Handle the recipe data
+        //            print("Recipe loaded: \(recipe.title)")
+        //            return true
+        //        } else {
+        //            print("Failed to load recipe")
+        //            return false
+        //        }
+        return true
     }
+    
+
     
     private func processRecipeData(_ data: Data) {
         // Verarbeite hier die geladenen Rezeptdaten
