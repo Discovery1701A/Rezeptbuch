@@ -24,26 +24,26 @@
             </array>
         </dict>
     </array>
-    <key>UTExportedTypeDeclarations</key>
-    <array>
+   <key>UTExportedTypeDeclarations</key>
+<array>
+    <dict>
+        <key>UTTypeIdentifier</key>
+        <string>com.Discovery.recipe</string>
+        <key>UTTypeDescription</key>
+        <string>Recipe File</string>
+        <key>UTTypeConformsTo</key>
+        <array>
+            <string>public.data</string>
+        </array>
+        <key>UTTypeTagSpecification</key>
         <dict>
-            <key>UTTypeIdentifier</key>
-            <string>com.Discovery.recipe</string>
-            <key>UTTypeDescription</key>
-            <string>Recipe File</string>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <string>recipe</string>
-                <key>public.mime-type</key>
-                <string>application/xml</string>
-            </dict>
+            <key>public.filename-extension</key>
+            <string>recipe</string>
+            <key>public.mime-type</key>
+            <string>application/json</string>
         </dict>
-    </array>
+    </dict>
+</array>
     <key>NSCameraUsageDescription</key>
     <string>App möchte auf die Kamera zugrifen</string>
     <key>NSMicrophoneUsageDescription</key>

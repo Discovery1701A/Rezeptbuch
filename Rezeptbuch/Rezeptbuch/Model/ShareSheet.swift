@@ -34,7 +34,7 @@ struct ShareSheetView: View {
                 if let actualFileURL = actualFileURL, FileManager.default.fileExists(atPath: actualFileURL.path) {
                     self.fileURL = actualFileURL
                     self.customURL = customSchemeURL
-                    print(customURL)
+                    print(customURL, fileURL)
                     showingShareSheet = true
                 } else {
                     errorMessage = "Failed to prepare the recipe file for sharing."
@@ -45,7 +45,7 @@ struct ShareSheetView: View {
         .sheet(isPresented: $showingShareSheet) {
             if let customURL = customURL, let actaulURL = fileURL {
                 
-                ShareSheet(activityItems: [customURL, actaulURL])
+                ShareSheet(activityItems: [actaulURL,customURL])
             } else {
                 Text(errorMessage ?? "Unable to load the file for sharing")
             }
@@ -108,7 +108,7 @@ func serializeRecipeToPlist(recipe: Recipe, completion: @escaping (URL?, URL?) -
            let fileURL = documentsDirectory.appendingPathComponent("\(recipe.title).recipe")
 
            try data.write(to: fileURL)
-           let customURL = URL(string: "recipe://open?path=\(fileURL)")
+        let customURL = URL(string: "recipe://open?path=\(fileURL.lastPathComponent)")
            completion(fileURL, customURL)
        } catch {
            print("Failed to write recipe file: \(error)")
