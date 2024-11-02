@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TagStruct: Hashable, Equatable {
+struct TagStruct: Hashable, Equatable, Identifiable {
     var id: UUID
     var name: String
 
@@ -38,8 +38,7 @@ struct NutritionFactsStruct: Equatable, Hashable {
     }
 }
 
-// Structure to represent a food item, including nutritional details
-struct FoodStruct: Hashable, Equatable {
+struct FoodStruct: Hashable, Equatable, Identifiable {
     var id: UUID
     var name: String
     var category: String?
@@ -64,39 +63,53 @@ struct FoodStruct: Hashable, Equatable {
     }
 }
 
+
 // Recipe structure containing details about food preparation
-struct Recipe {
+struct Recipe: Identifiable, Equatable {
     var id: UUID
-        var title: String
-        var ingredients: [FoodItemStruct]
-        var instructions: [String]
-        var image: String?
-        var portion: PortionsInfo?
-        var cake: CakeInfo?
-        var videoLink: String?
-        var info: String?
-        var tags: [TagStruct]?
-        var recipeBookIDs: [UUID]?
-    
+    var title: String
+    var ingredients: [FoodItemStruct]
+    var instructions: [String]
+    var image: String?
+    var portion: PortionsInfo?
+    var cake: CakeInfo?
+    var videoLink: String?
+    var info: String?
+    var tags: [TagStruct]?
+    var recipeBookIDs: [UUID]?
+
     static var empty: Recipe {
-          Recipe(
-              id: UUID(),
-              title: "",
-              ingredients: [],
-              instructions: [],
-              image: nil,
-              portion: nil,
-              cake: nil,
-              videoLink: nil,
-              info: "",
-              tags: []
-    
-          )
-      }
+        Recipe(
+            id: UUID(),
+            title: "",
+            ingredients: [],
+            instructions: [],
+            image: nil,
+            portion: nil,
+            cake: nil,
+            videoLink: nil,
+            info: "",
+            tags: []
+        )
+    }
+
+    // Implementierung des Equatable-Protokolls
+    static func == (lhs: Recipe, rhs: Recipe) -> Bool {
+        return lhs.id == rhs.id &&
+               lhs.title == rhs.title &&
+               lhs.ingredients == rhs.ingredients &&
+               lhs.instructions == rhs.instructions &&
+               lhs.image == rhs.image &&
+               lhs.portion == rhs.portion &&
+               lhs.cake == rhs.cake &&
+               lhs.videoLink == rhs.videoLink &&
+               lhs.info == rhs.info &&
+               lhs.tags == rhs.tags &&
+               lhs.recipeBookIDs == rhs.recipeBookIDs
+    }
 }
 
-// Represents a collection of recipes typically found in a cookbook
-struct RecipebookStruct {
+struct RecipebookStruct: Hashable, Identifiable {
     var id: UUID
     var name: String
     var recipes: [Recipe]
@@ -108,7 +121,19 @@ struct RecipebookStruct {
         self.recipes = recipes
         self.tags = tags
     }
+
+    // Hashable-Anforderungen
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(name)
+    }
+
+    // Vergleichsoperator für Hashable
+    static func == (lhs: RecipebookStruct, rhs: RecipebookStruct) -> Bool {
+        return lhs.id == rhs.id && lhs.name == rhs.name && lhs.recipes == rhs.recipes && lhs.tags == rhs.tags
+    }
 }
+
 
 // Food item used in a recipe, including quantity and unit
 struct FoodItemStruct: Hashable, Equatable {

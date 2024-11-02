@@ -45,7 +45,7 @@ struct ShareSheetView: View {
         .sheet(isPresented: $showingShareSheet) {
             if let customURL = customURL, let actaulURL = fileURL {
                 
-                ShareSheet(activityItems: [actaulURL,customURL])
+                ShareSheet(activityItems: [actaulURL])
             } else {
                 Text(errorMessage ?? "Unable to load the file for sharing")
             }

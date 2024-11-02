@@ -11,113 +11,88 @@ struct RecipeListView: View {
     @ObservedObject var modelView: ViewModel
     @State private var searchText = ""
     @State private var selectedIngredients: [FoodStruct] = []
+    @State private var selectedTags: [TagStruct] = []
+    @State private var selectedRecipeBooks: [RecipebookStruct] = []
 
     var filteredRecipes: [Recipe] {
-        if searchText.isEmpty && selectedIngredients.isEmpty {
-            return modelView.recipes
-        } else if !selectedIngredients.isEmpty && !searchText.isEmpty  {
-            return modelView.recipes.filter { recipe in
-                searchText.isEmpty || recipe.title.localizedCaseInsensitiveContains(searchText) &&
-                    selectedIngredients.allSatisfy { selectedIngredient in
-                        recipe.ingredients.contains { $0.food.name.localizedCaseInsensitiveContains(selectedIngredient.name) }
-                    }
+        modelView.recipes.filter { recipe in
+            let matchesSearchText = searchText.isEmpty || recipe.title.localizedCaseInsensitiveContains(searchText)
+            
+            let matchesIngredients = selectedIngredients.isEmpty || selectedIngredients.allSatisfy { ingredient in
+                recipe.ingredients.contains { $0.food.name.localizedCaseInsensitiveContains(ingredient.name) }
             }
-        } else if !selectedIngredients.isEmpty && searchText.isEmpty {
-            return modelView.recipes.filter { recipe in
-                    selectedIngredients.allSatisfy { selectedIngredient in
-                        recipe.ingredients.contains { $0.food.name.localizedCaseInsensitiveContains(selectedIngredient.name) }
-                    }
+            
+            let matchesTags = selectedTags.isEmpty || selectedTags.allSatisfy { selectedTag in
+                recipe.tags?.contains { $0.name.localizedCaseInsensitiveContains(selectedTag.name) } ?? false
             }
-        }
-        
-        else {
-            return modelView.recipes.filter { recipe in
-                recipe.title.localizedCaseInsensitiveContains(searchText)
+
+            let matchesRecipeBooks = selectedRecipeBooks.isEmpty || selectedRecipeBooks.allSatisfy { selectedBook in
+                recipe.recipeBookIDs?.contains(selectedBook.id) ?? false
             }
+
+            print($modelView.tags)
+            return matchesSearchText && matchesIngredients && matchesTags && matchesRecipeBooks
         }
     }
 
-
     var body: some View {
-       
-            #if os(iOS)
+        #if os(iOS)
         NavigationView {
-                   VStack {
-                       TextField("Rezept suchen", text: $searchText)
-                           .padding()
-                           .textFieldStyle(RoundedBorderTextFieldStyle())
-                           .onChange(of: searchText) { _ in
-                               // Clear selected ingredients when searching by title
-                               selectedIngredients = []
-                           }
-
-                       // Search by ingredients
-                       if !modelView.foods.isEmpty {
-                           Text("Zutaten auswählen:")
-                           ScrollView(.horizontal, showsIndicators: false) {
-                               HStack {
-                                   ForEach(modelView.foods, id: \.self) { ingredient in
-                                       Button(action: {
-                                           toggleIngredient(ingredient)
-                                       }) {
-                                           Text(ingredient.name)
-                                               .padding(.vertical, 8)
-                                               .padding(.horizontal, 16)
-                                               .foregroundColor(selectedIngredients.contains(ingredient) ? .white : .blue)
-                                               .background(selectedIngredients.contains(ingredient) ? Color.blue : Color.white)
-                                               .cornerRadius(16)
-                                               .overlay(
-                                                   RoundedRectangle(cornerRadius: 16)
-                                                       .stroke(Color.blue, lineWidth: 1)
-                                               )
-                                       }
-                                       .padding(.trailing, 8)
-                                   }
-                               }
-                           }
-                       }
-
-                       List(filteredRecipes, id: \.id) { recipe in
-                           NavigationLink(destination: RecipeView(recipe: recipe, modelView: modelView)) {
-                               HStack {
-                                   Text(recipe.title)
-                                   // Additional recipe details if needed
-                               }
-                           }
-                       }
-                       .navigationBarTitle("Alle Rezepte")
-                   }
-                   .padding()
-               }
-               .navigationViewStyle(StackNavigationViewStyle())
-           
-    
-        
-      
-            #elseif os(macOS)
-            NavigationView {
-                VStack {
-                    // Text view for navigation title on macOS
-                    Text("Alle Rezepte")
-                        .font(.headline)
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(NSColor.controlBackgroundColor))
-                    
-                    List(modelView.recipes, id: \.id) { recipe in
-                        NavigationLink(destination: RecipeView(recipe: recipe)) {
-                            Text(recipe.title)
-                        }
+            VStack {
+                TextField("Rezept suchen", text: $searchText)
+                    .padding()
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .onChange(of: searchText) { _ in
+                        // Clear selected ingredients when searching by title
+                        selectedIngredients = []
                     }
-                    .frame(minWidth: 200, idealWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
+                
+                // Zutaten Auswahl
+                if !modelView.foods.isEmpty {
+                    FilterSection(title: "Zutaten auswählen:", items: modelView.foods, selectedItems: $selectedIngredients)
                 }
+                
+                // Tags Auswahl
+                if !modelView.tags.isEmpty {
+                    FilterSection(title: "Tags auswählen:", items: modelView.tags, selectedItems: $selectedTags)
+                    
+                }
+                
+                // Rezeptbücher Auswahl
+                if !modelView.recipeBooks.isEmpty {
+                    FilterSection(title: "Rezeptbücher auswählen:", items: modelView.recipeBooks, selectedItems: $selectedRecipeBooks)
+                }
+                
+                List(filteredRecipes, id: \.id) { recipe in
+                    NavigationLink(destination: RecipeView(recipe: recipe, modelView: modelView)) {
+                        Text(recipe.title)
+                    }
+                }
+                .navigationBarTitle("Alle Rezepte")
             }
-            #endif
-            
+            .padding()
         }
-        
-       
-       
+        .navigationViewStyle(StackNavigationViewStyle())
+        #elseif os(macOS)
+        NavigationView {
+            VStack {
+                Text("Alle Rezepte")
+                    .font(.headline)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(NSColor.controlBackgroundColor))
+                
+                List(modelView.recipes, id: \.id) { recipe in
+                    NavigationLink(destination: RecipeView(recipe: recipe)) {
+                        Text(recipe.title)
+                    }
+                }
+                .frame(minWidth: 200, idealWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        #endif
+    }
+    
     func toggleIngredient(_ ingredient: FoodStruct) {
         if let index = selectedIngredients.firstIndex(of: ingredient) {
             selectedIngredients.remove(at: index)
@@ -125,8 +100,51 @@ struct RecipeListView: View {
             selectedIngredients.append(ingredient)
         }
     }
-    
 }
+
+struct FilterSection<Item: Hashable & Identifiable & Named>: View {
+    var title: String
+    var items: [Item]
+    @Binding var selectedItems: [Item]
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(title)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(items, id: \.self) { item in
+                        Button(action: {
+                            toggleSelection(for: item)
+                        }) {
+                            Text(item.name) // Zeigt nur den Namen an
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 16)
+                                .foregroundColor(selectedItems.contains(item) ? .white : .blue)
+                                .background(selectedItems.contains(item) ? Color.blue : Color.white)
+                                .cornerRadius(16)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.blue, lineWidth: 1)
+                                )
+                        }
+                        .padding(.trailing, 8)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 8)
+    }
+    
+    private func toggleSelection(for item: Item) {
+        if let index = selectedItems.firstIndex(of: item) {
+            selectedItems.remove(at: index)
+        } else {
+            selectedItems.append(item)
+        }
+    }
+}
+
+
 
 // ... rest of the code remains unchanged
 
@@ -144,3 +162,12 @@ struct RecipeListView: View {
 //        contentListView(recipes: [brownie, pastaRecipe])
 //    }
 //}
+
+protocol Named {
+    var name: String { get }
+}
+
+// Konformität für bestehende Strukturen
+extension FoodStruct: Named {}
+extension TagStruct: Named {}
+extension RecipebookStruct: Named {}
