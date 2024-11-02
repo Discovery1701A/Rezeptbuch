@@ -13,6 +13,7 @@ struct RecipeListView: View {
     @State private var selectedIngredients: [FoodStruct] = []
     @State private var selectedTags: [TagStruct] = []
     @State private var selectedRecipeBooks: [RecipebookStruct] = []
+    @State private var isFilterExpanded = false // Steuert, ob die Filtersektion angezeigt wird
 
     var filteredRecipes: [Recipe] {
         modelView.recipes.filter { recipe in
@@ -30,7 +31,6 @@ struct RecipeListView: View {
                 recipe.recipeBookIDs?.contains(selectedBook.id) ?? false
             }
 
-            print($modelView.tags)
             return matchesSearchText && matchesIngredients && matchesTags && matchesRecipeBooks
         }
     }
@@ -43,24 +43,68 @@ struct RecipeListView: View {
                     .padding()
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .onChange(of: searchText) { _ in
-                        // Clear selected ingredients when searching by title
                         selectedIngredients = []
                     }
                 
-                // Zutaten Auswahl
-                if !modelView.foods.isEmpty {
-                    FilterSection(title: "Zutaten auswählen:", items: modelView.foods, selectedItems: $selectedIngredients)
-                }
-                
-                // Tags Auswahl
-                if !modelView.tags.isEmpty {
-                    FilterSection(title: "Tags auswählen:", items: modelView.tags, selectedItems: $selectedTags)
+                // Umschaltbutton für die Filtersektion und Button zum Entfernen aller Filter
+                HStack {
+                    Button(action: {
+                        withAnimation {
+                            isFilterExpanded.toggle()
+                        }
+                    }) {
+                        HStack {
+                            Text("Filter")
+                            Image(systemName: isFilterExpanded ? "chevron.up" : "chevron.down")
+                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                    }
                     
+                    Spacer()
+                    
+                    Button("Alle Filter entfernen") {
+                        clearAllFilters()
+                    }
+                    .foregroundColor(.red)
+                    .padding(.horizontal)
                 }
                 
-                // Rezeptbücher Auswahl
-                if !modelView.recipeBooks.isEmpty {
-                    FilterSection(title: "Rezeptbücher auswählen:", items: modelView.recipeBooks, selectedItems: $selectedRecipeBooks)
+                // Filtersektion anzeigen, wenn ausgeklappt
+                if isFilterExpanded {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 12) {
+                            if !modelView.foods.isEmpty {
+                                FilterSection(
+                                    title: "Zutaten auswählen:",
+                                    items: modelView.foods,
+                                    selectedItems: $selectedIngredients,
+                                    clearAction: { selectedIngredients.removeAll() }
+                                )
+                            }
+                            
+                            if !modelView.tags.isEmpty {
+                                FilterSection(
+                                    title: "Tags auswählen:",
+                                    items: modelView.tags,
+                                    selectedItems: $selectedTags,
+                                    clearAction: { selectedTags.removeAll() }
+                                )
+                            }
+                            
+                            if !modelView.recipeBooks.isEmpty {
+                                FilterSection(
+                                    title: "Rezeptbücher auswählen:",
+                                    items: modelView.recipeBooks,
+                                    selectedItems: $selectedRecipeBooks,
+                                    clearAction: { selectedRecipeBooks.removeAll() }
+                                )
+                            }
+                        }
+                        .padding(.top, 8)
+                    }
+                    .frame(maxHeight: 300) // Begrenzte Höhe für die ScrollView
                 }
                 
                 List(filteredRecipes, id: \.id) { recipe in
@@ -93,12 +137,11 @@ struct RecipeListView: View {
         #endif
     }
     
-    func toggleIngredient(_ ingredient: FoodStruct) {
-        if let index = selectedIngredients.firstIndex(of: ingredient) {
-            selectedIngredients.remove(at: index)
-        } else {
-            selectedIngredients.append(ingredient)
-        }
+    // Funktion zum Entfernen aller Filter
+    private func clearAllFilters() {
+        selectedIngredients.removeAll()
+        selectedTags.removeAll()
+        selectedRecipeBooks.removeAll()
     }
 }
 
@@ -106,17 +149,38 @@ struct FilterSection<Item: Hashable & Identifiable & Named>: View {
     var title: String
     var items: [Item]
     @Binding var selectedItems: [Item]
+    var clearAction: () -> Void // Aktion zum Entfernen der Filter für die jeweilige Kategorie
+    @State private var filterText = "" // Lokale Suchvariable
+
+    var filteredItems: [Item] {
+        if filterText.isEmpty {
+            return items
+        } else {
+            return items.filter { $0.name.localizedCaseInsensitiveContains(filterText) }
+        }
+    }
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(title)
+            HStack {
+                Text(title)
+                Spacer()
+                Button("Filter entfernen", action: clearAction)
+                    .foregroundColor(.red)
+                    .font(.caption)
+            }
+            
+            TextField("Suche \(title.lowercased())", text: $filterText)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.bottom, 4)
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(items, id: \.self) { item in
+                    ForEach(filteredItems, id: \.self) { item in
                         Button(action: {
                             toggleSelection(for: item)
                         }) {
-                            Text(item.name) // Zeigt nur den Namen an
+                            Text(item.name)
                                 .padding(.vertical, 8)
                                 .padding(.horizontal, 16)
                                 .foregroundColor(selectedItems.contains(item) ? .white : .blue)
@@ -144,30 +208,10 @@ struct FilterSection<Item: Hashable & Identifiable & Named>: View {
     }
 }
 
-
-
-// ... rest of the code remains unchanged
-
-//// Beispiel für die Verwendung
-//struct contentListView: View {
-//    var recipes: [Recipe]
-//
-//    var body: some View {
-//        RecipeListView(recipes: recipes)
-//    }
-//}
-//
-//struct ContentListView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        contentListView(recipes: [brownie, pastaRecipe])
-//    }
-//}
-
 protocol Named {
     var name: String { get }
 }
 
-// Konformität für bestehende Strukturen
 extension FoodStruct: Named {}
 extension TagStruct: Named {}
 extension RecipebookStruct: Named {}
