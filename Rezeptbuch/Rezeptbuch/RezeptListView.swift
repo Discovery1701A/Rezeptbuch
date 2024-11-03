@@ -39,14 +39,23 @@ struct RecipeListView: View {
         #if os(iOS)
         NavigationView {
             VStack {
-                TextField("Rezept suchen", text: $searchText)
-                    .padding()
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .onChange(of: searchText) { _ in
-                        selectedIngredients = []
+                HStack {
+                    TextField("Rezept suchen", text: $searchText)
+                        .padding()
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    
+                    // Clear Button für das Hauptsuchfeld
+                    if !searchText.isEmpty {
+                        Button(action: {
+                            searchText = ""
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.trailing, 8)
                     }
+                }
                 
-                // Umschaltbutton für die Filtersektion und Button zum Entfernen aller Filter
                 HStack {
                     Button(action: {
                         withAnimation {
@@ -71,7 +80,6 @@ struct RecipeListView: View {
                     .padding(.horizontal)
                 }
                 
-                // Filtersektion anzeigen, wenn ausgeklappt
                 if isFilterExpanded {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 12) {
@@ -104,7 +112,7 @@ struct RecipeListView: View {
                         }
                         .padding(.top, 8)
                     }
-                    .frame(maxHeight: 300) // Begrenzte Höhe für die ScrollView
+                    .frame(maxHeight: 300)
                 }
                 
                 List(filteredRecipes, id: \.id) { recipe in
@@ -137,7 +145,6 @@ struct RecipeListView: View {
         #endif
     }
     
-    // Funktion zum Entfernen aller Filter
     private func clearAllFilters() {
         selectedIngredients.removeAll()
         selectedTags.removeAll()
@@ -170,9 +177,21 @@ struct FilterSection<Item: Hashable & Identifiable & Named>: View {
                     .font(.caption)
             }
             
-            TextField("Suche \(title.lowercased())", text: $filterText)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.bottom, 4)
+            HStack {
+                TextField("Suche \(title.lowercased())", text: $filterText)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                
+                // Clear Button für das Suchfeld in der Filtersektion
+                if !filterText.isEmpty {
+                    Button(action: {
+                        filterText = ""
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            .padding(.bottom, 4)
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
