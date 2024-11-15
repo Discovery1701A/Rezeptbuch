@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		58009CBF2CE77A76005FE4A8 /* StartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58009CBE2CE77A76005FE4A8 /* StartData.swift */; };
 		58245C782BE515BE00F4179E /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58245C772BE515BE00F4179E /* ShareSheet.swift */; };
 		5854E8932BD3E11300682265 /* iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5854E8922BD3E11300682265 /* iOS.swift */; };
 		586AC7882BD93CFF0060B08D /* Food+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AC77C2BD93CFF0060B08D /* Food+CoreDataClass.swift */; };
@@ -43,6 +44,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		58009CBE2CE77A76005FE4A8 /* StartData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartData.swift; sourceTree = "<group>"; };
 		58245C772BE515BE00F4179E /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		5854E8922BD3E11300682265 /* iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOS.swift; sourceTree = "<group>"; };
 		586AC77C2BD93CFF0060B08D /* Food+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Food+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 				586AC7962BDA4D480060B08D /* Model.xcdatamodeld */,
 				588251D72B99E106009370CF /* ContentView.swift */,
 				58C765EE2B9E2510001E6068 /* ViewController.swift */,
+				58009CBE2CE77A76005FE4A8 /* StartData.swift */,
 				58AF20732BA5FD2B00298B4A /* FoodCreationView.swift */,
 				58C765F42B9F0415001E6068 /* ViewModel.swift */,
 				58C765F02B9E2566001E6068 /* RezeptView.swift */,
@@ -254,6 +257,7 @@
 				586AC78F2BD93CFF0060B08D /* NutritionFacts+CoreDataProperties.swift in Sources */,
 				586AC7902BD93CFF0060B08D /* Tag+CoreDataClass.swift in Sources */,
 				586AC7912BD93CFF0060B08D /* Tag+CoreDataProperties.swift in Sources */,
+				58009CBF2CE77A76005FE4A8 /* StartData.swift in Sources */,
 				586AC7982BDA4D480060B08D /* Model.xcdatamodeld in Sources */,
 				586AC7922BD93CFF0060B08D /* Recipes+CoreDataClass.swift in Sources */,
 				586AC7932BD93CFF0060B08D /* Recipes+CoreDataProperties.swift in Sources */,
