@@ -4,12 +4,12 @@
 //
 //  Created by Anna Rieckmann on 07.03.24.
 //
-
 import CoreData
 
 struct PersistenceController {
     static let shared = PersistenceController()
 
+    // Preview Setup für SwiftUI Previews
     static var preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
@@ -20,8 +20,6 @@ struct PersistenceController {
         do {
             try viewContext.save()
         } catch {
-            // Replace this implementation with code to handle the error appropriately.
-            // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
@@ -32,25 +30,44 @@ struct PersistenceController {
 
     init(inMemory: Bool = false) {
         container = NSPersistentContainer(name: "Model")
+
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
+        } else {
+            setupPreloadedDatabase()  // Hier wird die vorgefertigte Datenbank verwendet
         }
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error as NSError? {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
 
-                /*
-                 Typical reasons for an error here include:
-                 * The parent directory does not exist, cannot be created, or disallows writing.
-                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
-                 * The device is out of space.
-                 * The store could not be migrated to the current model version.
-                 Check the error message to determine what the actual problem was.
-                 */
+        container.loadPersistentStores { (storeDescription, error) in
+            if let error = error as NSError? {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
-        })
+        }
+
         container.viewContext.automaticallyMergesChangesFromParent = true
+    }
+
+    // Funktion zum Laden der vorgefertigten Datenbank aus dem Bundle
+    private func setupPreloadedDatabase() {
+        let fileManager = FileManager.default
+        let containerURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let dbURL = containerURL.appendingPathComponent("Rezeptbuch.sqlite")
+        
+        // Prüfen, ob die Datenbank bereits im Zielverzeichnis existiert
+        if fileManager.fileExists(atPath: dbURL.path) {
+            return  // Datenbank existiert bereits, keine Aktion erforderlich
+        }
+
+        // Pfad zur vorgefertigten SQLite-Datei im Bundle
+        if let preloadedDBURL = Bundle.main.url(forResource: "Rezeptbuch", withExtension: "sqlite") {
+            do {
+                // Kopiere die .sqlite-Datei ins Zielverzeichnis
+                try fileManager.copyItem(at: preloadedDBURL, to: dbURL)
+                print("Vorgefertigte SQLite-Datenbank erfolgreich kopiert.")
+            } catch {
+                print("Fehler beim Kopieren der SQLite-Datenbank: \(error)")
+            }
+        } else {
+            print("SQLite-Datei im Bundle nicht gefunden.")
+        }
     }
 }

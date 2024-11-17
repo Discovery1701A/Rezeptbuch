@@ -6,6 +6,36 @@
 //
 
 import Foundation
+import CoreData
+
+func setupPreloadedDatabase() {
+    let fileManager = FileManager.default
+    let containerURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+    let dbURL = containerURL.appendingPathComponent("Rezeptbuch.sqlite")
+    
+    // Prüfen, ob die Datenbank bereits im Zielverzeichnis existiert
+    if fileManager.fileExists(atPath: dbURL.path) {
+        // Datenbank existiert bereits, keine Aktion erforderlich
+        return
+    }
+
+    // Pfad zur vorgefertigten SQLite-Datei im Bundle
+    if let preloadedDBURL = Bundle.main.url(forResource: "Rezeptbuch", withExtension: "sqlite") {
+        do {
+            // Kopiere die .sqlite-Datei ins Zielverzeichnis
+            try fileManager.copyItem(at: preloadedDBURL, to: dbURL)
+            print("Vorgefertigte SQLite-Datenbank erfolgreich kopiert.")
+        } catch {
+            print("Fehler beim Kopieren der SQLite-Datenbank: \(error)")
+        }
+    } else {
+        print("SQLite-Datei im Bundle nicht gefunden.")
+    }
+}
+
+
+
+
 
 
 let emptyFood = FoodStruct(id: UUID(), name: "")
