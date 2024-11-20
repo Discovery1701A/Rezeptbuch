@@ -225,7 +225,7 @@ struct RecipeView: View {
                     }
                 }
                 .padding()
-                .background(Color.white)
+                .background()
                 .cornerRadius(15)
                 .shadow(radius: 5)
             }
@@ -493,7 +493,7 @@ struct RecipeInstructionsView: View {
                 .multilineTextAlignment(.center)
             ForEach(instructions, id: \.self) { instruction in
                 Text(instruction)
-                    .padding()
+//                    .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }

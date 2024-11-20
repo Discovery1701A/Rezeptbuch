@@ -17,41 +17,48 @@ class CoreDataManager {
     var managedContext: NSManagedObjectContext {
         return persistentContainer.viewContext
     }
-    
     // MARK: Fetching Methods
 
-    func fetchFoods() -> [FoodStruct] {
-        let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
-        do {
-            return try managedContext.fetch(fetchRequest).map { FoodStruct(from: $0) }
-        } catch {
-            print("Error fetching foods: \(error)")
-            return []
+       func fetchFoods() -> [FoodStruct] {
+           let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
+           do {
+               return try managedContext.fetch(fetchRequest).map { FoodStruct(from: $0) }
+           } catch {
+               print("Error fetching foods: \(error)")
+               return []
+           }
+       }
+       func fetchTags() -> [TagStruct] {
+           let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+           
+           do {
+               let fetchedTags = try managedContext.fetch(fetchRequest)
+               return fetchedTags.map { TagStruct(from: $0) }
+           } catch {
+               print("Error fetching tags: \(error)")
+               return []
+           }
+       }
+       
+       func fetchRecipes() -> [Recipe] {
+           let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
+           do {
+               return try managedContext.fetch(fetchRequest).map { Recipe(from: $0) }
+           } catch {
+               print("Error fetching recipes: \(error)")
+               return []
+           }
+       }
+
+        func fetchRecipebooks() -> [RecipebookStruct] {
+            let fetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
+            do {
+                return try managedContext.fetch(fetchRequest).map { RecipebookStruct(from: $0) }
+            } catch {
+                print("Error fetching recipebooks: \(error)")
+                return []
+            }
         }
-    }
-    func fetchTags() -> [TagStruct] {
-        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
-        
-        do {
-            let fetchedTags = try managedContext.fetch(fetchRequest)
-            return fetchedTags.map { TagStruct(from: $0) }
-        } catch {
-            print("Error fetching tags: \(error)")
-            return []
-        }
-    }
-    
-    func fetchRecipes() -> [Recipe] {
-        let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
-        do {
-            return try managedContext.fetch(fetchRequest).map { Recipe(from: $0) }
-        } catch {
-            print("Error fetching recipes: \(error)")
-            return []
-        }
-    }
-    
-  
 
     // MARK: Saving Methods
 
