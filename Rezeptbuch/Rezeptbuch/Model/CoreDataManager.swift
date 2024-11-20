@@ -51,15 +51,7 @@ class CoreDataManager {
         }
     }
     
-    func fetchRecipebooks() -> [RecipebookStruct] {
-        let fetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
-        do {
-            return try managedContext.fetch(fetchRequest).map { RecipebookStruct(from: $0) }
-        } catch {
-            print("Error fetching recipebooks: \(error)")
-            return []
-        }
-    }
+  
 
     // MARK: Saving Methods
 
@@ -164,6 +156,9 @@ class CoreDataManager {
     }
     
     func insertInitialDataIfNeeded() {
+        // SQLite-Datenbank prüfen und kopieren (falls nicht vorhanden)
+        setupPreloadedDatabase()
+
         // Überprüfen, ob die Datenbank leer ist
         let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
         let count = try? managedContext.count(for: fetchRequest)
@@ -209,6 +204,60 @@ class CoreDataManager {
             print("Fehler beim Speichern der initialen Daten: \(error)")
         }
     }
+
+    // Funktion: SQLite-Datenbank laden
+    func setupPreloadedDatabase() {
+        let fileManager = FileManager.default
+        let containerURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let dbURL = containerURL.appendingPathComponent("Rezeptbuch.sqlite")
+        
+        // Prüfen, ob die Datenbank bereits im Zielverzeichnis existiert
+        if fileManager.fileExists(atPath: dbURL.path) {
+            print("SQLite-Datenbank bereits vorhanden.")
+            return
+        }
+
+        // Debugging: Liste den Pfad der vorgefertigten Datei auf
+        if let preloadedDBPath = Bundle.main.path(forResource: "Rezeptbuch", ofType: "sqlite") {
+            print("SQLite-Datei gefunden: \(preloadedDBPath)")
+        } else {
+            print("SQLite-Datei NICHT im Bundle gefunden!")
+            return
+        }
+
+        guard let preloadedDBPath = Bundle.main.path(forResource: "Rezeptbuch", ofType: "sqlite") else {
+            print("SQLite-Datei NICHT im Bundle gefunden!")
+            return
+        }
+        if !fileManager.fileExists(atPath: containerURL.path) {
+            do {
+                try fileManager.createDirectory(at: containerURL, withIntermediateDirectories: true, attributes: nil)
+                print("Zielverzeichnis erstellt: \(containerURL.path)")
+            } catch {
+                print("Fehler beim Erstellen des Zielverzeichnisses: \(error)")
+                return
+            }
+        }
+
+
+        let preloadedDBURL = URL(fileURLWithPath: preloadedDBPath)
+
+        do {
+            // Kopiere die Datei
+            let data = try Data(contentsOf: preloadedDBURL)
+            try data.write(to: dbURL)
+            print("SQLite-Datei erfolgreich kopiert.")
+        } catch {
+            print("Fehler beim Kopieren der SQLite-Datei: \(error)")
+        }
+
+    }
+    
+    
+    
+
+
+
 
     private func findOrCreateTag(name: String) -> Tag {
         let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
