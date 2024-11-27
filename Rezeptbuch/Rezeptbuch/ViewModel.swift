@@ -25,7 +25,7 @@ class ViewModel: ObservableObject {
         var food = CoreDataManager().fetchFoods()
         foods = food
     
-//        print("issss",food)
+        print("issss",food)
     }
     
     func appendToRecipes (recipe: Recipe){

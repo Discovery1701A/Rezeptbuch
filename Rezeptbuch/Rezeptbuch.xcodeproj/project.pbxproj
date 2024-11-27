@@ -37,6 +37,7 @@
 		58AF20722BA58CDA00298B4A /* MacOs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AF20712BA58CDA00298B4A /* MacOs.swift */; };
 		58AF20742BA5FD2B00298B4A /* FoodCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AF20732BA5FD2B00298B4A /* FoodCreationView.swift */; };
 		58AF20972BB6D97100298B4A /* CookingModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AF20962BB6D97000298B4A /* CookingModeView.swift */; };
+		58B8EA2E2CF3536A006F7CC3 /* DatabaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B8EA2D2CF3536A006F7CC3 /* DatabaseHelper.swift */; };
 		58C765EF2B9E2510001E6068 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765EE2B9E2510001E6068 /* ViewController.swift */; };
 		58C765F12B9E2566001E6068 /* RezeptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765F02B9E2566001E6068 /* RezeptView.swift */; };
 		58C765F32B9F0385001E6068 /* Buttons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765F22B9F0385001E6068 /* Buttons.swift */; };
@@ -78,6 +79,7 @@
 		58AF20732BA5FD2B00298B4A /* FoodCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodCreationView.swift; sourceTree = "<group>"; };
 		58AF20952BB4788A00298B4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		58AF20962BB6D97000298B4A /* CookingModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookingModeView.swift; sourceTree = "<group>"; };
+		58B8EA2D2CF3536A006F7CC3 /* DatabaseHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseHelper.swift; sourceTree = "<group>"; };
 		58C765EE2B9E2510001E6068 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		58C765F02B9E2566001E6068 /* RezeptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RezeptView.swift; sourceTree = "<group>"; };
 		58C765F22B9F0385001E6068 /* Buttons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Buttons.swift; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 				586AC7862BD93CFF0060B08D /* Recipes+CoreDataClass.swift */,
 				586AC7872BD93CFF0060B08D /* Recipes+CoreDataProperties.swift */,
 				588BD3F62BC176610053904B /* CoreDataManager.swift */,
+				58B8EA2D2CF3536A006F7CC3 /* DatabaseHelper.swift */,
 				58245C772BE515BE00F4179E /* ShareSheet.swift */,
 			);
 			path = Model;
@@ -271,6 +274,7 @@
 				58AF20742BA5FD2B00298B4A /* FoodCreationView.swift in Sources */,
 				5854E8932BD3E11300682265 /* iOS.swift in Sources */,
 				588251D12B99E106009370CF /* RezeptbuchApp.swift in Sources */,
+				58B8EA2E2CF3536A006F7CC3 /* DatabaseHelper.swift in Sources */,
 				58A204042BB709F800659D63 /* Model.swift in Sources */,
 				588251D62B99E106009370CF /* Rezeptbuch.xcdatamodeld in Sources */,
 				58AF20972BB6D97100298B4A /* CookingModeView.swift in Sources */,

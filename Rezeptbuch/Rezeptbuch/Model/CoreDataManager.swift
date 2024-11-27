@@ -165,7 +165,7 @@ class CoreDataManager {
     func insertInitialDataIfNeeded() {
         // SQLite-Datenbank prüfen und kopieren (falls nicht vorhanden)
         setupPreloadedDatabase()
-
+       
         // Überprüfen, ob die Datenbank leer ist
         let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
         let count = try? managedContext.count(for: fetchRequest)
@@ -174,10 +174,29 @@ class CoreDataManager {
             print("Die Datenbank enthält bereits Datensätze. Keine Aktion erforderlich.")
             return
         }
-
+        let fileManager = FileManager.default
+        let containerURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let dbURL = containerURL.appendingPathComponent("Rezeptbuch.sqlite")
+//        print(dbURL.absoluteString)
+        let databaseService = DatabaseService(databasePath: dbURL.absoluteString)
+        
+        let ffooodis = databaseService.loadFoods()
+        let tags = databaseService.loadTags()
+//        print("22222222",ffooodis)
         // Datenbank ist leer, füge die initialen Daten ein
         let recipesToInsert = [pastaRecipe, brownieRecipe] // Die zu speichernden Rezepte
 
+        for tag in tags {
+            let tagEntity = findOrCreateTag(tagStruct: tag)
+        }
+        for food in ffooodis {
+            print("fffffffff",food)
+            let foodEntry = findOrCreateFood(foodStruct: food)
+            
+            
+        }
+        
+    
         for recipe in recipesToInsert {
             let recipeEntity = Recipes(context: managedContext)
             recipeEntity.titel = recipe.title
@@ -263,7 +282,18 @@ class CoreDataManager {
     
     
 
-
+    private func findOrCreateTag(tagStruct: TagStruct) -> Tag {
+        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", tagStruct.name)
+        if let existingTag = try? managedContext.fetch(fetchRequest).first {
+            return existingTag
+        } else {
+            let newTag = Tag(context: managedContext)
+            newTag.name = tagStruct.name
+            newTag.id = tagStruct.id
+            return newTag
+        }
+    }
 
 
     private func findOrCreateTag(name: String) -> Tag {
@@ -314,6 +344,7 @@ class CoreDataManager {
             newFood.name = foodStruct.name
             newFood.category = foodStruct.category
             newFood.info = foodStruct.info
+            newFood.id = foodStruct.id
             if let tags = foodStruct.tags {
                 for tag in tags {
                     let tage = findOrCreateTag(tag)
@@ -322,7 +353,9 @@ class CoreDataManager {
             }
             if let facts = foodStruct.nutritionFacts {
                     let nutrition = NutritionFacts(context: managedContext)
+                
                     nutrition.calories = Int64(facts.calories ?? 0)
+                print("kallooss",facts.calories)
                     nutrition.protein = facts.protein ?? 0.0
                     nutrition.carbohydrates = facts.carbohydrates ?? 0.0
                     nutrition.fat = facts.fat ?? 0.0
