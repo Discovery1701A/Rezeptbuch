@@ -274,8 +274,36 @@ tags = [
     ("Knochengesund",),
     ("Hautgesundheit",),
     ("Eisenreich",),
-    ("Stärkt die Verdauung",)
+    ("Stärkt die Verdauung",),
+    ("Omega-3-reich",),
+    ("Kollagenquelle",),
+    ("Hoher Vitamin-B-Gehalt",),
+    ("Geringer Fettgehalt",),
+    ("Reich an Aminosäuren",),
+    ("Gelenkgesundheit",),
+    ("Muskelaufbau",),
+    ("Gehalt an ungesättigten Fettsäuren",),
+    ("Keto-freundlich",),
+    ("Reich an Zink",),
+    ("Laktosefrei",),
+    ("Stärkt die Knochengesundheit",),
+    ("Hochwertiges Eiweiß",),
+    ("Hoher Selengehalt",),
+    ("Fördert die Blutbildung",),
+    ("Energiequelle",),
+    ("Unterstützt die Gehirnfunktion",),
+    ("Fettsäurereiches Fleisch",),
+    ("Hoher Phosphorgehalt",),
+    ("Paleo-freundlich",),
+    ("Niedriger Kohlenhydratgehalt",),
+    ("Reich an Kalium",),
+    ("Stärkt das Nervensystem",),
+    ("Fördert die Wundheilung",),
+    ("Hoher Kupfergehalt",),
+    ("Fördert den Zellaufbau",),
+    ("Hoher Magnesiumgehalt",)
 ]
+
 
 foodGemüse_tags = [
     (0, [0, 1, 2, 4, 5, 7]),    # Zwiebel
@@ -672,3 +700,1229 @@ foodObst_tags = [
 
 # Obst
 setDatabase( tags,foodsObst,nutritionObst_facts, foodObst_tags)
+
+
+foodsFleisch = [
+    ("Rinderfilet", "Fleisch", "Zartes Rinderfilet, reich an Protein und Eisen, ideal zum Kurzbraten."),
+    ("Rinderhüfte", "Fleisch", "Saftiges Rinderhüftstück, mager und vielseitig verwendbar für Braten oder Steaks."),
+    ("Rinderbrust", "Fleisch", "Fettarme Rinderbrust, gut geeignet für Schmorgerichte und Suppen."),
+    ("Rinderknochenmark", "Fleisch", "Nahrhaftes Rinderknochenmark, reich an gesunden Fetten und Nährstoffen, ideal für Brühen."),
+    ("Rinderhackfleisch", "Fleisch", "Mageres Rinderhackfleisch, ideal für Bolognese, Frikadellen oder Burger."),
+    ("Rinderzunge", "Fleisch", "Zarte Rinderzunge, eine Delikatesse, die langsam gegart am besten schmeckt."),
+    ("Rinderleber", "Fleisch", "Nährstoffreiche Rinderleber, reich an Vitamin A und Eisen, ideal für eine kräftige Mahlzeit."),
+    ("Rinderschulter", "Fleisch", "Saftige Rinderschulter, perfekt für Schmorgerichte und Suppen."),
+    ("Rindersteak", "Fleisch", "Klassisches Rindersteak, zart und saftig, ideal für den Grill oder die Pfanne."),
+    ("Entrecôte (Rind)", "Fleisch", "Marmoriertes Entrecôte, reich an Geschmack, ideal für ein saftiges Steak."),
+    ("Tafelspitz (Rind)", "Fleisch", "Traditioneller Tafelspitz, ideal für Kochfleisch oder Schmorgerichte."),
+    ("Rinderbacke", "Fleisch", "Zarte Rinderbacke, ideal für langes Schmoren, bis das Fleisch butterzart ist."),
+    ("Rinderkotelett", "Fleisch", "Saftiges Rinderkotelett, ideal für den Grill oder die Pfanne."),
+    ("Kalbsfilet", "Fleisch", "Zartes Kalbsfilet, reich an Protein und ideal zum Kurzbraten."),
+    ("Kalbsschnitzel", "Fleisch", "Mageres Kalbsschnitzel, ideal zum Panieren oder für leichte Gerichte."),
+    ("Kalbsrücken", "Fleisch", "Kalbsrücken, mager und zart, ideal für Braten oder Steaks."),
+    ("Kalbsbäckchen", "Fleisch", "Zarte Kalbsbäckchen, perfekt für lange Schmorgerichte."),
+    ("Kalbshaxe", "Fleisch", "Saftige Kalbshaxe, ideal zum Schmoren, besonders als Osso Buco."),
+    ("Kalbsleber", "Fleisch", "Nährstoffreiche Kalbsleber, reich an Vitamin A, ideal für kurze Bratzeiten."),
+    ("Kalbsnieren", "Fleisch", "Zarte Kalbsnieren, eine Delikatesse, die langsam gegart wird."),
+    ("Kalbszunge", "Fleisch", "Milde Kalbszunge, eine Delikatesse, die sanft gekocht am besten schmeckt."),
+    ("Kalbsbrust", "Fleisch", "Fettarme Kalbsbrust, ideal für Füllungen oder zum Schmoren."),
+    ("Schweinefilet", "Fleisch", "Mageres Schweinefilet, zart und saftig, ideal zum Kurzbraten."),
+    ("Schweinebauch", "Fleisch", "Saftiger Schweinebauch, ideal für knusprige Braten oder asiatische Gerichte."),
+    ("Schweinekotelett", "Fleisch", "Saftiges Schweinekotelett, ideal für den Grill oder die Pfanne."),
+    ("Schweineschnitzel", "Fleisch", "Mageres Schweineschnitzel, ideal zum Panieren und Braten."),
+    ("Schweineschulter", "Fleisch", "Schweineschulter, ideal zum Schmoren oder für Pulled Pork."),
+    ("Schweinehaxe", "Fleisch", "Saftige Schweinehaxe, perfekt für lange Garzeiten und knusprige Haut."),
+    ("Schweinerücken", "Fleisch", "Magerer Schweinerücken, ideal für Braten oder Steaks."),
+    ("Schweineleber", "Fleisch", "Nährstoffreiche Schweineleber, ideal für deftige Gerichte."),
+    ("Schweinebacke", "Fleisch", "Zarte Schweinebacke, ideal für Schmorgerichte."),
+    ("Schweinespeck", "Fleisch", "Fettreicher Schweinespeck, ideal für das Würzen von Gerichten."),
+    ("Schweineohren", "Fleisch", "Knusprige Schweineohren, oft als Delikatesse gegessen."),
+    ("Schweinefuß", "Fleisch", "Schweinefuß, reich an Kollagen, ideal für Suppen und Brühen."),
+    ("Schweineherz", "Fleisch", "Mageres Schweineherz, reich an Protein, ideal für deftige Gerichte."),
+    ("Schweinezunge", "Fleisch", "Zarte Schweinezunge, eine Delikatesse, die langsam gegart am besten schmeckt."),
+    ("Lammkeule", "Fleisch", "Saftige Lammkeule, ideal zum Schmoren oder für Braten."),
+    ("Lammkotelett", "Fleisch", "Zarte Lammkoteletts, perfekt für den Grill oder die Pfanne."),
+    ("Lammrücken", "Fleisch", "Magerer Lammrücken, ideal für Braten oder Steaks."),
+    ("Lammhaxe", "Fleisch", "Saftige Lammhaxe, perfekt für langes Schmoren."),
+    ("Lammschulter", "Fleisch", "Zarte Lammschulter, ideal für Schmorgerichte."),
+    ("Lammfilet", "Fleisch", "Zartes Lammfilet, ideal zum Kurzbraten."),
+    ("Lammleber", "Fleisch", "Nährstoffreiche Lammleber, reich an Eisen, ideal für deftige Gerichte."),
+    ("Lammnieren", "Fleisch", "Zarte Lammnieren, eine Delikatesse, die langsam gegart wird."),
+    ("Lammbrust", "Fleisch", "Saftige Lammbrust, ideal für Schmorgerichte."),
+    ("Ziegenkeule", "Fleisch", "Zarte Ziegenkeule, ideal zum Schmoren oder für Braten."),
+    ("Ziegenrücken", "Fleisch", "Magerer Ziegenrücken, ideal für Braten oder Steaks."),
+    ("Ziegenkotelett", "Fleisch", "Zarte Ziegenkoteletts, perfekt für den Grill oder die Pfanne."),
+    ("Ziegenfilet", "Fleisch", "Zartes Ziegenfilet, ideal zum Kurzbraten."),
+    ("Hähnchenbrust", "Fleisch", "Mageres Hähnchenbrustfilet, reich an Protein, ideal zum Grillen oder Braten."),
+    ("Hähnchenkeulen", "Fleisch", "Saftige Hähnchenkeulen, ideal für den Ofen oder Grill."),
+    ("Hähnchenflügel", "Fleisch", "Knusprige Hähnchenflügel, ideal für den Grill oder die Fritteuse."),
+    ("Hähnchenrücken", "Fleisch", "Hähnchenrücken, ideal für Suppen oder Brühen."),
+    ("Hähnchenleber", "Fleisch", "Nährstoffreiche Hähnchenleber, ideal für herzhafte Gerichte."),
+    ("Hähnchenherz", "Fleisch", "Mageres Hähnchenherz, ideal für deftige Gerichte."),
+    ("Hähnchenflügelspitzen", "Fleisch", "Hähnchenflügelspitzen, ideal für Suppen oder Brühen."),
+    ("Entenbrust", "Fleisch", "Zarte Entenbrust, ideal zum Kurzbraten oder Schmoren."),
+    ("Entenkeulen", "Fleisch", "Saftige Entenkeulen, ideal zum Schmoren oder Braten."),
+    ("Entenrücken", "Fleisch", "Entenrücken, ideal für Suppen oder Schmorgerichte."),
+    ("Entenleber", "Fleisch", "Nährstoffreiche Entenleber, ideal für feine Pasteten."),
+    ("Entenflügel", "Fleisch", "Knusprige Entenflügel, ideal zum Braten oder für die Fritteuse."),
+    ("Entenhals", "Fleisch", "Entenhals, ideal für Suppen oder Schmorgerichte."),
+    ("Gänsebrust", "Fleisch", "Zarte Gänsebrust, ideal für den Ofen oder zum Schmoren."),
+    ("Gänsekeulen", "Fleisch", "Saftige Gänsekeulen, ideal zum Braten oder Schmoren."),
+    ("Gänseleber", "Fleisch", "Nährstoffreiche Gänseleber, ideal für feine Gerichte oder Pasteten."),
+    ("Gänseherz", "Fleisch", "Mageres Gänseherz, ideal für Schmorgerichte."),
+    ("Gänsehals", "Fleisch", "Gänsehals, ideal für Suppen oder Brühen."),
+    ("Wildschweinrücken", "Fleisch", "Magerer Wildschweinrücken, ideal für Braten oder Steaks."),
+    ("Wildschweinkeule", "Fleisch", "Saftige Wildschweinkeule, ideal für lange Schmorgerichte."),
+    ("Wildschweinfilet", "Fleisch", "Zartes Wildschweinfilet, ideal zum Kurzbraten."),
+    ("Wildschweinhaxe", "Fleisch", "Saftige Wildschweinhaxe, ideal zum Schmoren."),
+    ("Hirschrücken", "Fleisch", "Zarter Hirschrücken, ideal für Braten oder Steaks."),
+    ("Hirschkeule", "Fleisch", "Saftige Hirschkeule, ideal für Schmorgerichte."),
+    ("Hirschfilet", "Fleisch", "Zartes Hirschfilet, ideal zum Kurzbraten."),
+    ("Hirschmedaillons", "Fleisch", "Zarte Hirschmedaillons, perfekt für edle Gerichte."),
+    ("Rehrücken", "Fleisch", "Zarter Rehrücken, ideal für feine Braten."),
+    ("Rehkeule", "Fleisch", "Saftige Rehkeule, ideal für Schmorgerichte."),
+    ("Rehfilet", "Fleisch", "Zartes Rehfilet, ideal zum Kurzbraten."),
+    ("Rehleber", "Fleisch", "Nährstoffreiche Rehleber, ideal für deftige Gerichte."),
+    ("Taubenbrust", "Fleisch", "Zarte Taubenbrust, ideal für feine Gerichte."),
+    ("Wachtelkeulen", "Fleisch", "Zarte Wachtelkeulen, ideal zum Kurzbraten."),
+    ("Wachtelbrust", "Fleisch", "Zarte Wachtelbrust, ideal für edle Gerichte."),
+    ("Kaninchenkeule", "Fleisch", "Zarte Kaninchenkeule, ideal zum Schmoren."),
+    ("Kaninchenrücken", "Fleisch", "Zarter Kaninchenrücken, ideal für Braten."),
+    ("Kaninchenleber", "Fleisch", "Nährstoffreiche Kaninchenleber, ideal für deftige Gerichte."),
+    ("Ziegenherz", "Fleisch", "Mageres Ziegenherz, ideal für deftige Schmorgerichte."),
+    ("Truthahnbrust", "Fleisch", "Mageres Truthahnbrustfilet, ideal für gesunde Gerichte."),
+    ("Truthahnkeule", "Fleisch", "Saftige Truthahnkeule, ideal zum Schmoren."),
+    ("Truthahnflügel", "Fleisch", "Knusprige Truthahnflügel, ideal zum Braten oder Grillen."),
+    ("Straußenfilet", "Fleisch", "Zartes Straußenfilet, mager und reich an Protein."),
+    ("Straußensteak", "Fleisch", "Saftiges Straußensteak, ideal zum Kurzbraten."),
+    ("Kängurufilet", "Fleisch", "Mageres Kängurufilet, ideal für gesunde Gerichte."),
+    ("Känguru-Hüftsteak", "Fleisch", "Zartes Känguru-Hüftsteak, ideal für den Grill."),
+    ("Bisonfilet", "Fleisch", "Zartes Bisonfilet, mager und reich an Nährstoffen."),
+    ("Bisonrücken", "Fleisch", "Magerer Bisonrücken, ideal für Braten."),
+    ("Perlhuhnkeulen", "Fleisch", "Zarte Perlhuhnkeulen, ideal zum Braten."),
+    ("Perlhuhnbrust", "Fleisch", "Zarte Perlhuhnbrust, ideal für edle Gerichte."),
+    ("Fasanenbrust", "Fleisch", "Zarte Fasanenbrust, ideal für feine Gerichte."),
+    ("Fasanenkeulen", "Fleisch", "Saftige Fasanenkeulen, ideal für Schmorgerichte."),
+    ("Hasenrücken", "Fleisch", "Zarter Hasenrücken, ideal für feine Braten.")
+]
+nutritionFleisch_facts = [
+    (123, 20.0, 0.0, 4.0),    # Rinderfilet
+    (150, 21.0, 0.0, 7.0),    # Rinderhüfte
+    (251, 17.0, 0.0, 20.0),   # Rinderbrust
+    (786, 6.7, 0.0, 84.0),    # Rinderknochenmark
+    (241, 19.0, 0.0, 17.0),   # Rinderhackfleisch
+    (224, 16.0, 0.0, 17.0),   # Rinderzunge
+    (135, 20.0, 3.0, 4.0),    # Rinderleber
+    (175, 20.0, 0.0, 10.0),   # Rinderschulter
+    (271, 25.0, 0.0, 18.0),   # Rindersteak
+    (220, 20.0, 0.0, 15.0),   # Entrecôte (Rind)
+    (102, 18.0, 0.0, 3.0),    # Tafelspitz (Rind)
+    (206, 17.0, 0.0, 15.0),   # Rinderbacke
+    (297, 25.0, 0.0, 22.0),   # Rinderkotelett
+    (108, 20.0, 0.0, 3.0),    # Kalbsfilet
+    (118, 21.0, 0.0, 4.0),    # Kalbsschnitzel
+    (150, 19.0, 0.0, 7.0),    # Kalbsrücken
+    (165, 18.0, 0.0, 9.0),    # Kalbsbäckchen
+    (206, 16.0, 0.0, 15.0),   # Kalbshaxe
+    (132, 19.0, 3.0, 5.0),    # Kalbsleber
+    (87, 16.0, 0.0, 2.0),     # Kalbsnieren
+    (226, 15.0, 0.0, 18.0),   # Kalbszunge
+    (122, 19.0, 0.0, 5.0),    # Kalbsbrust
+    (143, 22.0, 0.0, 5.0),    # Schweinefilet
+    (518, 9.0, 0.0, 53.0),    # Schweinebauch
+    (263, 18.0, 0.0, 21.0),   # Schweinekotelett
+    (123, 21.0, 0.0, 3.0),    # Schweineschnitzel
+    (239, 18.0, 0.0, 18.0),   # Schweineschulter
+    (300, 15.0, 0.0, 26.0),   # Schweinehaxe
+    (115, 23.0, 0.0, 2.0),    # Schweinerücken
+    (139, 22.0, 0.0, 5.0),    # Schweineleber
+    (210, 15.0, 0.0, 16.0),   # Schweinebacke
+    (657, 7.0, 0.0, 70.0),    # Schweinespeck
+    (337, 19.0, 0.0, 30.0),   # Schweineohren
+    (216, 19.0, 0.0, 15.0),   # Schweinefuß
+    (119, 21.0, 0.0, 4.0),    # Schweineherz
+    (224, 16.0, 0.0, 17.0),   # Schweinezunge
+    (179, 20.0, 0.0, 11.0),   # Lammkeule
+    (282, 16.0, 0.0, 24.0),   # Lammkotelett
+    (231, 20.0, 0.0, 17.0),   # Lammrücken
+    (255, 18.0, 0.0, 20.0),   # Lammhaxe
+    (218, 19.0, 0.0, 15.0),   # Lammschulter
+    (125, 23.0, 0.0, 4.0),    # Lammfilet
+    (139, 20.0, 3.0, 5.0),    # Lammleber
+    (101, 17.0, 0.0, 3.0),    # Lammnieren
+    (219, 18.0, 0.0, 16.0),   # Lammbrust
+    (173, 21.0, 0.0, 10.0),   # Ziegenkeule
+    (195, 23.0, 0.0, 12.0),   # Ziegenrücken
+    (215, 19.0, 0.0, 16.0),   # Ziegenkotelett
+    (135, 22.0, 0.0, 6.0),    # Ziegenfilet
+    (120, 21.0, 0.0, 3.0),    # Hähnchenbrust
+    (170, 18.0, 0.0, 11.0),   # Hähnchenkeulen
+    (191, 16.0, 0.0, 14.0),   # Hähnchenflügel
+    (137, 18.0, 0.0, 8.0),    # Hähnchenrücken
+    (116, 17.0, 3.0, 4.0),    # Hähnchenleber
+    (119, 20.0, 0.0, 4.0),    # Hähnchenherz
+    (203, 15.0, 0.0, 16.0),   # Hähnchenflügelspitzen
+    (201, 19.0, 0.0, 14.0),   # Entenbrust
+    (221, 16.0, 0.0, 17.0),   # Entenkeulen
+    (171, 20.0, 0.0, 11.0),   # Entenrücken
+    (132, 18.0, 3.0, 5.0),    # Entenleber
+    (236, 15.0, 0.0, 19.0),   # Entenflügel
+    (124, 16.0, 0.0, 8.0),    # Entenhals
+    (229, 20.0, 0.0, 17.0),   # Gänsebrust
+    (269, 17.0, 0.0, 23.0),   # Gänsekeulen
+    (130, 17.0, 3.0, 5.0),    # Gänseleber
+    (129, 21.0, 0.0, 5.0),    # Gänseherz
+    (147, 17.0, 0.0, 9.0),    # Gänsehals
+    (123, 23.0, 0.0, 3.0),    # Wildschweinrücken
+    (188, 20.0, 0.0, 13.0),   # Wildschweinkeule
+    (119, 24.0, 0.0, 2.0),    # Wildschweinfilet
+    (210, 19.0, 0.0, 15.0),   # Wildschweinhaxe
+    (121, 25.0, 0.0, 2.0),    # Hirschrücken
+    (184, 20.0, 0.0, 12.0),   # Hirschkeule
+    (114, 24.0, 0.0, 1.0),    # Hirschfilet
+    (127, 23.0, 0.0, 4.0),    # Hirschmedaillons
+    (124, 22.0, 0.0, 3.0),    # Rehrücken
+    (183, 21.0, 0.0, 11.0),   # Rehkeule
+    (115, 23.0, 0.0, 2.0),    # Rehfilet
+    (125, 19.0, 3.0, 5.0),    # Rehleber
+    (124, 21.0, 0.0, 3.0),    # Taubenbrust
+    (177, 18.0, 0.0, 12.0),   # Wachtelkeulen
+    (125, 22.0, 0.0, 4.0),    # Wachtelbrust
+    (167, 20.0, 0.0, 10.0),   # Kaninchenkeule
+    (142, 23.0, 0.0, 6.0),    # Kaninchenrücken
+    (131, 19.0, 3.0, 5.0),    # Kaninchenleber
+    (110, 20.0, 0.0, 3.0),    # Ziegenherz
+    (108, 24.0, 0.0, 1.0),    # Truthahnbrust
+    (159, 18.0, 0.0, 10.0),   # Truthahnkeule
+    (201, 16.0, 0.0, 15.0),   # Truthahnflügel
+    (98, 22.0, 0.0, 1.0),     # Straußenfilet
+    (105, 21.0, 0.0, 2.0),    # Straußensteak
+    (101, 23.0, 0.0, 1.0),    # Kängurufilet
+    (108, 22.0, 0.0, 3.0),    # Känguru-Hüftsteak
+    (132, 24.0, 0.0, 4.0),    # Bisonfilet
+    (115, 22.0, 0.0, 3.0),    # Bisonrücken
+    (160, 18.0, 0.0, 11.0),   # Perlhuhnkeulen
+    (132, 20.0, 0.0, 7.0),    # Perlhuhnbrust
+    (142, 23.0, 0.0, 5.0),    # Fasanenbrust
+    (179, 18.0, 0.0, 13.0),   # Fasanenkeulen
+    (123, 22.0, 0.0, 3.0)     # Hasenrücken
+]
+
+
+foodFleisch_tags = [
+    (0, [11, 25, 28, 29, 30, 33, 36]),    # Rinderfilet
+    (1, [11, 25, 30, 33, 36]),             # Rinderhüfte
+    (2, [11, 33, 36, 39]),                 # Rinderbrust
+    (3, [23, 28, 40]),                     # Rinderknochenmark
+    (4, [11, 33, 36]),                     # Rinderhackfleisch
+    (5, [11, 25, 33, 36]),                 # Rinderzunge
+    (6, [11, 19, 20, 21, 33]),             # Rinderleber
+    (7, [11, 33, 36, 39]),                 # Rinderschulter
+    (8, [11, 29, 33, 36]),                 # Rindersteak
+    (9, [11, 28, 29, 36]),                 # Entrecôte (Rind)
+    (10, [11, 25, 30, 33]),                # Tafelspitz (Rind)
+    (11, [11, 28, 33, 36]),                # Rinderbacke
+    (12, [11, 29, 33, 36]),                # Rinderkotelett
+    (13, [11, 25, 30, 33, 36]),            # Kalbsfilet
+    (14, [11, 25, 30, 33]),                # Kalbsschnitzel
+    (15, [11, 30, 33, 36]),                # Kalbsrücken
+    (16, [11, 28, 33]),                    # Kalbsbäckchen
+    (17, [11, 33, 36]),                    # Kalbshaxe
+    (18, [11, 19, 25, 33]),                # Kalbsleber
+    (19, [11, 33, 36]),                    # Kalbsnieren
+    (20, [11, 25, 33, 36]),                # Kalbszunge
+    (21, [11, 30, 33, 36]),                # Kalbsbrust
+    (22, [11, 25, 30, 33, 36]),            # Schweinefilet
+    (23, [11, 36, 39]),                    # Schweinebauch
+    (24, [11, 33, 36]),                    # Schweinekotelett
+    (25, [11, 25, 30, 33]),                # Schweineschnitzel
+    (26, [11, 33, 36]),                    # Schweineschulter
+    (27, [11, 33, 36, 39]),                # Schweinehaxe
+    (28, [11, 25, 30, 33]),                # Schweinerücken
+    (29, [11, 19, 20, 33]),                # Schweineleber
+    (30, [11, 33, 36]),                    # Schweinebacke
+    (31, [23, 39]),                        # Schweinespeck
+    (32, [11, 28, 33, 36]),                # Schweineohren
+    (33, [11, 33, 36, 39]),                # Schweinefuß
+    (34, [11, 25, 30, 33]),                # Schweineherz
+    (35, [11, 25, 33, 36]),                # Schweinezunge
+    (36, [11, 33, 36]),                    # Lammkeule
+    (37, [11, 28, 29, 33, 36]),            # Lammkotelett
+    (38, [11, 30, 33, 36]),                # Lammrücken
+    (39, [11, 33, 36]),                    # Lammhaxe
+    (40, [11, 33, 36]),                    # Lammschulter
+    (41, [11, 25, 30, 33]),                # Lammfilet
+    (42, [11, 19, 20, 33]),                # Lammleber
+    (43, [11, 33, 36]),                    # Lammnieren
+    (44, [11, 33, 36]),                    # Lammbrust
+    (45, [11, 33, 36]),                    # Ziegenkeule
+    (46, [11, 30, 33, 36]),                # Ziegenrücken
+    (47, [11, 29, 33, 36]),                # Ziegenkotelett
+    (48, [11, 25, 33, 36]),                # Ziegenfilet
+    (49, [11, 25, 30, 33, 36]),            # Hähnchenbrust
+    (50, [11, 33, 36]),                    # Hähnchenkeulen
+    (51, [11, 33, 36, 39]),                # Hähnchenflügel
+    (52, [11, 33, 36]),                    # Hähnchenrücken
+    (53, [11, 19, 25, 33]),                # Hähnchenleber
+    (54, [11, 25, 30, 33]),                # Hähnchenherz
+    (55, [11, 33, 36, 39]),                # Hähnchenflügelspitzen
+    (56, [11, 29, 33, 36]),                # Entenbrust
+    (57, [11, 33, 36]),                    # Entenkeulen
+    (58, [11, 33, 36]),                    # Entenrücken
+    (59, [11, 19, 25, 33]),                # Entenleber
+    (60, [11, 33, 36, 39]),                # Entenflügel
+    (61, [11, 33, 36]),                    # Entenhals
+    (62, [11, 29, 33, 36]),                # Gänsebrust
+    (63, [11, 33, 36]),                    # Gänsekeulen
+    (64, [11, 19, 25, 33]),                # Gänseleber
+    (65, [11, 25, 33]),                    # Gänseherz
+    (66, [11, 33, 36]),                    # Gänsehals
+    (67, [11, 25, 30, 33, 36]),            # Wildschweinrücken
+    (68, [11, 33, 36]),                    # Wildschweinkeule
+    (69, [11, 25, 33, 36]),                # Wildschweinfilet
+    (70, [11, 33, 36]),                    # Wildschweinhaxe
+    (71, [11, 25, 30, 33, 36]),            # Hirschrücken
+    (72, [11, 33, 36]),                    # Hirschkeule
+    (73, [11, 25, 33, 36]),                # Hirschfilet
+    (74, [11, 25, 30, 33]),                # Hirschmedaillons
+    (75, [11, 25, 30, 33, 36]),            # Rehrücken
+    (76, [11, 33, 36]),                    # Rehkeule
+    (77, [11, 25, 33, 36]),                # Rehfilet
+    (78, [11, 19, 25, 33]),                # Rehleber
+    (79, [11, 25, 30, 33]),                # Taubenbrust
+    (80, [11, 33, 36]),                    # Wachtelkeulen
+    (81, [11, 25, 30, 33]),                # Wachtelbrust
+    (82, [11, 33, 36]),                    # Kaninchenkeule
+    (83, [11, 25, 30, 33]),                # Kaninchenrücken
+    (84, [11, 19, 25, 33]),                # Kaninchenleber
+    (85, [11, 25, 30, 33]),                # Ziegenherz
+    (86, [11, 25, 30, 33, 36]),            # Truthahnbrust
+    (87, [11, 33, 36]),                    # Truthahnkeule
+    (88, [11, 33, 36, 39]),                # Truthahnflügel
+    (89, [11, 25, 33, 36]),                # Straußenfilet
+    (90, [11, 25, 29, 33]),                # Straußensteak
+    (91, [11, 25, 30, 33, 36]),            # Kängurufilet
+    (92, [11, 25, 30, 33]),                # Känguru-Hüftsteak
+    (93, [11, 25, 30, 33]),                # Bisonfilet
+    (94, [11, 25, 30, 33, 36]),            # Bisonrücken
+    (95, [11, 33, 36]),                    # Perlhuhnkeulen
+    (96, [11, 25, 30, 33]),                # Perlhuhnbrust
+    (97, [11, 25, 30, 33]),                # Fasanenbrust
+    (98, [11, 33, 36]),                    # Fasanenkeulen
+    (99, [11, 25, 30, 33, 36])             # Hasenrücken
+]
+
+setDatabase(tags,foodsFleisch,nutritionFleisch_facts,foodFleisch_tags)
+
+foodsFisch = [
+    ("Aal", "Fisch", "Frischer Aal, reich an Omega-3-Fettsäuren, ideal zum Räuchern oder Braten."),
+    ("Anchovis (Sardellen)", "Fisch", "Salzige Sardellen, ideal zum Verfeinern von Salaten oder Pastagerichten."),
+    ("Barsch", "Fisch", "Magerer Barsch, ideal zum Grillen oder Braten."),
+    ("Blaufisch", "Fisch", "Blaufisch, reich an Omega-3-Fettsäuren, ideal zum Backen oder Braten."),
+    ("Butterfisch", "Fisch", "Zarter Butterfisch, reich an ungesättigten Fettsäuren, ideal zum Grillen."),
+    ("Cicso", "Fisch", "Köstlicher Cicso, ideal zum Räuchern oder Braten."),
+    ("Croaker", "Fisch", "Magerer Croaker, ideal zum Frittieren oder Grillen."),
+    ("Fischstäbchen", "Fisch", "Panierte Fischstäbchen, besonders beliebt bei Kindern."),
+    ("Goldmakrelen", "Fisch", "Zarte Goldmakrele, perfekt zum Grillen oder für Fisch-Tacos."),
+    ("Hecht", "Fisch", "Magerer Hecht, ideal zum Braten oder für Fischsuppen."),
+    ("Heilbutt", "Fisch", "Zarter Heilbutt, ideal zum Grillen oder Backen."),
+    ("Hering", "Fisch", "Frischer Hering, ideal zum Einlegen oder Braten."),
+    ("Kabeljau (Dorsch)", "Fisch", "Magerer Kabeljau, ideal zum Backen oder Braten."),
+    ("Karpfen", "Fisch", "Frischer Karpfen, ideal zum Backen oder Braten."),
+    ("Kaviar (Schwarz & Rot)", "Fisch", "Feiner Kaviar, ideal als edle Beilage oder Garnitur."),
+    ("Lengfisch", "Fisch", "Magerer Lengfisch, ideal zum Grillen oder Braten."),
+    ("Lingcod", "Fisch", "Zarter Lingcod, perfekt zum Braten oder Backen."),
+    ("Lumb", "Fisch", "Milder Lumb, ideal für Schmorgerichte oder zum Grillen."),
+    ("Makrele", "Fisch", "Ölige Makrele, reich an Omega-3, ideal zum Grillen oder Räuchern."),
+    ("Mahi Mahi", "Fisch", "Zarter Mahi Mahi, ideal zum Grillen oder Braten."),
+    ("Pangasius", "Fisch", "Milder Pangasius, ideal für einfache Gerichte oder zum Frittieren."),
+    ("Rotbarsch", "Fisch", "Zarter Rotbarsch, ideal zum Braten oder Backen."),
+    ("Sardinen", "Fisch", "Frische Sardinen, ideal zum Grillen oder Einlegen."),
+    ("Schellfisch", "Fisch", "Magerer Schellfisch, ideal zum Räuchern oder Kochen."),
+    ("Scholle", "Fisch", "Zarte Scholle, ideal zum Braten oder Pochieren."),
+    ("Seelachs", "Fisch", "Magerer Seelachs, ideal für Backfisch oder zum Grillen."),
+    ("Seeteufel", "Fisch", "Festfleischiger Seeteufel, ideal für edle Gerichte oder zum Grillen."),
+    ("Seeforelle", "Fisch", "Zarte Seeforelle, ideal zum Grillen oder Braten."),
+    ("Seesaibling", "Fisch", "Delikater Seesaibling, ideal zum Räuchern oder Braten."),
+    ("Seewolf", "Fisch", "Festfleischiger Seewolf, ideal zum Grillen oder Braten."),
+    ("Steinbutt", "Fisch", "Zarter Steinbutt, ideal für feine Fischgerichte."),
+    ("Stör", "Fisch", "Magerer Stör, ideal zum Grillen oder für edle Gerichte."),
+    ("Tilapia", "Fisch", "Milder Tilapia, ideal zum Braten oder Backen."),
+    ("Thunfisch", "Fisch", "Festfleischiger Thunfisch, ideal zum Grillen oder für Sushi."),
+    ("Wels", "Fisch", "Saftiger Wels, ideal zum Grillen oder Braten."),
+    ("Zander", "Fisch", "Zarter Zander, ideal für edle Fischgerichte."),
+    ("Alaska-Seelachs", "Fisch", "Magerer Alaska-Seelachs, ideal für Fischstäbchen oder zum Backen."),
+    ("Atlantischer Lachs", "Fisch", "Öliger Lachs, reich an Omega-3, ideal zum Grillen oder Räuchern."),
+    ("Barramundi", "Fisch", "Zarter Barramundi, ideal zum Braten oder Grillen."),
+    ("Dorade", "Fisch", "Mild-aromatische Dorade, ideal zum Grillen oder Braten."),
+    ("Flunder", "Fisch", "Zarte Flunder, ideal zum Braten oder Pochieren."),
+    ("Heilbutt (geräuchert)", "Fisch", "Geräucherter Heilbutt, ideal als kalte Vorspeise."),
+    ("Hering (geräuchert)", "Fisch", "Geräucherter Hering, ideal als Aufschnitt oder für Salate."),
+    ("Lachs (geräuchert)", "Fisch", "Geräucherter Lachs, perfekt für Bagels oder Vorspeisen."),
+    ("Makrele (geräuchert)", "Fisch", "Geräucherte Makrele, reich an Omega-3, ideal als Aufschnitt."),
+    ("Sardinen (geräuchert)", "Fisch", "Geräucherte Sardinen, ideal als Vorspeise oder Snack."),
+    ("Scholle (geräuchert)", "Fisch", "Geräucherte Scholle, ideal für kalte Vorspeisen."),
+    ("Seelachs (geräuchert)", "Fisch", "Geräucherter Seelachs, ideal als Aufschnitt oder für Salate."),
+    ("Thunfisch (geräuchert)", "Fisch", "Geräucherter Thunfisch, ideal als edler Aufschnitt."),
+    ("Aal (geräuchert)", "Fisch", "Geräucherter Aal, eine Delikatesse, ideal als Vorspeise."),
+    ("Forelle (geräuchert)", "Fisch", "Geräucherte Forelle, ideal als Vorspeise oder Aufschnitt."),
+    ("Karpfen (geräuchert)", "Fisch", "Geräucherter Karpfen, ideal für kalte Gerichte."),
+    ("Wels (geräuchert)", "Fisch", "Geräucherter Wels, ideal als Aufschnitt oder Vorspeise."),
+    ("Zander (geräuchert)", "Fisch", "Geräucherter Zander, ideal als edle Vorspeise."),
+    ("Garnelen", "Meeresfrüchte", "Saftige Garnelen, ideal zum Grillen, Braten oder für Salate."),
+    ("Krabben", "Meeresfrüchte", "Frische Krabben, ideal für Salate oder Pasta."),
+    ("Hummer", "Meeresfrüchte", "Edler Hummer, ideal für festliche Anlässe und edle Gerichte."),
+    ("Languste", "Meeresfrüchte", "Zarte Languste, ideal für gehobene Gerichte oder zum Grillen."),
+    ("Miesmuscheln", "Meeresfrüchte", "Frische Miesmuscheln, ideal für Suppen oder Pasta."),
+    ("Jakobsmuscheln", "Meeresfrüchte", "Zarte Jakobsmuscheln, ideal zum Braten oder für edle Gerichte."),
+    ("Austern", "Meeresfrüchte", "Frische Austern, ideal als edle Vorspeise."),
+    ("Tintenfisch", "Meeresfrüchte", "Zarter Tintenfisch, ideal zum Grillen oder Frittieren."),
+    ("Oktopus", "Meeresfrüchte", "Zarter Oktopus, ideal zum Schmoren oder Grillen."),
+    ("Kalmare", "Meeresfrüchte", "Frische Kalmare, ideal zum Frittieren oder Grillen."),
+    ("Seeigel", "Meeresfrüchte", "Seeigelrogen, eine Delikatesse, ideal als Vorspeise."),
+    ("Seegurken", "Meeresfrüchte", "Zarte Seegurken, ideal für asiatische Gerichte."),
+    ("Venusmuscheln", "Meeresfrüchte", "Zarte Venusmuscheln, ideal für Suppen oder Pasta."),
+    ("Herzmuscheln", "Meeresfrüchte", "Frische Herzmuscheln, ideal für Pastagerichte."),
+    ("Schnecken", "Meeresfrüchte", "Frische Schnecken, ideal für französische Gerichte."),
+    ("Seespinne", "Meeresfrüchte", "Frische Seespinne, ideal für Salate oder als Vorspeise."),
+    ("Taschenkrebse", "Meeresfrüchte", "Frische Taschenkrebse, ideal zum Grillen oder Kochen."),
+    ("Königskrabbe", "Meeresfrüchte", "Edle Königskrabbe, ideal für gehobene Gerichte."),
+    ("Kaisergranat", "Meeresfrüchte", "Zarter Kaisergranat, ideal für edle Vorspeisen."),
+    ("Sepia", "Meeresfrüchte", "Frische Sepia, ideal zum Grillen oder Frittieren."),
+    ("Wolfsbarsch", "Fisch", "Zarter Wolfsbarsch, ideal zum Braten oder Grillen."),
+    ("Sardelle", "Fisch", "Salzige Sardelle, ideal zum Verfeinern von Gerichten."),
+    ("Bonito", "Fisch", "Zarter Bonito, ideal zum Grillen oder Braten."),
+    ("Glattbutt", "Fisch", "Milder Glattbutt, ideal für feine Fischgerichte."),
+    ("Schwarzbarsch", "Fisch", "Magerer Schwarzbarsch, ideal zum Grillen oder Braten."),
+    ("Flussbarsch", "Fisch", "Milder Flussbarsch, ideal für leichte Gerichte."),
+    ("Schleie", "Fisch", "Frische Schleie, ideal zum Braten oder Räuchern."),
+    ("Hornhecht", "Fisch", "Hornhecht, ideal zum Grillen oder Braten."),
+    ("Seezunge", "Fisch", "Delikate Seezunge, ideal zum Braten oder Dünsten."),
+    ("Rotflossen-Salmler", "Fisch", "Milder Rotflossen-Salmler, ideal für Suppen und leichte Gerichte."),
+    ("Makaira (Speerfisch)", "Fisch", "Fester Makaira, ideal zum Grillen oder Braten."),
+    ("Trevally (Goldmakrele)", "Fisch", "Goldmakrele, ideal zum Grillen oder für Fisch-Tacos."),
+    ("Schwertfisch", "Fisch", "Fester Schwertfisch, ideal zum Grillen oder Braten."),
+    ("Gelbschwanzmakrele", "Fisch", "Zarte Gelbschwanzmakrele, ideal zum Grillen."),
+    ("Seehecht", "Fisch", "Magerer Seehecht, ideal für Suppen und Braten."),
+    ("Graskarpfen", "Fisch", "Frischer Graskarpfen, ideal zum Braten oder Grillen."),
+    ("Karpfen (Wild)", "Fisch", "Wilder Karpfen, ideal zum Backen oder Braten."),
+    ("Süßwasserkrebs", "Meeresfrüchte", "Frische Süßwasserkrebse, ideal für Suppen und Salate."),
+    ("Langustenschwanz", "Meeresfrüchte", "Zarter Langustenschwanz, ideal für edle Gerichte."),
+    ("Meeräsche", "Fisch", "Milde Meeräsche, ideal zum Braten oder Grillen."),
+    ("Lippfisch", "Fisch", "Zarter Lippfisch, ideal für leichte Fischgerichte."),
+    ("Steinbeißer", "Fisch", "Fester Steinbeißer, ideal für Grill- und Schmorgerichte."),
+    ("Wolfshering", "Fisch", "Frischer Wolfshering, ideal zum Braten."),
+    ("Seehasenrogen", "Meeresfrüchte", "Delikater Seehasenrogen, ideal als Garnitur."),
+    ("Glasaal", "Fisch", "Junger Aal, ideal zum Räuchern."),
+    ("Zackenbarsch", "Fisch", "Fester Zackenbarsch, ideal für Grillgerichte.")
+]
+
+nutritionFisch_facts = [
+    (184, 18.0, 0.0, 11.0),   # Aal
+    (210, 20.0, 0.0, 15.0),   # Anchovis (Sardellen)
+    (105, 23.0, 0.0, 2.0),    # Barsch
+    (186, 20.0, 0.0, 11.0),   # Blaufisch
+    (191, 14.0, 0.0, 16.0),   # Butterfisch
+    (88, 18.0, 0.0, 1.0),     # Cicso
+    (111, 20.0, 0.0, 3.0),    # Croaker
+    (200, 15.0, 20.0, 10.0),  # Fischstäbchen
+    (85, 19.0, 0.0, 1.0),     # Goldmakrelen
+    (97, 21.0, 0.0, 1.0),     # Hecht
+    (186, 18.0, 0.0, 13.0),   # Heilbutt
+    (158, 19.0, 0.0, 9.0),    # Hering
+    (82, 18.0, 0.0, 1.0),     # Kabeljau (Dorsch)
+    (127, 17.0, 0.0, 6.0),    # Karpfen
+    (264, 25.0, 4.0, 18.0),   # Kaviar (Schwarz & Rot)
+    (100, 23.0, 0.0, 1.0),    # Lengfisch
+    (85, 20.0, 0.0, 1.0),     # Lingcod
+    (120, 21.0, 0.0, 4.0),    # Lumb
+    (205, 19.0, 0.0, 13.0),   # Makrele
+    (90, 20.0, 0.0, 2.0),     # Mahi Mahi
+    (80, 15.0, 0.0, 3.0),     # Pangasius
+    (110, 20.0, 0.0, 2.0),    # Rotbarsch
+    (208, 24.0, 0.0, 11.0),   # Sardinen
+    (90, 20.0, 0.0, 1.0),     # Schellfisch
+    (80, 18.0, 0.0, 1.0),     # Scholle
+    (112, 20.0, 0.0, 4.0),    # Seelachs
+    (97, 21.0, 0.0, 2.0),     # Seeteufel
+    (103, 20.0, 0.0, 3.0),    # Seeforelle
+    (104, 19.0, 0.0, 3.0),    # Seesaibling
+    (96, 22.0, 0.0, 1.0),     # Seewolf
+    (95, 17.0, 0.0, 2.0),     # Steinbutt
+    (105, 21.0, 0.0, 3.0),    # Stör
+    (96, 26.0, 0.0, 1.0),     # Tilapia
+    (144, 24.0, 0.0, 5.0),    # Thunfisch
+    (80, 16.0, 0.0, 3.0),     # Wels
+    (84, 20.0, 0.0, 1.0),     # Zander
+    (82, 19.0, 0.0, 1.0),     # Alaska-Seelachs
+    (208, 20.0, 0.0, 14.0),   # Atlantischer Lachs
+    (110, 19.0, 0.0, 3.0),    # Barramundi
+    (96, 18.0, 0.0, 3.0),     # Dorade
+    (83, 17.0, 0.0, 1.0),     # Flunder
+    (190, 19.0, 0.0, 13.0),   # Heilbutt (geräuchert)
+    (217, 18.0, 0.0, 16.0),   # Hering (geräuchert)
+    (203, 22.0, 0.0, 13.0),   # Lachs (geräuchert)
+    (205, 21.0, 0.0, 15.0),   # Makrele (geräuchert)
+    (235, 25.0, 0.0, 17.0),   # Sardinen (geräuchert)
+    (178, 18.0, 0.0, 13.0),   # Scholle (geräuchert)
+    (190, 20.0, 0.0, 12.0),   # Seelachs (geräuchert)
+    (222, 25.0, 0.0, 15.0),   # Thunfisch (geräuchert)
+    (281, 22.0, 0.0, 25.0),   # Aal (geräuchert)
+    (190, 20.0, 0.0, 13.0),   # Forelle (geräuchert)
+    (179, 18.0, 0.0, 12.0),   # Karpfen (geräuchert)
+    (188, 19.0, 0.0, 13.0),   # Wels (geräuchert)
+    (174, 21.0, 0.0, 10.0),   # Zander (geräuchert)
+    (99, 24.0, 0.0, 0.8),     # Garnelen
+    (82, 18.0, 0.0, 1.0),     # Krabben
+    (91, 19.0, 0.0, 2.0),     # Hummer
+    (112, 20.0, 0.0, 2.0),    # Languste
+    (86, 12.0, 4.0, 2.0),     # Miesmuscheln
+    (102, 21.0, 0.0, 1.0),    # Jakobsmuscheln
+    (81, 9.0, 4.5, 2.5),      # Austern
+    (175, 15.0, 1.0, 13.0),   # Tintenfisch
+    (82, 14.0, 1.0, 1.0),     # Oktopus
+    (92, 16.0, 1.0, 1.5),     # Kalmare
+    (87, 9.0, 5.0, 4.0),      # Seeigel
+    (58, 5.0, 3.0, 0.8),      # Seegurken
+    (77, 13.0, 4.0, 1.0),     # Venusmuscheln
+    (70, 10.0, 2.0, 1.0),     # Herzmuscheln
+    (95, 16.0, 0.0, 1.5),     # Schnecken
+    (82, 17.0, 0.0, 1.0),     # Seespinne
+    (96, 19.0, 0.0, 2.0),     # Taschenkrebse
+    (84, 18.0, 0.0, 1.5),     # Königskrabbe
+    (92, 19.0, 0.0, 1.2),     # Kaisergranat
+    (76, 15.0, 0.5, 1.0),     # Sepia
+    (91, 19.0, 0.0, 1.0),     # Wolfsbarsch
+    (105, 22.0, 0.0, 2.0),    # Sardelle
+    (112, 25.0, 0.0, 1.0),    # Bonito
+    (90, 21.0, 0.0, 1.0),     # Glattbutt
+    (125, 19.0, 0.0, 5.0),    # Schwarzbarsch
+    (84, 20.0, 0.0, 1.0),     # Flussbarsch
+    (91, 19.0, 0.0, 2.0),     # Schleie
+    (110, 21.0, 0.0, 3.0),    # Hornhecht
+    (95, 18.0, 0.0, 1.5),     # Seezunge
+    (103, 20.0, 0.0, 2.0),    # Rotflossen-Salmler
+    (102, 22.0, 0.0, 1.5),    # Makaira (Speerfisch)
+    (100, 19.0, 0.0, 1.2),    # Trevally (Goldmakrele)
+    (120, 24.0, 0.0, 4.0),    # Schwertfisch
+    (108, 20.0, 0.0, 3.0),    # Gelbschwanzmakrele
+    (92, 19.0, 0.0, 2.0),     # Seehecht
+    (110, 18.0, 0.0, 3.0),    # Graskarpfen
+    (96, 17.0, 0.0, 2.0),     # Karpfen (Wild)
+    (89, 15.0, 0.0, 1.5),     # Süßwasserkrebs
+    (102, 20.0, 0.0, 2.5),    # Langustenschwanz
+    (88, 16.0, 0.0, 1.5),     # Meeräsche
+    (100, 18.0, 0.0, 2.0),    # Lippfisch
+    (110, 19.0, 0.0, 2.0),    # Steinbeißer
+    (92, 16.0, 0.0, 2.0),     # Wolfshering
+    (210, 25.0, 0.0, 20.0),   # Seehasenrogen
+    (155, 19.0, 0.0, 12.0),   # Glasaal
+    (95, 20.0, 0.0, 2.0)      # Zackenbarsch
+]
+
+foodFisch_tags = [
+    (0, [11, 23, 28, 33]),    # Aal
+    (1, [11, 28, 31, 36]),     # Anchovis (Sardellen)
+    (2, [11, 25, 33]),         # Barsch
+    (3, [11, 23, 28]),         # Blaufisch
+    (4, [11, 28, 36]),         # Butterfisch
+    (5, [11, 25, 33]),         # Cicso
+    (6, [11, 25, 33]),         # Croaker
+    (7, [11, 26, 36]),         # Fischstäbchen
+    (8, [11, 25, 33]),         # Goldmakrelen
+    (9, [11, 25, 33]),         # Hecht
+    (10, [11, 25, 33]),        # Heilbutt
+    (11, [11, 23, 28]),        # Hering
+    (12, [11, 25, 33]),        # Kabeljau (Dorsch)
+    (13, [11, 25, 33]),        # Karpfen
+    (14, [11, 28, 36]),        # Kaviar (Schwarz & Rot)
+    (15, [11, 25, 33]),        # Lengfisch
+    (16, [11, 25, 33]),        # Lingcod
+    (17, [11, 25, 33]),        # Lumb
+    (18, [11, 23, 28, 33]),    # Makrele
+    (19, [11, 25, 33]),        # Mahi Mahi
+    (20, [11, 25, 33]),        # Pangasius
+    (21, [11, 25, 33]),        # Rotbarsch
+    (22, [11, 28, 33]),        # Sardinen
+    (23, [11, 25, 33]),        # Schellfisch
+    (24, [11, 25, 33]),        # Scholle
+    (25, [11, 25, 33]),        # Seelachs
+    (26, [11, 25, 33]),        # Seeteufel
+    (27, [11, 25, 33]),        # Seeforelle
+    (28, [11, 25, 33]),        # Seesaibling
+    (29, [11, 25, 33]),        # Seewolf
+    (30, [11, 25, 33]),        # Steinbutt
+    (31, [11, 25, 33]),        # Stör
+    (32, [11, 25, 33]),        # Tilapia
+    (33, [11, 23, 28, 33]),    # Thunfisch
+    (34, [11, 25, 33]),        # Wels
+    (35, [11, 25, 33]),        # Zander
+    (36, [11, 25, 33]),        # Alaska-Seelachs
+    (37, [11, 23, 28, 33]),    # Atlantischer Lachs
+    (38, [11, 25, 33]),        # Barramundi
+    (39, [11, 25, 33]),        # Dorade
+    (40, [11, 25, 33]),        # Flunder
+    (41, [11, 28, 33]),        # Heilbutt (geräuchert)
+    (42, [11, 28, 33]),        # Hering (geräuchert)
+    (43, [11, 28, 33]),        # Lachs (geräuchert)
+    (44, [11, 28, 33]),        # Makrele (geräuchert)
+    (45, [11, 28, 33]),        # Sardinen (geräuchert)
+    (46, [11, 28, 33]),        # Scholle (geräuchert)
+    (47, [11, 28, 33]),        # Seelachs (geräuchert)
+    (48, [11, 28, 33]),        # Thunfisch (geräuchert)
+    (49, [11, 28, 33]),        # Aal (geräuchert)
+    (50, [11, 28, 33]),        # Forelle (geräuchert)
+    (51, [11, 28, 33]),        # Karpfen (geräuchert)
+    (52, [11, 28, 33]),        # Wels (geräuchert)
+    (53, [11, 28, 33]),        # Zander (geräuchert)
+    (54, [11, 25, 33]),        # Garnelen
+    (55, [11, 25, 33]),        # Krabben
+    (56, [11, 25, 33]),        # Hummer
+    (57, [11, 25, 33]),        # Languste
+    (58, [11, 25, 33]),        # Miesmuscheln
+    (59, [11, 25, 33]),        # Jakobsmuscheln
+    (60, [11, 25, 33]),        # Austern
+    (61, [11, 25, 33]),        # Tintenfisch
+    (62, [11, 25, 33]),        # Oktopus
+    (63, [11, 25, 33]),        # Kalmare
+    (64, [11, 25, 33]),        # Seeigel
+    (65, [11, 25, 33]),        # Seegurken
+    (66, [11, 25, 33]),        # Venusmuscheln
+    (67, [11, 25, 33]),        # Herzmuscheln
+    (68, [11, 25, 33]),        # Schnecken
+    (69, [11, 25, 33]),        # Seespinne
+    (70, [11, 25, 33]),        # Taschenkrebse
+    (71, [11, 25, 33]),        # Königskrabbe
+    (72, [11, 25, 33]),        # Kaisergranat
+    (73, [11, 25, 33]),        # Sepia
+    (74, [11, 25, 33]),        # Wolfsbarsch
+    (75, [11, 28, 33]),        # Sardelle
+    (76, [11, 25, 33]),        # Bonito
+    (77, [11, 25, 33]),        # Glattbutt
+    (78, [11, 25, 33]),        # Schwarzbarsch
+    (79, [11, 25, 33]),        # Flussbarsch
+    (80, [11, 25, 33]),        # Schleie
+    (81, [11, 25, 33]),        # Hornhecht
+    (82, [11, 25, 33]),        # Seezunge
+    (83, [11, 25, 33]),        # Rotflossen-Salmler
+    (84, [11, 25, 33]),        # Makaira (Speerfisch)
+    (85, [11, 25, 33]),        # Trevally (Goldmakrele)
+    (86, [11, 25, 33]),        # Schwertfisch
+    (87, [11, 25, 33]),        # Gelbschwanzmakrele
+    (88, [11, 25, 33]),        # Seehecht
+    (89, [11, 25, 33]),        # Graskarpfen
+    (90, [11, 25, 33]),        # Karpfen (Wild)
+    (91, [11, 25, 33]),        # Süßwasserkrebs
+    (92, [11, 25, 33]),        # Langustenschwanz
+    (93, [11, 25, 33]),        # Meeräsche
+    (94, [11, 25, 33]),        # Lippfisch
+    (95, [11, 25, 33]),        # Steinbeißer
+    (96, [11, 25, 33]),        # Wolfshering
+    (97, [11, 28, 33]),        # Seehasenrogen
+    (98, [11, 28, 33]),        # Glasaal
+    (99, [11, 25, 33])         # Zackenbarsch
+]
+
+setDatabase(tags,foodsFisch,nutritionFisch_facts,foodFisch_tags)
+
+
+foodsMilchprodukte = [
+    ("Vollmilch", "Milchprodukt", "Frische Vollmilch, reich an Kalzium und Vitaminen, ideal zum Trinken oder Backen."),
+    ("Magermilch", "Milchprodukt", "Fettarme Magermilch, ideal für kalorienbewusste Ernährung."),
+    ("Halbfettmilch", "Milchprodukt", "Halbfettmilch, ideal für den täglichen Gebrauch."),
+    ("H-Milch", "Milchprodukt", "Haltbare Milch, ideal für längere Lagerung."),
+    ("Laktosefreie Milch", "Milchprodukt", "Milch ohne Laktose, ideal für Menschen mit Laktoseintoleranz."),
+    ("Buttermilch", "Milchprodukt", "Leicht säuerliche Buttermilch, ideal zum Backen oder als Getränk."),
+    ("Kondensmilch", "Milchprodukt", "Eingedickte Milch, ideal für Kaffee oder Desserts."),
+    ("Kaffeesahne", "Milchprodukt", "Sahne für Kaffee, verleiht dem Kaffee eine cremige Note."),
+    ("Sahne", "Milchprodukt", "Frische Sahne, ideal zum Verfeinern von Speisen."),
+    ("Schlagsahne", "Milchprodukt", "Sahne zum Aufschlagen, ideal für Desserts."),
+    ("Sauerrahm", "Milchprodukt", "Sauerrahm, ideal für Dips und Dressings."),
+    ("Crème fraîche", "Milchprodukt", "Französische Creme, ideal zum Kochen und Backen."),
+    ("Saure Sahne", "Milchprodukt", "Säuerliche Sahne, ideal für Dips und Dressings."),
+    ("Schmand", "Milchprodukt", "Schmand, ideal für herzhafte und süße Gerichte."),
+    ("Mascarpone", "Milchprodukt", "Italienischer Frischkäse, ideal für Desserts wie Tiramisu."),
+    ("Ricotta", "Milchprodukt", "Italienischer Käse, ideal für süße und herzhafte Gerichte."),
+    ("Frischkäse", "Milchprodukt", "Weicher Frischkäse, ideal als Brotaufstrich oder für Dips."),
+    ("Doppelrahmfrischkäse", "Milchprodukt", "Besonders cremiger Frischkäse, ideal als Brotaufstrich."),
+    ("Hüttenkäse (Cottage Cheese)", "Milchprodukt", "Körniger Frischkäse, ideal für Salate und als Snack."),
+    ("Quark", "Milchprodukt", "Milder Quark, ideal für süße und herzhafte Gerichte."),
+    ("Speisequark (Magerstufe)", "Milchprodukt", "Magerer Quark, ideal für eine kalorienbewusste Ernährung."),
+    ("Speisequark (Halbfettstufe)", "Milchprodukt", "Quark mit Halbfett, ideal für verschiedene Speisen."),
+    ("Skyr", "Milchprodukt", "Isländischer Joghurt, reich an Protein, ideal als Snack."),
+    ("Kefir", "Milchprodukt", "Gesunder Kefir, reich an Probiotika, ideal als Getränk."),
+    ("Joghurt (Natur)", "Milchprodukt", "Natürlicher Joghurt, ideal für Frühstück und Desserts."),
+    ("Joghurt (Griechisch)", "Milchprodukt", "Cremiger griechischer Joghurt, reich an Protein."),
+    ("Joghurt (Laktosefrei)", "Milchprodukt", "Joghurt ohne Laktose, ideal für Menschen mit Laktoseintoleranz."),
+    ("Trinkjoghurt", "Milchprodukt", "Flüssiger Joghurt, ideal als Getränk für unterwegs."),
+    ("Fruchtjoghurt", "Milchprodukt", "Joghurt mit Fruchtzusatz, ideal als süßer Snack."),
+    ("Ayran", "Milchprodukt", "Salziges Joghurtgetränk, ideal zu herzhaften Speisen."),
+    ("Molke", "Milchprodukt", "Flüssigkeit aus der Käseherstellung, reich an Nährstoffen."),
+    ("Dickmilch", "Milchprodukt", "Dickmilch, ideal für Desserts und als Getränk."),
+    ("Käsescheiben", "Milchprodukt", "Fertig geschnittene Käsescheiben, ideal für Sandwiches."),
+    ("Gouda", "Milchprodukt", "Milder bis würziger Käse, ideal als Brotbelag oder zum Überbacken."),
+    ("Edamer", "Milchprodukt", "Milder Edamer, ideal für Sandwiches oder als Snack."),
+    ("Emmentaler", "Milchprodukt", "Käse mit Löchern, ideal zum Überbacken."),
+    ("Butterkäse", "Milchprodukt", "Milder Käse, ideal als Brotbelag oder zum Überbacken."),
+    ("Bergkäse", "Milchprodukt", "Kräftiger Bergkäse, ideal zum Überbacken oder als Snack."),
+    ("Camembert", "Milchprodukt", "Weichkäse mit weißer Rinde, ideal als Vorspeise."),
+    ("Brie", "Milchprodukt", "Weichkäse, ideal für Käseplatten und Vorspeisen."),
+    ("Blauschimmelkäse", "Milchprodukt", "Würziger Blauschimmelkäse, ideal für Saucen und als Snack."),
+    ("Gorgonzola", "Milchprodukt", "Italienischer Blauschimmelkäse, ideal für Saucen."),
+    ("Roquefort", "Milchprodukt", "Französischer Blauschimmelkäse, ideal für Salate und Saucen."),
+    ("Feta", "Milchprodukt", "Griechischer Käse, ideal für Salate."),
+    ("Ziegenkäse", "Milchprodukt", "Würziger Ziegenkäse, ideal für Salate und als Vorspeise."),
+    ("Hirtenkäse", "Milchprodukt", "Milder Käse, ähnlich Feta, ideal für Salate."),
+    ("Mozzarella", "Milchprodukt", "Frischer Mozzarella, ideal für Salate und Pizza."),
+    ("Burrata", "Milchprodukt", "Cremiger Mozzarella, ideal für Salate und als Vorspeise."),
+    ("Parmesan", "Milchprodukt", "Hartkäse, ideal zum Reiben für Pasta."),
+    ("Pecorino", "Milchprodukt", "Italienischer Hartkäse aus Schafsmilch, ideal für Pasta."),
+    ("Halloumi", "Milchprodukt", "Grillkäse, ideal zum Braten oder Grillen."),
+    ("Provolone", "Milchprodukt", "Italienischer Käse, ideal zum Überbacken."),
+    ("Raclette-Käse", "Milchprodukt", "Käse für Raclette, ideal zum Schmelzen."),
+    ("Appenzeller", "Milchprodukt", "Schweizer Käse, ideal für Käseplatten."),
+    ("Tilsiter", "Milchprodukt", "Halbfester Käse, ideal als Brotbelag."),
+    ("Limburger", "Milchprodukt", "Würziger Käse, ideal für deftige Gerichte."),
+    ("Harzer Käse", "Milchprodukt", "Magerer Sauermilchkäse, ideal als Snack."),
+    ("Handkäse", "Milchprodukt", "Würziger Sauermilchkäse, ideal für Salate."),
+    ("Butter", "Milchprodukt", "Frische Butter, ideal zum Kochen, Backen und als Brotaufstrich."),
+    ("Süßrahmbutter", "Milchprodukt", "Butter aus Süßrahm, ideal zum Backen und Kochen."),
+    ("Sauerrahmbutter", "Milchprodukt", "Butter aus Sauerrahm, ideal als Brotaufstrich."),
+    ("Gesalzene Butter", "Milchprodukt", "Butter mit Salz, ideal als Brotaufstrich."),
+    ("Butterschmalz", "Milchprodukt", "Geklärtes Butterfett, ideal zum Braten."),
+    ("Ghee", "Milchprodukt", "Geklärte Butter, ideal für die indische Küche."),
+    ("Milchpulver", "Milchprodukt", "Getrocknete Milch, ideal für die Vorratshaltung."),
+    ("Vollmilchpulver", "Milchprodukt", "Pulverisierte Vollmilch, ideal für die Vorratshaltung."),
+    ("Magermilchpulver", "Milchprodukt", "Pulverisierte Magermilch, ideal für kalorienarme Rezepte."),
+    ("Joghurtpulver", "Milchprodukt", "Pulverisierter Joghurt, ideal für Smoothies und Desserts."),
+    ("Molkenpulver", "Milchprodukt", "Pulverisierte Molke, ideal für Shakes."),
+    ("Sahnepulver", "Milchprodukt", "Pulverisierte Sahne, ideal zum Verfeinern von Speisen."),
+    ("Käsefondue-Mischung", "Milchprodukt", "Fertig gemischte Käsefondue-Mischung, ideal für Fondue."),
+    ("Rahmspinat (Milchbasis)", "Milchprodukt", "Cremiger Spinat mit Rahm, ideal als Beilage."),
+    ("Milchspeiseeis", "Milchprodukt", "Cremiges Milcheis, ideal als Dessert."),
+    ("Softeis", "Milchprodukt", "Cremiges Softeis, ideal als Dessert."),
+    ("Frozen Joghurt", "Milchprodukt", "Gefrorener Joghurt, ideal als kalorienarmes Dessert."),
+    ("Karamellmilch", "Milchprodukt", "Gesüßte Milch mit Karamellgeschmack, ideal als Getränk."),
+    ("Vanillemilch", "Milchprodukt", "Gesüßte Milch mit Vanillegeschmack, ideal als Getränk."),
+    ("Schokoladenmilch", "Milchprodukt", "Gesüßte Milch mit Schokoladengeschmack, ideal als Getränk."),
+    ("Erdbeermilch", "Milchprodukt", "Gesüßte Milch mit Erdbeergeschmack, ideal als Getränk."),
+    ("Käsecreme", "Milchprodukt", "Cremiger Käseaufstrich, ideal als Brotbelag."),
+    ("Streichkäse", "Milchprodukt", "Weicher Käse zum Streichen, ideal als Brotaufstrich."),
+    ("Käserinde (essbar)", "Milchprodukt", "Essbare Käserinde, ideal als Snack."),
+    ("Quarkcreme", "Milchprodukt", "Cremiger Quark, ideal für Desserts."),
+    ("Zaziki", "Milchprodukt", "Griechischer Joghurt-Dip mit Gurken und Knoblauch."),
+    ("Lassi", "Milchprodukt", "Indisches Joghurtgetränk, ideal als Erfrischung."),
+    ("Rahmkäse", "Milchprodukt", "Cremiger Käse, ideal als Brotbelag oder für Saucen."),
+    ("Fromage blanc", "Milchprodukt", "Französischer Frischkäse, ideal für Desserts und als Brotaufstrich."),
+    ("Petit Suisse", "Milchprodukt", "Kleiner französischer Frischkäse, ideal als Dessert."),
+    ("Crème double", "Milchprodukt", "Sehr fetthaltige Sahne, ideal für Desserts."),
+    ("Milchreis", "Milchprodukt", "Gekochter Reis in Milch, ideal als Dessert."),
+    ("Kondensmilch (gezuckert)", "Milchprodukt", "Gezuckerte Kondensmilch, ideal für Desserts."),
+    ("Ricotta salata", "Milchprodukt", "Gesalzener Ricotta, ideal zum Reiben."),
+    ("Labneh", "Milchprodukt", "Abgetropfter Joghurt, ideal als Brotaufstrich."),
+    ("Queso fresco", "Milchprodukt", "Frischer mexikanischer Käse, ideal für Salate."),
+    ("Paneer", "Milchprodukt", "Indischer Frischkäse, ideal für Currygerichte."),
+    ("Clotted Cream", "Milchprodukt", "Dicke Sahne, ideal für Scones."),
+    ("Devonshire Cream", "Milchprodukt", "Cremige Sahne, ideal für Scones."),
+    ("Crème Bavaroise", "Milchprodukt", "Französisches Dessert auf Sahnebasis."),
+    ("Milchkaramell", "Milchprodukt", "Karamell auf Milchbasis, ideal als Süßigkeit."),
+    ("Milchprotein (Casein)", "Milchprodukt", "Milchprotein, ideal für Proteinshakes.")
+]
+
+nutritionMilchprodukte_facts = [
+    (64, 3.4, 4.8, 3.6),   # Vollmilch
+    (34, 3.4, 5.0, 0.1),   # Magermilch
+    (46, 3.4, 4.9, 1.5),   # Halbfettmilch
+    (61, 3.4, 4.8, 3.5),   # H-Milch
+    (42, 3.4, 4.8, 1.5),   # Laktosefreie Milch
+    (35, 3.5, 4.0, 0.5),   # Buttermilch
+    (135, 7.9, 10.0, 7.5), # Kondensmilch
+    (118, 3.1, 4.4, 10.0), # Kaffeesahne
+    (195, 2.0, 3.0, 19.0), # Sahne
+    (337, 2.0, 3.0, 35.0), # Schlagsahne
+    (136, 2.6, 4.0, 10.0), # Sauerrahm
+    (292, 2.9, 3.8, 30.0), # Crème fraîche
+    (186, 3.0, 4.5, 20.0), # Saure Sahne
+    (240, 2.7, 3.2, 24.0), # Schmand
+    (429, 4.5, 4.6, 42.0), # Mascarpone
+    (174, 11.3, 3.3, 13.0), # Ricotta
+    (253, 5.5, 4.0, 25.0), # Frischkäse
+    (350, 4.0, 4.2, 33.0), # Doppelrahmfrischkäse
+    (98, 11.5, 3.4, 4.3),  # Hüttenkäse (Cottage Cheese)
+    (68, 12.8, 3.9, 0.2),  # Quark
+    (49, 13.0, 4.0, 0.1),  # Speisequark (Magerstufe)
+    (104, 11.0, 3.7, 5.0), # Speisequark (Halbfettstufe)
+    (63, 11.0, 4.0, 0.2),  # Skyr
+    (64, 3.5, 4.0, 1.0),   # Kefir
+    (61, 3.5, 4.0, 3.5),   # Joghurt (Natur)
+    (115, 5.0, 4.0, 10.0), # Joghurt (Griechisch)
+    (57, 3.5, 4.0, 1.5),   # Joghurt (Laktosefrei)
+    (75, 3.1, 11.0, 1.5),  # Trinkjoghurt
+    (100, 3.0, 14.0, 1.5), # Fruchtjoghurt
+    (40, 3.5, 4.5, 1.0),   # Ayran
+    (23, 0.9, 5.2, 0.1),   # Molke
+    (62, 3.1, 5.0, 3.8),   # Dickmilch
+    (312, 24.0, 1.5, 24.0), # Käsescheiben
+    (356, 24.9, 0.1, 28.0), # Gouda
+    (347, 25.0, 0.1, 26.0), # Edamer
+    (381, 29.0, 0.1, 30.0), # Emmentaler
+    (322, 23.0, 0.1, 26.0), # Butterkäse
+    (413, 28.0, 0.1, 33.0), # Bergkäse
+    (300, 20.0, 0.1, 24.0), # Camembert
+    (334, 21.0, 0.1, 27.0), # Brie
+    (353, 21.0, 2.0, 29.0), # Blauschimmelkäse
+    (354, 18.0, 2.0, 32.0), # Gorgonzola
+    (369, 18.0, 2.0, 31.0), # Roquefort
+    (265, 14.0, 4.0, 22.0), # Feta
+    (305, 21.0, 0.1, 25.0), # Ziegenkäse
+    (258, 15.0, 0.1, 22.0), # Hirtenkäse
+    (253, 18.0, 2.0, 17.0), # Mozzarella
+    (330, 17.0, 2.0, 25.0), # Burrata
+    (431, 36.0, 0.1, 29.0), # Parmesan
+    (387, 29.0, 0.1, 30.0), # Pecorino
+    (321, 21.0, 1.0, 25.0), # Halloumi
+    (351, 26.0, 2.0, 27.0), # Provolone
+    (340, 24.0, 0.1, 28.0), # Raclette-Käse
+    (377, 27.0, 0.1, 32.0), # Appenzeller
+    (330, 23.0, 0.1, 26.0), # Tilsiter
+    (327, 20.0, 0.1, 27.0), # Limburger
+    (122, 29.0, 1.0, 0.5),  # Harzer Käse
+    (133, 30.0, 1.0, 0.6),  # Handkäse
+    (717, 0.8, 0.1, 81.0),  # Butter
+    (720, 0.8, 0.1, 82.0),  # Süßrahmbutter
+    (718, 0.6, 0.1, 81.5),  # Sauerrahmbutter
+    (721, 0.8, 0.1, 82.0),  # Gesalzene Butter
+    (879, 0.2, 0.1, 99.8),  # Butterschmalz
+    (900, 0.0, 0.0, 100.0), # Ghee
+    (496, 27.0, 38.0, 26.0), # Milchpulver
+    (496, 27.0, 38.0, 26.0), # Vollmilchpulver
+    (353, 36.0, 51.0, 1.0),  # Magermilchpulver
+    (333, 27.0, 55.0, 1.5),  # Joghurtpulver
+    (360, 12.0, 72.0, 1.0),  # Molkenpulver
+    (460, 5.0, 50.0, 25.0),  # Sahnepulver
+    (292, 13.0, 1.0, 24.0),  # Käsefondue-Mischung
+    (70, 3.0, 4.0, 3.0),    # Rahmspinat (Milchbasis)
+    (207, 4.0, 22.0, 11.0), # Milchspeiseeis
+    (184, 3.0, 21.0, 8.0),  # Softeis
+    (113, 4.5, 19.0, 3.0),  # Frozen Joghurt
+    (70, 3.0, 11.0, 1.0),   # Karamellmilch
+    (65, 3.0, 11.0, 1.0),   # Vanillemilch
+    (90, 3.0, 13.0, 3.0),   # Schokoladenmilch
+    (75, 3.0, 11.0, 2.0),   # Erdbeermilch
+    (310, 7.0, 3.0, 30.0),  # Käsecreme
+    (250, 7.0, 2.0, 24.0),  # Streichkäse
+    (120, 7.0, 1.0, 10.0),  # Käserinde (essbar)
+    (140, 8.0, 3.0, 10.0),  # Quarkcreme
+    (100, 5.0, 2.0, 7.0),   # Zaziki
+    (82, 3.0, 13.0, 1.0),   # Lassi
+    (310, 20.0, 3.0, 26.0), # Rahmkäse
+    (150, 7.0, 3.0, 11.0),  # Fromage blanc
+    (210, 10.0, 5.0, 15.0), # Petit Suisse
+    (400, 2.0, 2.0, 42.0),  # Crème double
+    (150, 3.0, 25.0, 3.0),  # Milchreis
+    (321, 8.0, 55.0, 9.0),  # Kondensmilch (gezuckert)
+    (298, 22.0, 3.0, 22.0), # Ricotta salata
+    (147, 10.0, 5.0, 10.0), # Labneh
+    (113, 9.0, 4.0, 7.0),   # Queso fresco
+    (92, 9.0, 6.0, 5.0),    # Paneer
+    (586, 2.0, 2.0, 60.0),  # Clotted Cream
+    (567, 2.0, 2.0, 58.0),  # Devonshire Cream
+    (210, 5.0, 18.0, 15.0), # Crème Bavaroise
+    (398, 5.0, 75.0, 10.0), # Milchkaramell
+    (380, 30.0, 0.0, 2.0)   # Milchprotein (Casein)
+]
+
+
+foodMilchprodukte_tags = [
+    (0, [11, 25, 33]),    # Vollmilch
+    (1, [11, 25, 34]),    # Magermilch
+    (2, [11, 25, 33]),    # Halbfettmilch
+    (3, [11, 25, 33]),    # H-Milch
+    (4, [11, 25, 34, 36]),# Laktosefreie Milch
+    (5, [11, 25, 36]),    # Buttermilch
+    (6, [11, 25, 36]),    # Kondensmilch
+    (7, [11, 25, 36]),    # Kaffeesahne
+    (8, [11, 25, 36]),    # Sahne
+    (9, [11, 25, 36]),    # Schlagsahne
+    (10, [11, 25, 36]),   # Sauerrahm
+    (11, [11, 25, 36]),   # Crème fraîche
+    (12, [11, 25, 36]),   # Saure Sahne
+    (13, [11, 25, 36]),   # Schmand
+    (14, [11, 25, 36]),   # Mascarpone
+    (15, [11, 25, 36]),   # Ricotta
+    (16, [11, 25, 36]),   # Frischkäse
+    (17, [11, 25, 36]),   # Doppelrahmfrischkäse
+    (18, [11, 25, 34]),   # Hüttenkäse (Cottage Cheese)
+    (19, [11, 25, 34]),   # Quark
+    (20, [11, 25, 34]),   # Speisequark (Magerstufe)
+    (21, [11, 25, 34]),   # Speisequark (Halbfettstufe)
+    (22, [11, 25, 34]),   # Skyr
+    (23, [11, 25, 34]),   # Kefir
+    (24, [11, 25, 34]),   # Joghurt (Natur)
+    (25, [11, 25, 34]),   # Joghurt (Griechisch)
+    (26, [11, 25, 34, 36]),# Joghurt (Laktosefrei)
+    (27, [11, 25, 34]),   # Trinkjoghurt
+    (28, [11, 25, 34]),   # Fruchtjoghurt
+    (29, [11, 25, 34]),   # Ayran
+    (30, [11, 25, 34]),   # Molke
+    (31, [11, 25, 34]),   # Dickmilch
+    (32, [11, 25, 34]),   # Käsescheiben
+    (33, [11, 25, 34]),   # Gouda
+    (34, [11, 25, 34]),   # Edamer
+    (35, [11, 25, 34]),   # Emmentaler
+    (36, [11, 25, 34]),   # Butterkäse
+    (37, [11, 25, 34]),   # Bergkäse
+    (38, [11, 25, 34]),   # Camembert
+    (39, [11, 25, 34]),   # Brie
+    (40, [11, 25, 34]),   # Blauschimmelkäse
+    (41, [11, 25, 34]),   # Gorgonzola
+    (42, [11, 25, 34]),   # Roquefort
+    (43, [11, 25, 34]),   # Feta
+    (44, [11, 25, 34]),   # Ziegenkäse
+    (45, [11, 25, 34]),   # Hirtenkäse
+    (46, [11, 25, 34]),   # Mozzarella
+    (47, [11, 25, 34]),   # Burrata
+    (48, [11, 25, 34]),   # Parmesan
+    (49, [11, 25, 34]),   # Pecorino
+    (50, [11, 25, 34]),   # Halloumi
+    (51, [11, 25, 34]),   # Provolone
+    (52, [11, 25, 34]),   # Raclette-Käse
+    (53, [11, 25, 34]),   # Appenzeller
+    (54, [11, 25, 34]),   # Tilsiter
+    (55, [11, 25, 34]),   # Limburger
+    (56, [11, 25, 34]),   # Harzer Käse
+    (57, [11, 25, 34]),   # Handkäse
+    (58, [11, 25, 34]),   # Butter
+    (59, [11, 25, 34]),   # Süßrahmbutter
+    (60, [11, 25, 34]),   # Sauerrahmbutter
+    (61, [11, 25, 34]),   # Gesalzene Butter
+    (62, [11, 25, 34]),   # Butterschmalz
+    (63, [11, 25, 34]),   # Ghee
+    (64, [11, 25, 34]),   # Milchpulver
+    (65, [11, 25, 34]),   # Vollmilchpulver
+    (66, [11, 25, 34]),   # Magermilchpulver
+    (67, [11, 25, 34]),   # Joghurtpulver
+    (68, [11, 25, 34]),   # Molkenpulver
+    (69, [11, 25, 34]),   # Sahnepulver
+    (70, [11, 25, 34]),   # Käsefondue-Mischung
+    (71, [11, 25, 34]),   # Rahmspinat (Milchbasis)
+    (72, [11, 25, 34]),   # Milchspeiseeis
+    (73, [11, 25, 34]),   # Softeis
+    (74, [11, 25, 34]),   # Frozen Joghurt
+    (75, [11, 25, 34]),   # Karamellmilch
+    (76, [11, 25, 34]),   # Vanillemilch
+    (77, [11, 25, 34]),   # Schokoladenmilch
+    (78, [11, 25, 34]),   # Erdbeermilch
+    (79, [11, 25, 34]),   # Käsecreme
+    (80, [11, 25, 34]),   # Streichkäse
+    (81, [11, 25, 34]),   # Käserinde (essbar)
+    (82, [11, 25, 34]),   # Quarkcreme
+    (83, [11, 25, 34]),   # Zaziki
+    (84, [11, 25, 34]),   # Lassi
+    (85, [11, 25, 34]),   # Rahmkäse
+    (86, [11, 25, 34]),   # Fromage blanc
+    (87, [11, 25, 34]),   # Petit Suisse
+    (88, [11, 25, 34]),   # Crème double
+    (89, [11, 25, 34]),   # Milchreis
+    (90, [11, 25, 34]),   # Kondensmilch (gezuckert)
+    (91, [11, 25, 34]),   # Ricotta salata
+    (92, [11, 25, 34]),   # Labneh
+    (93, [11, 25, 34]),   # Queso fresco
+    (94, [11, 25, 34]),   # Paneer
+    (95, [11, 25, 34]),   # Clotted Cream
+    (96, [11, 25, 34]),   # Devonshire Cream
+    (97, [11, 25, 34]),   # Crème Bavaroise
+    (98, [11, 25, 34]),   # Milchkaramell
+    (99, [11, 25, 34])    # Milchprotein (Casein)
+]
+
+setDatabase(tags,foodMilchprodukte_tags,nutritionMilchprodukte_facts,foodMilchprodukte_tags)
+
+
+foodsGetreide_Hülsenfrüchte = [
+    ("Mais", "Getreide", "Mais, reich an Ballaststoffen, ideal für Suppen und Salate."),
+    ("Reis", "Getreide", "Weißer oder brauner Reis, vielseitig verwendbar als Beilage."),
+    ("Quinoa", "Pseudogetreide", "Proteinreiche Quinoa, ideal für Salate und Bowls."),
+    ("Amaranth", "Pseudogetreide", "Amaranth, reich an Nährstoffen, ideal für Frühstücksgerichte."),
+    ("Kamut", "Getreide", "Kamut, ein altes Getreide, reich an Proteinen und Ballaststoffen."),
+    ("Emmer", "Getreide", "Emmer, ein Urgetreide, ideal für Brot und Backwaren."),
+    ("Teff", "Pseudogetreide", "Kleines, proteinreiches Teff, ideal für glutenfreies Backen."),
+    ("Sorghum", "Getreide", "Sorghum, reich an Ballaststoffen, ideal als Mehlersatz."),
+    ("Wildreis", "Getreide", "Wildreis, nussiger Geschmack, ideal für Salate und Beilagen."),
+    ("Grünkern", "Getreide", "Grünkern, gerösteter Dinkel, ideal für Aufläufe und Eintöpfe."),
+    ("Bulgur", "Getreide", "Bulgur, vorgekochter Weizen, ideal für Salate und Beilagen."),
+    ("Couscous", "Getreide", "Couscous, schnell zubereitet, ideal für Salate und Beilagen."),
+    ("Polenta", "Getreide", "Maisgrieß, ideal als Beilage oder gebraten."),
+    ("Gerstengraupen", "Getreide", "Graupen aus Gerste, ideal für Suppen und Eintöpfe."),
+    ("Weizengrieß", "Getreide", "Grieß aus Weizen, ideal für Brei und Aufläufe."),
+    ("Dinkelgrieß", "Getreide", "Grieß aus Dinkel, ideal für Breie und Backwaren."),
+    ("Haferflocken", "Getreide", "Haferflocken, ideal für Frühstücksbrei und Müslis."),
+    ("Weizenkleie", "Getreide", "Weizenkleie, reich an Ballaststoffen, ideal für Joghurts."),
+    ("Haferkleie", "Getreide", "Haferkleie, ideal zur Förderung der Verdauung."),
+    ("Dinkelkleie", "Getreide", "Dinkelkleie, reich an Ballaststoffen, ideal für Smoothies."),
+    ("Reisflocken", "Getreide", "Reisflocken, ideal für glutenfreies Frühstück."),
+    ("Hirseflocken", "Getreide", "Hirseflocken, ideal für Breie und Müslis."),
+    ("Quinoaflocken", "Pseudogetreide", "Quinoaflocken, reich an Proteinen, ideal für Frühstück."),
+    ("Amaranthflocken", "Pseudogetreide", "Amaranthflocken, ideal für gesunde Snacks und Müslis."),
+    ("Buchweizenflocken", "Pseudogetreide", "Buchweizenflocken, ideal für glutenfreie Ernährung."),
+    ("Maismehl", "Getreide", "Maismehl, ideal für glutenfreie Backwaren."),
+    ("Reismehl", "Getreide", "Reismehl, ideal für glutenfreie Backwaren."),
+    ("Weizenmehl", "Getreide", "Allzweckmehl aus Weizen, ideal für Brot und Gebäck."),
+    ("Dinkelmehl", "Getreide", "Mehl aus Dinkel, ideal für Brot und Kuchen."),
+    ("Roggenmehl", "Getreide", "Mehl aus Roggen, ideal für herzhafte Brote."),
+    ("Hafermehl", "Getreide", "Mehl aus Hafer, ideal für glutenfreie Rezepte."),
+    ("Hirsemehl", "Getreide", "Hirsemehl, ideal für glutenfreies Backen."),
+    ("Buchweizenmehl", "Pseudogetreide", "Buchweizenmehl, ideal für Pfannkuchen und Backwaren."),
+    ("Quinoamehl", "Pseudogetreide", "Quinoamehl, reich an Nährstoffen, ideal für Backen."),
+    ("Amaranthmehl", "Pseudogetreide", "Amaranthmehl, ideal für proteinreiche Backwaren."),
+    ("Kichererbsenmehl", "Hülsenfrüchte", "Mehl aus Kichererbsen, ideal für Pfannkuchen und Teigwaren."),
+    ("Sojamehl", "Hülsenfrüchte", "Mehl aus Sojabohnen, ideal für proteinreiche Backwaren."),
+    ("Linsenmehl", "Hülsenfrüchte", "Mehl aus Linsen, ideal für herzhafte Gerichte."),
+    ("Erbsenmehl", "Hülsenfrüchte", "Mehl aus Erbsen, ideal für Suppen und Saucen."),
+    ("Kichererbsen", "Hülsenfrüchte", "Proteinreiche Kichererbsen, ideal für Hummus und Eintöpfe."),
+    ("Linsen", "Hülsenfrüchte", "Linsen, reich an Ballaststoffen, ideal für Suppen und Currys."),
+    ("Erbsen", "Hülsenfrüchte", "Grüne Erbsen, ideal für Suppen und Beilagen."),
+    ("Sojabohnen", "Hülsenfrüchte", "Proteinreiche Sojabohnen, ideal für Tofu und Tempeh."),
+    ("Kidneybohnen", "Hülsenfrüchte", "Rote Kidneybohnen, ideal für Eintöpfe und Salate."),
+    ("Schwarze Bohnen", "Hülsenfrüchte", "Schwarze Bohnen, ideal für Suppen und Burritos."),
+    ("Weiße Bohnen", "Hülsenfrüchte", "Weiße Bohnen, ideal für Eintöpfe und Suppen."),
+    ("Pintobohnen", "Hülsenfrüchte", "Pintobohnen, ideal für mexikanische Gerichte."),
+    ("Limabohnen", "Hülsenfrüchte", "Limabohnen, cremige Konsistenz, ideal für Suppen."),
+    ("Mungbohnen", "Hülsenfrüchte", "Mungbohnen, ideal für Keimlinge und Currys."),
+    ("Adzukibohnen", "Hülsenfrüchte", "Adzukibohnen, ideal für Süßspeisen und Eintöpfe."),
+    ("Favabohnen (Ackerbohnen)", "Hülsenfrüchte", "Favabohnen, ideal für Suppen und Salate."),
+    ("Grüne Bohnen", "Hülsenfrüchte", "Grüne Bohnen, ideal als Beilage oder in Salaten."),
+    ("Wachsbohnen", "Hülsenfrüchte", "Wachsbohnen, ideal als Beilage."),
+    ("Zuckerschoten", "Hülsenfrüchte", "Zuckerschoten, ideal für asiatische Gerichte und Salate."),
+    ("Edamame", "Hülsenfrüchte", "Grüne Sojabohnen, ideal als Snack oder in Salaten."),
+    ("Lupinen", "Hülsenfrüchte", "Lupinen, proteinreich, ideal als Fleischersatz."),
+    ("Kichererbsensprossen", "Sprossen", "Kichererbsensprossen, ideal für Salate."),
+    ("Linsensprossen", "Sprossen", "Linsensprossen, ideal für Salate und Sandwiches."),
+    ("Mungbohnensprossen", "Sprossen", "Mungbohnensprossen, ideal für asiatische Gerichte."),
+    ("Sojasprossen", "Sprossen", "Sojasprossen, ideal für asiatische Wokgerichte."),
+    ("Alfalfa-Sprossen", "Sprossen", "Alfalfa-Sprossen, ideal für Salate und Sandwiches."),
+    ("Bambussprossen", "Sprossen", "Knackige Bambussprossen, ideal für asiatische Gerichte."),
+    ("Okraschoten", "Gemüse", "Okraschoten, ideal für Eintöpfe und als Gemüsebeilage."),
+    ("Johannisbrot", "Hülsenfrüchte", "Johannisbrot, ideal als natürlicher Süßstoff und für Backwaren."),
+    ("Tempeh", "Sojaprodukt", "Gärprodukt aus Sojabohnen, ideal als Fleischersatz."),
+    ("Tofu", "Sojaprodukt", "Proteinreicher Tofu, ideal für vegane und vegetarische Gerichte."),
+    ("Seitan", "Weizenprodukt", "Proteinreicher Seitan, ideal als Fleischersatz."),
+    ("Texturiertes Soja", "Sojaprodukt", "Texturiertes Soja, ideal als Fleischersatz in Eintöpfen."),
+    ("Sojamilch", "Pflanzendrink", "Milchalternative aus Sojabohnen, ideal für Veganer."),
+    ("Reismilch", "Pflanzendrink", "Leichte Milchalternative aus Reis, ideal für Menschen mit Laktoseintoleranz."),
+    ("Hafermilch", "Pflanzendrink", "Cremige Milchalternative aus Hafer, ideal für Kaffee."),
+    ("Mandeldrink", "Pflanzendrink", "Milchalternative aus Mandeln, ideal für Smoothies."),
+    ("Dinkeldrink", "Pflanzendrink", "Milchalternative aus Dinkel, ideal für Frühstücksflocken."),
+    ("Hanfdrink", "Pflanzendrink", "Milchalternative aus Hanf, reich an Omega-3-Fettsäuren."),
+    ("Kokosdrink", "Pflanzendrink", "Leichte Milchalternative aus Kokos, ideal für tropische Gerichte."),
+    ("Quinoadrink", "Pflanzendrink", "Proteinreiche Milchalternative aus Quinoa, ideal für Veganer."),
+    ("Amaranthdrink", "Pflanzendrink", "Milchalternative aus Amaranth, ideal für eine abwechslungsreiche Ernährung."),
+    ("Buchweizendrink", "Pflanzendrink", "Milchalternative aus Buchweizen, ideal für glutenfreie Ernährung."),
+    ("Erdnüsse", "Nüsse", "Knackige Erdnüsse, ideal als Snack oder zum Kochen."),
+    ("Cashewnüsse", "Nüsse", "Cremige Cashewnüsse, ideal als Snack oder für vegane Saucen."),
+    ("Mandeln", "Nüsse", "Mandeln, ideal als Snack oder zum Backen."),
+    ("Haselnüsse", "Nüsse", "Haselnüsse, ideal zum Backen und für Nussmischungen."),
+    ("Walnüsse", "Nüsse", "Walnüsse, reich an Omega-3-Fettsäuren, ideal für Salate."),
+    ("Pistazien", "Nüsse", "Grüne Pistazien, ideal als Snack oder zum Backen."),
+    ("Macadamianüsse", "Nüsse", "Cremige Macadamianüsse, ideal als Snack oder für Desserts."),
+    ("Paranüsse", "Nüsse", "Paranüsse, reich an Selen, ideal als Snack."),
+    ("Pekannüsse", "Nüsse", "Milde Pekannüsse, ideal für Kuchen und Desserts."),
+    ("Kastanien", "Nüsse", "Kastanien, ideal zum Rösten oder für Füllungen."),
+    ("Kürbiskerne", "Samen", "Knackige Kürbiskerne, ideal als Snack oder für Salate."),
+    ("Sonnenblumenkerne", "Samen", "Sonnenblumenkerne, ideal als Topping für Salate und Brote."),
+    ("Chiasamen", "Samen", "Chiasamen, reich an Omega-3-Fettsäuren, ideal für Puddings."),
+    ("Leinsamen", "Samen", "Leinsamen, reich an Ballaststoffen, ideal für Müsli und Brot."),
+]
+
+
+nutritionGetreideHülsenfrüchte_facts = [
+    (86, 3.2, 19.0, 1.2),   # Mais
+    (130, 2.7, 28.0, 0.3),  # Reis
+    (120, 4.1, 21.3, 1.9),  # Quinoa
+    (102, 3.8, 19.0, 1.6),  # Amaranth
+    (337, 14.0, 69.0, 2.7), # Kamut
+    (339, 13.0, 72.0, 2.8), # Emmer
+    (367, 13.3, 73.0, 2.1), # Teff
+    (329, 10.6, 72.0, 3.3), # Sorghum
+    (357, 14.7, 74.9, 1.0), # Wildreis
+    (337, 11.8, 63.4, 2.7), # Grünkern
+    (342, 12.3, 76.7, 1.3), # Bulgur
+    (112, 3.8, 23.0, 0.6),  # Couscous
+    (371, 8.0, 79.0, 1.0),  # Polenta
+    (354, 9.9, 73.5, 2.3),  # Gerstengraupen
+    (351, 11.2, 73.0, 1.0), # Weizengrieß
+    (352, 12.0, 72.0, 2.0), # Dinkelgrieß
+    (389, 13.5, 66.3, 7.0), # Haferflocken
+    (216, 15.5, 64.5, 5.0), # Weizenkleie
+    (246, 17.3, 66.2, 7.0), # Haferkleie
+    (192, 12.4, 65.2, 4.8), # Dinkelkleie
+    (381, 7.5, 80.8, 0.8),  # Reisflocken
+    (360, 9.7, 75.0, 3.5),  # Hirseflocken
+    (376, 14.0, 68.9, 5.7), # Quinoaflocken
+    (374, 15.6, 68.0, 4.8), # Amaranthflocken
+    (343, 13.6, 71.5, 3.4), # Buchweizenflocken
+    (351, 7.1, 79.0, 1.2),  # Maismehl
+    (366, 5.9, 80.0, 0.8),  # Reismehl
+    (364, 10.0, 72.5, 1.0), # Weizenmehl
+    (355, 11.0, 67.0, 1.8), # Dinkelmehl
+    (324, 9.0, 70.0, 1.7),  # Roggenmehl
+    (389, 12.6, 66.3, 6.5), # Hafermehl
+    (365, 9.8, 73.0, 4.2),  # Hirsemehl
+    (343, 13.6, 71.5, 3.4), # Buchweizenmehl
+    (373, 13.3, 68.9, 5.4), # Quinoamehl
+    (363, 14.5, 66.4, 5.4), # Amaranthmehl
+    (387, 22.0, 57.8, 6.7), # Kichererbsenmehl
+    (449, 43.3, 28.8, 19.9),# Sojamehl
+    (340, 25.0, 58.0, 1.5), # Linsenmehl
+    (347, 24.0, 59.0, 1.2), # Erbsenmehl
+    (364, 19.3, 61.0, 6.0), # Kichererbsen
+    (353, 25.0, 60.0, 1.5), # Linsen
+    (81, 5.4, 14.5, 0.4),   # Erbsen
+    (446, 36.5, 30.2, 19.9),# Sojabohnen
+    (337, 24.0, 60.0, 1.0), # Kidneybohnen
+    (339, 21.6, 62.0, 0.5), # Schwarze Bohnen
+    (333, 21.1, 61.0, 0.8), # Weiße Bohnen
+    (347, 21.4, 63.0, 1.2), # Pintobohnen
+    (338, 20.6, 62.0, 0.5), # Limabohnen
+    (347, 23.9, 63.0, 1.2), # Mungbohnen
+    (329, 19.8, 62.0, 0.5), # Adzukibohnen
+    (341, 25.1, 58.0, 1.5), # Favabohnen (Ackerbohnen)
+    (31, 1.8, 6.7, 0.2),    # Grüne Bohnen
+    (33, 1.8, 7.0, 0.2),    # Wachsbohnen
+    (42, 2.8, 7.6, 0.1),    # Zuckerschoten
+    (122, 11.9, 8.9, 5.0),  # Edamame
+    (371, 36.2, 31.4, 8.3), # Lupinen
+    (367, 20.5, 55.4, 6.8), # Kichererbsensprossen
+    (350, 25.8, 60.1, 1.2), # Linsensprossen
+    (347, 23.9, 63.0, 1.2), # Mungbohnensprossen
+    (331, 35.1, 54.2, 1.0), # Sojasprossen
+    (23, 1.0, 2.1, 0.4),    # Alfalfa-Sprossen
+    (27, 2.6, 5.2, 0.3),    # Bambussprossen
+    (33, 1.9, 7.3, 0.3),    # Okraschoten
+    (222, 4.8, 55.2, 0.6),  # Johannisbrot
+    (193, 20.5, 9.4, 11.4), # Tempeh
+    (76, 8.0, 2.5, 4.8),    # Tofu
+    (120, 25.0, 14.0, 1.8), # Seitan
+    (358, 52.0, 26.2, 1.2), # Texturiertes Soja
+    (54, 3.0, 6.3, 1.8),    # Sojamilch
+    (47, 0.3, 10.0, 1.0),   # Reismilch
+    (45, 0.8, 7.5, 1.4),    # Hafermilch
+    (22, 0.6, 3.0, 1.0),    # Mandeldrink
+    (41, 0.3, 6.9, 0.7),    # Dinkeldrink
+    (46, 2.2, 5.8, 1.1),    # Hanfdrink
+    (19, 0.2, 2.7, 0.9),    # Kokosdrink
+    (49, 1.0, 8.5, 1.5),    # Quinoadrink
+    (51, 0.8, 9.0, 1.3),    # Amaranthdrink
+    (44, 0.9, 7.0, 1.2),    # Buchweizendrink
+    (567, 25.8, 16.1, 49.2),# Erdnüsse
+    (553, 18.0, 30.2, 43.8),# Cashewnüsse
+    (575, 21.2, 21.6, 49.4),# Mandeln
+    (628, 15.0, 17.0, 61.0),# Haselnüsse
+     (628, 15.0, 17.0, 61.0),  # Haselnüsse
+    (654, 15.2, 14.0, 65.2),  # Walnüsse
+    (562, 20.2, 27.2, 45.4),  # Pistazien
+    (718, 7.9, 13.8, 75.8),   # Macadamianüsse
+    (656, 14.3, 12.3, 66.4),  # Paranüsse
+    (691, 9.2, 14.0, 72.0),   # Pekannüsse
+    (131, 2.4, 28.8, 1.4),    # Kastanien
+    (559, 30.2, 10.0, 46.9),  # Kürbiskerne
+    (584, 20.8, 17.2, 51.5),  # Sonnenblumenkerne
+    (486, 16.5, 42.1, 30.7),  # Chiasamen
+    (534, 18.3, 29.0, 42.2)   # Leinsamen
+]
+
+foodGetreideHülsenfrüchte_tags = [
+    (0, [2, 6, 11]),     # Mais
+    (1, [2, 6, 11]),     # Reis
+    (2, [2, 6, 13, 16]), # Quinoa
+    (3, [2, 6, 13]),     # Amaranth
+    (4, [2, 6, 11]),     # Kamut
+    (5, [2, 6, 11]),     # Emmer
+    (6, [2, 6, 13]),     # Teff
+    (7, [2, 6, 13]),     # Sorghum
+    (8, [2, 6, 13]),     # Wildreis
+    (9, [2, 6, 11]),     # Grünkern
+    (10, [2, 6, 11]),    # Bulgur
+    (11, [2, 6, 11]),    # Couscous
+    (12, [2, 6, 11]),    # Polenta
+    (13, [2, 6, 11]),    # Gerstengraupen
+    (14, [2, 6, 11]),    # Weizengrieß
+    (15, [2, 6, 11]),    # Dinkelgrieß
+    (16, [2, 6, 11, 14]),# Haferflocken
+    (17, [2, 6, 11, 14]),# Weizenkleie
+    (18, [2, 6, 11, 14]),# Haferkleie
+    (19, [2, 6, 11, 14]),# Dinkelkleie
+    (20, [2, 6, 13]),    # Reisflocken
+    (21, [2, 6, 13]),    # Hirseflocken
+    (22, [2, 6, 13]),    # Quinoaflocken
+    (23, [2, 6, 13]),    # Amaranthflocken
+    (24, [2, 6, 13]),    # Buchweizenflocken
+    (25, [2, 6, 11]),    # Maismehl
+    (26, [2, 6, 13]),    # Reismehl
+    (27, [2, 6, 11]),    # Weizenmehl
+    (28, [2, 6, 11]),    # Dinkelmehl
+    (29, [2, 6, 11]),    # Roggenmehl
+    (30, [2, 6, 13]),    # Hafermehl
+    (31, [2, 6, 13]),    # Hirsemehl
+    (32, [2, 6, 13]),    # Buchweizenmehl
+    (33, [2, 6, 13]),    # Quinoamehl
+    (34, [2, 6, 13]),    # Amaranthmehl
+    (35, [2, 6, 11]),    # Kichererbsenmehl
+    (36, [2, 6, 13]),    # Sojamehl
+    (37, [2, 6, 11]),    # Linsenmehl
+    (38, [2, 6, 11]),    # Erbsenmehl
+    (39, [2, 6, 11]),    # Kichererbsen
+    (40, [2, 6, 11]),    # Linsen
+    (41, [2, 6, 11]),    # Erbsen
+    (42, [2, 6, 13]),    # Sojabohnen
+    (43, [2, 6, 11]),    # Kidneybohnen
+    (44, [2, 6, 11]),    # Schwarze Bohnen
+    (45, [2, 6, 11]),    # Weiße Bohnen
+    (46, [2, 6, 11]),    # Pintobohnen
+    (47, [2, 6, 11]),    # Limabohnen
+    (48, [2, 6, 11]),    # Mungbohnen
+    (49, [2, 6, 11]),    # Adzukibohnen
+    (50, [2, 6, 11]),    # Favabohnen (Ackerbohnen)
+    (51, [2, 6, 11]),    # Grüne Bohnen
+    (52, [2, 6, 11]),    # Wachsbohnen
+    (53, [2, 6, 11]),    # Zuckerschoten
+    (54, [2, 6, 13]),    # Edamame
+    (55, [2, 6, 13]),    # Lupinen
+    (56, [2, 6, 11]),    # Kichererbsensprossen
+    (57, [2, 6, 11]),    # Linsensprossen
+    (58, [2, 6, 11]),    # Mungbohnensprossen
+    (59, [2, 6, 13]),    # Sojasprossen
+    (60, [2, 6, 13]),    # Alfalfa-Sprossen
+    (61, [2, 6, 13]),    # Bambussprossen
+    (62, [2, 6, 11]),    # Okraschoten
+    (63, [2, 6, 11]),    # Johannisbrot
+    (64, [2, 6, 13]),    # Tempeh
+    (65, [2, 6, 13]),    # Tofu
+    (66, [2, 6, 13]),    # Seitan
+    (67, [2, 6, 13]),    # Texturiertes Soja
+    (68, [2, 6, 13]),    # Sojamilch
+    (69, [2, 6, 13]),    # Reismilch
+    (70, [2, 6, 13]),    # Hafermilch
+    (71, [2, 6, 13]),    # Mandeldrink
+    (72, [2, 6, 13]),    # Dinkeldrink
+    (73, [2, 6, 13]),    # Hanfdrink
+    (74, [2, 6, 13]),    # Kokosdrink
+    (75, [2, 6, 13]),    # Quinoadrink
+    (76, [2, 6, 13]),    # Amaranthdrink
+    (77, [2, 6, 13]),    # Buchweizendrink
+    (78, [2, 6, 11]),    # Erdnüsse
+    (79, [2, 6, 11]),    # Cashewnüsse
+    (80, [2, 6, 11]),    # Mandeln
+    (81, [2, 6, 11]),    # Haselnüsse
+    (82, [2, 6, 11]),    # Walnüsse
+    (83, [2, 6, 11]),    # Pistazien
+    (84, [2, 6, 11]),    # Macadamianüsse
+    (85, [2, 6, 11]),    # Paranüsse
+    (86, [2, 6, 11]),    # Pekannüsse
+    (87, [2, 6, 11]),    # Kastanien
+    (88, [2, 6, 13]),    # Kürbiskerne
+    (89, [2, 6, 13]),    # Sonnenblumenkerne
+    (90, [2, 6, 13]),    # Chiasamen
+    (91, [2, 6, 13])     # Leinsamen
+]
+
+
