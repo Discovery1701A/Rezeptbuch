@@ -13,6 +13,8 @@ class ViewModel: ObservableObject {
     @Published var foods: [FoodStruct] =  [tomate, zartbitterSchokolade,vanilleExtrakt,zucker,eier,mehl,schokostücke]
     @Published var recipeBooks: [RecipebookStruct]
     @Published var tags: [TagStruct]
+  
+
     //@Published var load : String
     init() {
         CoreDataManager().insertInitialDataIfNeeded()

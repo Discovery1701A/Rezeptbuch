@@ -192,8 +192,6 @@ class CoreDataManager {
         for food in ffooodis {
             print("fffffffff",food)
             let foodEntry = findOrCreateFood(foodStruct: food)
-            
-            
         }
         
     

@@ -112,17 +112,3 @@ class DatabaseService {
         }
     }
 }
-
-// MARK: - Example Usage
-
-let databasePath = "/path/to/Rezeptbuch.sqlite" // Update this path with your database location
-
-let databaseService = DatabaseService(databasePath: databasePath)
-
-// Load data
-let foods = databaseService.loadFoods()
-let tags = databaseService.loadTags()
-
-// Print the results
-//print("Foods: \(foods)")
-//print("Tags: \(tags)")

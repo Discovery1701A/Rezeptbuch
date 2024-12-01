@@ -69,6 +69,7 @@ struct RecipeCreationView: View {
     @State private var filteredTags: [TagStruct] = []
     @State private var newRecipe: Bool = true
     @State private var shouldNavigateBack = false // Zustand für die Navigation zurück
+    @State private var showingIngredientSearch = false
     
     init(recipe: Recipe? = nil, modelView: ViewModel) {
         self.modelView = modelView
@@ -786,35 +787,25 @@ struct RecipeCreationView: View {
         }
     }
     
+    
     var ingriginsSection: some View {
         Section(header: Text("Zutaten")) {
             List {
                 ForEach(ingredients.indices, id: \.self) { index in
-                    HStack {
-                        Text("\(index + 1).")
-                        Picker("Zutat", selection: $foods[index]) {
-                            Text("") // Leere Zeichenfolge als Standardoption
-                            ForEach(modelView.foods, id: \.self) { food in
-                                Text(food.name)
-                            }
+                    IngredientRow(
+                        index: index,
+                        food: $foods[index],
+                        quantity: $quantity[index],
+                        selectedUnit: $selectedUnit[index],
+                        allFoods: modelView.foods,
+                        
+                        onDelete: {
+                            ingredients.remove(at: index)
+                            foods.remove(at: index)
+                            quantity.remove(at: index)
+                            selectedUnit.remove(at: index)
                         }
-                        Section(header: Text("Menge")) {
-                            VStack {
-                                TextField("Menge", text: $quantity[index])
-#if os(iOS)
-                                    .keyboardType(.decimalPad)
-#endif
-                                
-                                Picker("Einheit", selection: $selectedUnit[index]) {
-                                    ForEach(Unit.allCases, id: \.self) { unit in
-                                        Text(unit.rawValue)
-                                    }
-                                }
-                                .pickerStyle(SegmentedPickerStyle())
-                            }
-                            .padding() // Optional, um den Inhalt zu zentrieren oder auszurichten
-                        }
-                    }
+                    )
                 }
                 .onDelete { indexSet in
                     ingredients.remove(atOffsets: indexSet)
@@ -829,9 +820,9 @@ struct RecipeCreationView: View {
                     selectedUnit.move(fromOffsets: indices, toOffset: newOffset)
                 }
             }
+
             Button(action: {
                 ingredients.append(nil)
-                //                    print(ingredients.count)
                 foods.append(emptyFood)
                 quantity.append("")
                 selectedUnit.append(.gram)
@@ -840,6 +831,7 @@ struct RecipeCreationView: View {
             }
         }
     }
+
     
     var insructionSection: some View {
         Section(header: Text("Anleitung")) {
@@ -904,3 +896,182 @@ struct OptionsListView: View {
         }
     }
 }
+
+struct IngredientSearchView: View {
+    @Binding var selectedFood: FoodStruct // Das ausgewählte Food-Objekt
+    @State private var searchText = ""
+    @State private var selectedCategory: String? = nil
+    @State private var selectedTag: String? = nil
+    
+    var allFoods: [FoodStruct]
+    var categories: [String] {
+        Array(Set(allFoods.compactMap { $0.category })).sorted()
+    }
+    
+    var tagsString: [String] {
+        Array(Set(allFoods.compactMap { $0.tags }.flatMap { $0.map { $0.name } })).sorted()
+    }
+    @Environment(\.dismiss) var dismiss
+    
+    
+    
+    var filteredFoods: [FoodStruct] {
+        allFoods.filter { food in
+            (searchText.isEmpty || food.name.lowercased().contains(searchText.lowercased())) &&
+            (selectedCategory == nil || food.category == selectedCategory) &&
+            (selectedTag == nil || food.tags?.contains(where: { $0.name == selectedTag }) == true)
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack {
+                    // Suchfeld
+                    TextField("Suchen", text: $searchText)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                    
+                    
+                    // Kategorie-Filter mit ScrollView
+                    Section(header: Text("Kategorien")) {
+                        
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            LazyHStack {
+                                Button(action: {
+                                    selectedCategory = nil
+                                }) {
+                                    Text("Alle")
+                                        .padding()
+                                        .background(selectedCategory == nil ? Color.blue : Color.gray.opacity(0.2))
+                                        .foregroundColor(selectedCategory == nil ? Color.white : Color.primary)
+                                        .cornerRadius(8)
+                                }
+                                ForEach(categories, id: \.self) { category in
+                                    Button(action: {
+                                        selectedCategory = category
+                                    }) {
+                                        Text(category)
+                                            .padding()
+                                            .background(selectedCategory == category ? Color.blue : Color.gray.opacity(0.2))
+                                            .foregroundColor(selectedCategory == category ? Color.white : Color.primary)
+                                            .cornerRadius(8)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                    // Tag-Filter mit ScrollView
+                    Section(header: Text("Tag")) {
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            LazyHStack {
+                                Button(action: {
+                                    selectedTag = nil
+                                }) {
+                                    Text("Alle")
+                                        .padding()
+                                        .background(selectedTag == nil ? Color.blue : Color.gray.opacity(0.2))
+                                        .foregroundColor(selectedTag == nil ? Color.white : Color.primary)
+                                        .cornerRadius(8)
+                                }
+                                ForEach(tagsString, id: \.self) { tag in
+                                    Button(action: {
+                                        selectedTag = tag
+                                    }) {
+                                        Text(tag)
+                                            .padding()
+                                            .background(selectedTag == tag ? Color.blue : Color.gray.opacity(0.2))
+                                            .foregroundColor(selectedTag == tag ? Color.white : Color.primary)
+                                            .cornerRadius(8)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                        
+                    }
+                    
+                    // Gefilterte Liste der Zutaten
+                    List(filteredFoods) { food in
+                        Button(action: {
+                            selectedFood = food
+                            dismiss()
+                        }) {
+                            VStack(alignment: .leading) {
+                                Text(food.name)
+                                    .font(.headline)
+                                if let category = food.category {
+                                    Text(category)
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+                        
+                        
+                    }
+                    .frame(minHeight: 400) // Optional: Mindesthöhe für die Liste
+                }
+            }
+        }
+        .navigationTitle("Zutaten suchen")
+        .navigationBarItems(leading: Button("Abbrechen", action: {
+            dismiss()
+        }))
+    }
+}
+        
+
+struct IngredientRow: View {
+    let index: Int
+    @Binding var food: FoodStruct
+    @Binding var quantity: String
+    @Binding var selectedUnit: Unit
+
+    let allFoods: [FoodStruct]
+   
+    let onDelete: () -> Void
+
+    @State private var showingIngredientSearch = false
+
+    var body: some View {
+        HStack {
+            Text("\(index + 1).")
+            Button(action: {
+                showingIngredientSearch = true
+            }) {
+                Text(food.name == "" ?  "Zutat auswählen": food.name )
+
+                    .foregroundColor(.blue)
+            }
+            .sheet(isPresented: $showingIngredientSearch) {
+                IngredientSearchView(
+                    selectedFood: $food,
+                    allFoods: allFoods
+                )
+            }
+
+            Section(header: Text("Menge")) {
+                HStack {
+                    TextField("Menge", text: $quantity)
+#if os(iOS)
+                        .keyboardType(.decimalPad)
+#endif
+                    Picker("Einheit", selection: $selectedUnit) {
+                        ForEach(Unit.allCases, id: \.self) { unit in
+                            Text(unit.rawValue)
+                        }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+                .padding()
+            }
+
+          
+        }
+    }
+}
+
