@@ -30,6 +30,7 @@ struct RecipeView: View {
         
     init(recipe: Recipe, modelView: ViewModel) {
         self.recipe = recipe
+//        print("ffdfdvfbdfbfdbdfbdfb",recipe)
         self.modelView = modelView
         self.originIngriedents = recipe.ingredients
         self._ingredients = State(initialValue: originIngriedents)
@@ -122,7 +123,12 @@ struct RecipeView: View {
 
                             Divider().padding(.horizontal, 16)
                             RecipeImageView(imagePath: recipe.image)
-                    
+                            if recipe.tags != nil {
+                                if recipe.tags!.count > 0 {
+                                    RecipeTagsView(tags: recipe.tags!)
+                                }
+                            }
+                            Divider().padding(.horizontal, 16)
                     if recipe.portion != .notPortion && recipe.portion != nil
                     {
                         HStack{
@@ -133,8 +139,8 @@ struct RecipeView: View {
                     }
                     if let cakeInfo = recipe.cake, case .cake = cakeInfo {
                                             Picker("Kuchenform", selection: $cakeFormSelection) {
-                                                Text("Rund").tag(Formen.rund)
                                                 Text("Eckig").tag(Formen.eckig)
+                                                Text("Rund").tag(Formen.rund)
                                             }
                                             .pickerStyle(SegmentedPickerStyle())
                                             .padding()
@@ -207,14 +213,21 @@ struct RecipeView: View {
                             
                         }
                                         }
-               
+                            Divider().padding(.horizontal, 16)
                     RecipeIngredientsView(ingredients: ingredients)
                                 .onAppear {
                                            print("Angezeigte Zutatenin der View: \(ingredients)")
                                        }
-                            RecipeInstructionsView(instructions: recipe.instructions)
-                            RecipeVideoView(videoLink: recipe.videoLink)
                             
+                            Divider().padding(.horizontal, 16)
+                            RecipeInstructionsView(instructions: recipe.instructions)
+                            Divider().padding(.horizontal, 16)
+                            if recipe.videoLink != "" && recipe.videoLink != nil{
+                                
+                                
+                                RecipeVideoView(videoLink: recipe.videoLink)
+                                Divider().padding(.horizontal, 16)
+                            }
                             Kochmodus()
                    
                     Button(action: {
@@ -460,6 +473,21 @@ struct RecipeVideoView: View {
         } else {
             if videoLink != nil {
                 Text("Kein gültiges Video gefunden.")
+            }
+        }
+    }
+}
+struct RecipeTagsView: View {
+    var tags: [TagStruct]
+    var body: some View {
+        ScrollView(.horizontal) {
+            HStack{
+                ForEach(tags, id: \.self) { tag in
+                    Text(tag.name)
+                        .font(.headline)
+                        .padding()
+                        
+                }
             }
         }
     }

@@ -10,7 +10,7 @@ import SwiftUI
 
 class ViewModel: ObservableObject {
     @Published var recipes: [Recipe] = [brownieRecipe,pastaRecipe]
-    @Published var foods: [FoodStruct] =  [tomate, zartbitterSchokolade,vanilleExtrakt,zucker,eier,mehl,schokostücke]
+    @Published var foods: [FoodStruct] =  [ zartbitterSchokolade,vanilleExtrakt,zucker,eier,mehl,schokostücke]
     @Published var recipeBooks: [RecipebookStruct]
     @Published var tags: [TagStruct]
   

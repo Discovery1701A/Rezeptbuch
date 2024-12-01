@@ -6,36 +6,6 @@
 //
 
 import Foundation
-import CoreData
-
-func setupPreloadedDatabase() {
-    let fileManager = FileManager.default
-    let containerURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-    let dbURL = containerURL.appendingPathComponent("Rezeptbuch.sqlite")
-    
-    // Prüfen, ob die Datenbank bereits im Zielverzeichnis existiert
-    if fileManager.fileExists(atPath: dbURL.path) {
-        // Datenbank existiert bereits, keine Aktion erforderlich
-        return
-    }
-
-    // Pfad zur vorgefertigten SQLite-Datei im Bundle
-    if let preloadedDBURL = Bundle.main.url(forResource: "Rezeptbuch", withExtension: "sqlite") {
-        do {
-            // Kopiere die .sqlite-Datei ins Zielverzeichnis
-            try fileManager.copyItem(at: preloadedDBURL, to: dbURL)
-            print("Vorgefertigte SQLite-Datenbank erfolgreich kopiert.")
-        } catch {
-            print("Fehler beim Kopieren der SQLite-Datenbank: \(error)")
-        }
-    } else {
-        print("SQLite-Datei im Bundle nicht gefunden.")
-    }
-}
-
-
-
-
 
 
 let emptyFood = FoodStruct(id: UUID(), name: "")
@@ -88,85 +58,6 @@ let schokostücke = FoodStruct(
     name: "Schokostücke",
     category: "Süßwaren",
     nutritionFacts: NutritionFactsStruct(calories: 484, protein: 7.9, carbohydrates: 23, fat: 36.2)
-)
-
-
-let karotte = FoodStruct(
-    id: UUID(),
-    name: "Karotte",
-    category: "Gemüse",
-    info: "Eine knackige, orange Wurzelgemüse, reich an Vitamin A",
-    nutritionFacts: NutritionFactsStruct(
-        calories: 41,
-        protein: 0.9,
-        carbohydrates: 9.6,
-        fat: 0.2
-    ),
-    tags: [TagStruct(name: "Gemüse")]
-)
-
-// Example 2: Brokkoli
-let brokkoliNutritionFacts = NutritionFactsStruct(
-    calories: 34,
-    protein: 2.8,
-    carbohydrates: 6.6,
-    fat: 0.4
-)
-let brokkoli = FoodStruct(
-    id: UUID(),
-    name: "Brokkoli",
-    category: "Gemüse",
-    info: "Ein grünes Kreuzblütlergemüse, reich an Ballaststoffen und Vitaminen",
-    nutritionFacts: brokkoliNutritionFacts,
-    tags: [TagStruct(name: "Gemüse")]
-)
-
-// Example 3: Paprika (rot)
-let paprikaNutritionFacts = NutritionFactsStruct(
-    calories: 31,
-    protein: 1.0,
-    carbohydrates: 6.0,
-    fat: 0.3
-)
-let paprika = FoodStruct(
-    id: UUID(),
-    name: "Rote Paprika",
-    category: "Gemüse",
-    info: "Eine süße und knackige rote Paprika, reich an Vitamin C",
-    nutritionFacts: paprikaNutritionFacts,
-    tags: [TagStruct(name: "Gemüse")]
-)
-
-// Example 4: Spinat
-let spinatNutritionFacts = NutritionFactsStruct(
-    calories: 23,
-    protein: 2.9,
-    carbohydrates: 3.6,
-    fat: 0.4
-)
-let spinat = FoodStruct(
-    id: UUID(),
-    name: "Spinat",
-    category: "Gemüse",
-    info: "Ein grünes Blattgemüse, bekannt für seinen hohen Gehalt an Eisen und Vitaminen",
-    nutritionFacts: spinatNutritionFacts,
-    tags: [TagStruct(name: "Gemüse")]
-)
-
-// Example 5: Tomate
-let tomateNutritionFacts = NutritionFactsStruct(
-    calories: 18,
-    protein: 0.9,
-    carbohydrates: 3.9,
-    fat: 0.2
-)
-let tomate = FoodStruct(
-    id: UUID(),
-    name: "Tomate",
-    category: "Gemüse",
-    info: "Eine rote, saftige Frucht mit hohem Wassergehalt, oft als Gemüse betrachtet",
-    nutritionFacts: tomateNutritionFacts,
-    tags: [TagStruct(name: "Gemüse")]
 )
 
 

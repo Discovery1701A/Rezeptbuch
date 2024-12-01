@@ -208,9 +208,10 @@ enum CakeInfo: Equatable {
         case .cake(let form, let size):
             switch size {
             case .round(let diameter):
-                return "cake(form: \(form), size: round(diameter: \(diameter)))"
+                
+                return "cake(form: \(form.rawValue), size: round(diameter: \(diameter)))"
             case .rectangular(let length, let width):
-                return "cake(form: \(form), size: rectangular(length: \(length), width: \(width)))"
+                return "cake(form: \(form.rawValue), size: rectangular(length: \(length), width: \(width)))"
             }
         case .notCake:
             return "notCake"
@@ -286,7 +287,7 @@ extension CakeInfo {
 
 enum Formen: String, CaseIterable {
     case rund = "Rund"
-    case eckig = "Rechteckig"
+    case eckig = "Eckig"
 }
 
 enum CakeSize: Equatable {
