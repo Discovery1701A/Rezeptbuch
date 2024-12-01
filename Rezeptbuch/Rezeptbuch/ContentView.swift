@@ -24,10 +24,10 @@ struct ContentView: View {
                 .tabItem {
                     Label("Rezept erstellen", systemImage: "plus.circle")
                 }
-            FoodCreationView(modelView: modelView)
-                .tabItem {
-                    Label("Lebensmittel erstellen", systemImage: "plus.circle")
-                }
+//            FoodCreationView(modelView: modelView)
+//                .tabItem {
+//                    Label("Lebensmittel erstellen", systemImage: "plus.circle")
+//                }
         }
         .onChange(of: recipesChanged) { _ in
             // Force update the view when recipes change

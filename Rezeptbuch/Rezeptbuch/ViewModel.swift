@@ -9,48 +9,44 @@ import Foundation
 import SwiftUI
 
 class ViewModel: ObservableObject {
-    @Published var recipes: [Recipe] = [brownieRecipe,pastaRecipe]
-    @Published var foods: [FoodStruct] =  [ zartbitterSchokolade,vanilleExtrakt,zucker,eier,mehl,schokostücke]
+    @Published var recipes: [Recipe] = [brownieRecipe, pastaRecipe]
+    @Published var foods: [FoodStruct] = [zartbitterSchokolade, vanilleExtrakt, zucker, eier, mehl, schokostücke]
     @Published var recipeBooks: [RecipebookStruct]
     @Published var tags: [TagStruct]
   
-
-    //@Published var load : String
+    // @Published var load : String
     init() {
         CoreDataManager().insertInitialDataIfNeeded()
         var load = CoreDataManager().fetchRecipes()
-      print("das ist ",load[0].tags)
-//        print(load[1].cake)
+
         recipeBooks = CoreDataManager().fetchRecipebooks()
         tags = CoreDataManager().fetchTags()
         recipes = load
         var food = CoreDataManager().fetchFoods()
         foods = food
     
-        print("issss",food)
+        print("issss", food)
     }
     
-    func appendToRecipes (recipe: Recipe){
+    func appendToRecipes(recipe: Recipe) {
         recipes.append(recipe)
 //        print(recipes)
     }
     
-    func updateRecipe(){
+    func updateRecipe() {
         recipes = CoreDataManager().fetchRecipes()
         print("rezepteModelView:", recipes)
     }
     
-    func updateFood(){
+    func updateFood() {
         foods = CoreDataManager().fetchFoods()
     }
     
-    func updateTags(){
+    func updateTags() {
         tags = CoreDataManager().fetchTags()
     }
     
-    func updateBooks(){
+    func updateBooks() {
         recipeBooks = CoreDataManager().fetchRecipebooks()
     }
-    
-  
 }

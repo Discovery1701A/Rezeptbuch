@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FoodCreationView: View {
     @ObservedObject var modelView: ViewModel
+    var onSave: () -> Void // Closure hinzugefügt
     @State private var foodName = ""
     @State private var foodCategory = ""
     @State private var foodInfo = ""
@@ -16,9 +17,26 @@ struct FoodCreationView: View {
     @State private var protein = ""
     @State private var carbohydrates = ""
     @State private var fat = ""
+    var existingFood: FoodStruct? = nil
     
-    
-    
+    init(modelView: ViewModel, existingFood: FoodStruct? = nil, onSave: @escaping () -> Void) {
+        self.modelView = modelView
+        self.existingFood = existingFood
+        self.onSave = onSave
+
+        // Lade die bestehenden Daten, falls vorhanden
+        if let existingFood = existingFood {
+            _foodName = State(initialValue: existingFood.name)
+            _foodCategory = State(initialValue: existingFood.category ?? "")
+            _foodInfo = State(initialValue: existingFood.info ?? "")
+            _calories = State(initialValue: "\(existingFood.nutritionFacts?.calories ?? 0)")
+            _protein = State(initialValue: "\(existingFood.nutritionFacts?.protein ?? 0.0)")
+            _carbohydrates = State(initialValue: "\(existingFood.nutritionFacts?.carbohydrates ?? 0.0)")
+            _fat = State(initialValue: "\(existingFood.nutritionFacts?.fat ?? 0.0)")
+        }
+    }
+
+
 #if os(macOS)
     
     var body: some View {
@@ -90,27 +108,46 @@ struct FoodCreationView: View {
     }
     
     func saveFood() {
-        guard !foodName.isEmpty else {
-            // Handle validation errors
-            return
-        }
-        
+        guard !foodName.isEmpty else { return }
+
         let info = foodInfo.isEmpty ? nil : foodInfo
         let category = foodCategory.isEmpty ? nil : foodCategory
-        // Convert string inputs to numeric values, or use nil if empty
         let caloriesValue = calories.isEmpty ? nil : Int(calories)
         let proteinValue = protein.isEmpty ? nil : Double(protein)
         let carbohydratesValue = carbohydrates.isEmpty ? nil : Double(carbohydrates)
         let fatValue = fat.isEmpty ? nil : Double(fat)
-        
-        // Nutritional facts with '-' for missing values
-        let nutritionFacts = NutritionFactsStruct(calories: caloriesValue, protein: proteinValue,
-                                            carbohydrates: carbohydratesValue, fat: fatValue)
-        let food = FoodStruct(id: UUID(), name: foodName, category: category, info: info, nutritionFacts: nutritionFacts)
-//        print(food)
-        CoreDataManager().saveFood(foodStruct: food)
+
+        let nutritionFacts = NutritionFactsStruct(
+            calories: caloriesValue, protein: proteinValue,
+            carbohydrates: carbohydratesValue, fat: fatValue
+        )
+
+        if let existingFood = existingFood {
+            // Aktualisiere die bestehende Zutat
+            let updatedFood = FoodStruct(
+                id: existingFood.id,
+                name: foodName,
+                category: category,
+                info: info,
+                nutritionFacts: nutritionFacts
+            )
+            CoreDataManager().updateFood(foodStruct: updatedFood)
+        } else {
+            // Neue Zutat speichern
+            let newFood = FoodStruct(
+                id: UUID(),
+                name: foodName,
+                category: category,
+                info: info,
+                nutritionFacts: nutritionFacts
+            )
+            CoreDataManager().saveFood(foodStruct: newFood)
+        }
+
         modelView.updateFood()
+        onSave()
     }
+
 }
     
 //    

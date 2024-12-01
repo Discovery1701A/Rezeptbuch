@@ -390,6 +390,60 @@ class CoreDataManager {
                 print("Could not save. \(error), \(error.userInfo)")
             }
         }
+    
+    func updateFood(foodStruct: FoodStruct) {
+        let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", foodStruct.id as CVarArg)
+
+        do {
+            if let existingFood = try managedContext.fetch(fetchRequest).first {
+                // Aktualisiere die vorhandene Food-Entität
+                existingFood.name = foodStruct.name
+                existingFood.category = foodStruct.category
+                existingFood.info = foodStruct.info
+                
+                // Aktualisiere Tags
+                if let tags = foodStruct.tags {
+                    if let existingTags = existingFood.tags as? Set<Tag> {
+                        for tag in existingTags {
+                            existingFood.removeFromTags(tag)
+                        }
+                    }
+                    for tag in tags {
+                        let tage = findOrCreateTag(tag)
+                        existingFood.addToTags(tage)
+                    }
+                }
+
+                // Aktualisiere NutritionFacts
+                if let facts = foodStruct.nutritionFacts {
+                    if let existingNutritionFacts = existingFood.nutritionFacts {
+                        existingNutritionFacts.calories = Int64(facts.calories ?? 0)
+                        existingNutritionFacts.protein = facts.protein ?? 0.0
+                        existingNutritionFacts.carbohydrates = facts.carbohydrates ?? 0.0
+                        existingNutritionFacts.fat = facts.fat ?? 0.0
+                    } else {
+                        let nutrition = NutritionFacts(context: managedContext)
+                        nutrition.calories = Int64(facts.calories ?? 0)
+                        nutrition.protein = facts.protein ?? 0.0
+                        nutrition.carbohydrates = facts.carbohydrates ?? 0.0
+                        nutrition.fat = facts.fat ?? 0.0
+                        existingFood.nutritionFacts = nutrition
+                    }
+                }
+
+                // Speichere die Änderungen
+                try managedContext.save()
+                print("Food erfolgreich aktualisiert")
+            } else {
+                print("Keine Food-Entität mit dieser ID gefunden. Erstelle eine neue.")
+                saveFood(foodStruct: foodStruct) // Falls kein Eintrag gefunden wird, erstelle einen neuen
+            }
+        } catch let error as NSError {
+            print("Fehler beim Aktualisieren: \(error), \(error.userInfo)")
+        }
+    }
+
 //    func updateRecipe(_ recipe: Recipe) {
 //            let recipeEntity = findOrCreateRecipeEntity(from: recipe)
 //            
@@ -557,8 +611,15 @@ extension FoodStruct {
         self.info = managedObject.info
         self.nutritionFacts = NutritionFactsStruct(from: managedObject.nutritionFacts)
         self.id = managedObject.id ?? UUID()
+        // Lade Tags
+        if let tagsSet = managedObject.tags as? Set<Tag> {
+            self.tags = tagsSet.map(TagStruct.init) // Mappe die Tags
+        } else {
+            self.tags = []
+        }
     }
 }
+
 
 extension Recipe {
     init(from managedObject: Recipes) {

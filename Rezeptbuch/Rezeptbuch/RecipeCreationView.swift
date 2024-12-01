@@ -798,6 +798,7 @@ struct RecipeCreationView: View {
                         quantity: $quantity[index],
                         selectedUnit: $selectedUnit[index],
                         allFoods: modelView.foods,
+                        modelView: modelView,
                         
                         onDelete: {
                             ingredients.remove(at: index)
@@ -902,8 +903,15 @@ struct IngredientSearchView: View {
     @State private var searchText = ""
     @State private var selectedCategory: String? = nil
     @State private var selectedTag: String? = nil
+    @State private var showingFoodCreation = false // Zustand für FoodCreationView
+    @State private var editingFood: FoodStruct? // Die Zutat, die bearbeitet wird
+    @State private var showingEditSheet = false // Zeigt die Bearbeitungsansicht
+
+
     
-    var allFoods: [FoodStruct]
+    @State var allFoods: [FoodStruct]
+
+    var modelView : ViewModel
     var categories: [String] {
         Array(Set(allFoods.compactMap { $0.category })).sorted()
     }
@@ -913,7 +921,9 @@ struct IngredientSearchView: View {
     }
     @Environment(\.dismiss) var dismiss
     
-    
+    func updateFoods (){
+        self.allFoods = modelView.foods // Jetzt ist die Zuweisung erlaubt
+    }
     
     var filteredFoods: [FoodStruct] {
         allFoods.filter { food in
@@ -922,7 +932,6 @@ struct IngredientSearchView: View {
             (selectedTag == nil || food.tags?.contains(where: { $0.name == selectedTag }) == true)
         }
     }
-    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -931,12 +940,11 @@ struct IngredientSearchView: View {
                     TextField("Suchen", text: $searchText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding()
-                    
-                    
+             
+
+
                     // Kategorie-Filter mit ScrollView
                     Section(header: Text("Kategorien")) {
-                        
-                        
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHStack {
                                 Button(action: {
@@ -963,9 +971,9 @@ struct IngredientSearchView: View {
                             .padding(.horizontal)
                         }
                     }
+                    
                     // Tag-Filter mit ScrollView
                     Section(header: Text("Tag")) {
-                        
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHStack {
                                 Button(action: {
@@ -991,39 +999,73 @@ struct IngredientSearchView: View {
                             }
                             .padding(.horizontal)
                         }
-                        
                     }
                     
                     // Gefilterte Liste der Zutaten
-                    List(filteredFoods) { food in
-                        Button(action: {
-                            selectedFood = food
-                            dismiss()
-                        }) {
-                            VStack(alignment: .leading) {
-                                Text(food.name)
-                                    .font(.headline)
-                                if let category = food.category {
-                                    Text(category)
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        
-                        
-                    }
-                    .frame(minHeight: 400) // Optional: Mindesthöhe für die Liste
-                }
-            }
-        }
-        .navigationTitle("Zutaten suchen")
-        .navigationBarItems(leading: Button("Abbrechen", action: {
-            dismiss()
-        }))
-    }
+                                   List(filteredFoods) { food in
+                                       Button(action: {
+                                           selectedFood = food
+                                           dismiss()
+                                       }) {
+                                           VStack(alignment: .leading) {
+                                               Text(food.name)
+                                                   .font(.headline)
+                                               if let category = food.category {
+                                                   Text(category)
+                                                       .font(.subheadline)
+                                                       .foregroundColor(.secondary)
+                                               }
+                                           }
+                                       }
+                                       .onLongPressGesture {
+                                           editingFood = food
+                                           showingEditSheet = true
+                                       }
+                                   }
+                                   .frame(minHeight: 300) // Optional: Mindesthöhe für die Liste
+                               }
+                           }
+                           .navigationTitle("Zutaten suchen")
+                           .navigationBarItems(
+                               leading: Button("Abbrechen", action: {
+                                   dismiss()
+                               }),
+                               trailing: Button(action: {
+                                   showingFoodCreation = true
+                               }) {
+                                   HStack {
+                                       Image(systemName: "plus.circle")
+                                       Text("Neue Zutat")
+                                   }
+                               }
+                           )
+                           .sheet(isPresented: $showingFoodCreation) {
+                               FoodCreationView(
+                                   modelView: modelView,
+                                   onSave: {
+                                       showingFoodCreation = false
+                                       modelView.updateFood()
+                                       updateFoods()
+                                   }
+                               )
+                           }
+                           .sheet(isPresented: $showingEditSheet) {
+                               if let foodToEdit = editingFood {
+                                   FoodCreationView(
+                                       modelView: modelView,
+                                       existingFood: foodToEdit,
+                                       onSave: {
+                                           showingEditSheet = false
+                                           modelView.updateFood()
+                                           updateFoods()
+                                       }
+                                   )
+                               }
+                           }
+                       }
+                   }
 }
-        
+
 
 struct IngredientRow: View {
     let index: Int
@@ -1032,6 +1074,7 @@ struct IngredientRow: View {
     @Binding var selectedUnit: Unit
 
     let allFoods: [FoodStruct]
+    var modelView: ViewModel
    
     let onDelete: () -> Void
 
@@ -1050,7 +1093,8 @@ struct IngredientRow: View {
             .sheet(isPresented: $showingIngredientSearch) {
                 IngredientSearchView(
                     selectedFood: $food,
-                    allFoods: allFoods
+                    allFoods: allFoods,
+                    modelView: modelView
                 )
             }
 
