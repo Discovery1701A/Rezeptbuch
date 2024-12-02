@@ -1635,7 +1635,7 @@ foodMilchprodukte_tags = [
     (99, [11, 25, 34])    # Milchprotein (Casein)
 ]
 
-setDatabase(tags,foodMilchprodukte_tags,nutritionMilchprodukte_facts,foodMilchprodukte_tags)
+setDatabase(tags,foodsMilchprodukte,nutritionMilchprodukte_facts,foodMilchprodukte_tags)
 
 
 foodsGetreide_Hülsenfrüchte = [
@@ -1926,3 +1926,949 @@ foodGetreideHülsenfrüchte_tags = [
 ]
 
 
+setDatabase(tags,foodsGetreide_Hülsenfrüchte,nutritionGetreideHülsenfrüchte_facts,foodGetreideHülsenfrüchte_tags)
+
+foodsGewürzeKräuter = [
+    ("Anis", "Gewürz", "Aromatisches Gewürz, ideal für Backwaren und Tee."),
+    ("Basilikum", "Kraut", "Frisches Basilikum, ideal für Salate und Pesto."),
+    ("Bärlauch", "Kraut", "Wildes Kraut, ideal für Suppen und Pestos."),
+    ("Bohnenkraut", "Gewürz", "Aromatisches Gewürz, ideal für Bohnengerichte."),
+    ("Chili", "Gewürz", "Scharfes Gewürz, ideal für scharfe Speisen."),
+    ("Currypulver", "Gewürz", "Gewürzmischung, ideal für indische Gerichte."),
+    ("Dill", "Kraut", "Frisches Kraut, ideal für Fischgerichte und Salate."),
+    ("Estragon", "Kraut", "Frisches Kraut, ideal für Geflügel- und Fischgerichte."),
+    ("Fenchel", "Gewürz", "Aromatisches Gewürz, ideal für Tee und Gemüsegerichte."),
+    ("Gewürznelken", "Gewürz", "Aromatisches Gewürz, ideal für Süßspeisen und Eintöpfe."),
+    ("Ingwer", "Gewürz", "Würziges Gewürz, ideal für asiatische Gerichte und Tee."),
+    ("Kardamom", "Gewürz", "Aromatisches Gewürz, ideal für Süßspeisen und indische Gerichte."),
+    ("Koriander", "Kraut", "Frisches Kraut, ideal für Salate und Currys."),
+    ("Kreuzkümmel", "Gewürz", "Aromatisches Gewürz, ideal für orientalische Gerichte."),
+    ("Kümmel", "Gewürz", "Würziges Gewürz, ideal für Brot und Kohlgerichte."),
+    ("Lavendel", "Kraut", "Duftendes Kraut, ideal für Desserts und Tees."),
+    ("Liebstöckel", "Kraut", "Frisches Kraut, ideal für Suppen und Eintöpfe."),
+    ("Lorbeer", "Gewürz", "Aromatisches Gewürzblatt, ideal für Schmorgerichte."),
+    ("Majoran", "Kraut", "Frisches Kraut, ideal für Wurst- und Kartoffelgerichte."),
+    ("Muskatnuss", "Gewürz", "Aromatisches Gewürz, ideal für Saucen und Kartoffelgerichte."),
+    ("Oregano", "Kraut", "Aromatisches Kraut, ideal für italienische Gerichte."),
+    ("Paprikapulver", "Gewürz", "Würziges Pulver, ideal für Eintöpfe und Saucen."),
+    ("Petersilie", "Kraut", "Frisches Kraut, ideal für Garnierungen und Salate."),
+    ("Pfeffer", "Gewürz", "Aromatisches Gewürz, ideal für fast alle herzhaften Speisen."),
+    ("Piment", "Gewürz", "Würziges Gewürz, ideal für Schmorgerichte und Desserts."),
+    ("Rosmarin", "Kraut", "Aromatisches Kraut, ideal für Fleisch- und Kartoffelgerichte."),
+    ("Salbei", "Kraut", "Aromatisches Kraut, ideal für Fleischgerichte und Buttersoßen."),
+    ("Schnittlauch", "Kraut", "Frisches Kraut, ideal für Salate und Dips."),
+    ("Senfkörner", "Gewürz", "Würzige Samen, ideal für Marinaden und Pickles."),
+    ("Thymian", "Kraut", "Aromatisches Kraut, ideal für Fleisch- und Gemüsegerichte."),
+    ("Vanille", "Gewürz", "Aromatisches Gewürz, ideal für Desserts und Backwaren."),
+    ("Wacholderbeeren", "Gewürz", "Würzige Beeren, ideal für Schmorgerichte und Gin."),
+    ("Zimt", "Gewürz", "Aromatisches Gewürz, ideal für Süßspeisen und Heißgetränke."),
+    ("Zitronenmelisse", "Kraut", "Frisches Kraut, ideal für Tees und Desserts."),
+    ("Zitronengras", "Kraut", "Aromatisches Kraut, ideal für asiatische Gerichte."),
+    ("Bockshornklee", "Gewürz", "Aromatisches Gewürz, ideal für indische Currys."),
+    ("Cayennepfeffer", "Gewürz", "Scharfes Gewürz, ideal für pikante Gerichte."),
+    ("Chilipulver", "Gewürz", "Scharfes Gewürzpulver, ideal für scharfe Saucen."),
+    ("Currypaste", "Gewürz", "Würzige Paste, ideal für Currys."),
+    ("Dillspitzen", "Kraut", "Frisches Kraut, ideal für Fischgerichte."),
+    ("Fenchelsamen", "Gewürz", "Aromatisches Gewürz, ideal für Brot und Tee."),
+    ("Galgant", "Gewürz", "Würziges Gewürz, ideal für asiatische Gerichte."),
+    ("Garam Masala", "Gewürz", "Indische Gewürzmischung, ideal für Currys."),
+    ("Grüner Pfeffer", "Gewürz", "Würziges Gewürz, ideal für Saucen und Marinaden."),
+    ("Hibiskus", "Kraut", "Frisches Kraut, ideal für Tees und Desserts."),
+    ("Kaffirlimettenblätter", "Kraut", "Aromatische Blätter, ideal für asiatische Currys."),
+    ("Kardamomsamen", "Gewürz", "Aromatische Samen, ideal für Süßspeisen und Chai."),
+    ("Kurkuma", "Gewürz", "Gelbes Gewürz, ideal für Currys und goldene Milch."),
+    ("Lorbeerblätter", "Gewürz", "Aromatisches Gewürz, ideal für Eintöpfe und Suppen."),
+    ("Macis (Muskatblüte)", "Gewürz", "Aromatisches Gewürz, ideal für Backwaren und Schmorgerichte."),
+    ("Majoranblätter", "Kraut", "Frisches Kraut, ideal für herzhafte Gerichte."),
+    ("Mohnsamen", "Gewürz", "Würzige Samen, ideal für Backwaren."),
+    ("Nelken", "Gewürz", "Aromatisches Gewürz, ideal für Süßspeisen und Marinaden."),
+    ("Oreganoblätter", "Kraut", "Aromatisches Kraut, ideal für Pizza und mediterrane Gerichte."),
+    ("Paprikaflocken", "Gewürz", "Würzige Paprikaflocken, ideal für Suppen und Eintöpfe."),
+    ("Pfefferminzblätter", "Kraut", "Frisches Kraut, ideal für Tees und Desserts."),
+    ("Rosa Pfeffer", "Gewürz", "Milder Pfeffer, ideal für Salate und Saucen."),
+    ("Safran", "Gewürz", "Teures Gewürz, ideal für Reisgerichte und Backwaren."),
+    ("Salbeiblätter", "Kraut", "Aromatisches Kraut, ideal für Buttersoßen und Fleischgerichte."),
+    ("Schwarzkümmel", "Gewürz", "Aromatisches Gewürz, ideal für Brot und Fladen."),
+    ("Sternanis", "Gewürz", "Sternförmiges Gewürz, ideal für Tees und Desserts."),
+    ("Sumach", "Gewürz", "Säuerliches Gewürz, ideal für Salate und Marinaden."),
+    ("Tandoori Masala", "Gewürz", "Indische Gewürzmischung, ideal für Tandoori-Gerichte."),
+    ("Tonkabohne", "Gewürz", "Aromatisches Gewürz, ideal für Desserts."),
+    ("Vanilleschoten", "Gewürz", "Aromatische Schoten, ideal für Süßspeisen und Gebäck."),
+    ("Weißer Pfeffer", "Gewürz", "Milder Pfeffer, ideal für helle Saucen."),
+    ("Zitronenpfeffer", "Gewürz", "Frisches Gewürz, ideal für Fisch und Meeresfrüchte."),
+    ("Zitronenschale", "Gewürz", "Aromatische Schale, ideal für Backwaren und Desserts."),
+    ("Zitronenthymian", "Kraut", "Aromatisches Kraut, ideal für mediterrane Gerichte."),
+      ("Ajowan", "Gewürz", "Aromatisches Gewürz, ideal für Currys und Brot."),
+    ("Amchur (Mango-Pulver)", "Gewürz", "Säuerliches Gewürz, ideal für indische Gerichte."),
+    ("Basilikumblätter", "Kraut", "Frisches Kraut, ideal für Salate und italienische Gerichte."),
+    ("Bockshornkleesamen", "Gewürz", "Aromatisches Gewürz, ideal für Currys und Brot."),
+    ("Chiliflocken", "Gewürz", "Scharfe Flocken, ideal für pikante Gerichte."),
+    ("Chilischoten", "Gewürz", "Frische Chilischoten, ideal für scharfe Speisen."),
+    ("Cumin", "Gewürz", "Aromatisches Gewürz, ideal für orientalische Gerichte."),
+    ("Currykraut", "Kraut", "Aromatisches Kraut, ideal für Currys und Eintöpfe."),
+    ("Dillsamen", "Gewürz", "Aromatische Samen, ideal für Gurkengerichte."),
+    ("Estragonblätter", "Kraut", "Frisches Kraut, ideal für Fischgerichte."),
+    ("Fenchelknolle", "Gemüse", "Knusprige Fenchelknolle, ideal für Salate und Gemüsegerichte."),
+    ("Galangalwurzel", "Gewürz", "Würzige Wurzel, ideal für asiatische Gerichte."),
+    ("Garam-Masala-Pulver", "Gewürz", "Würziges indisches Gewürzpulver, ideal für Currys."),
+    ("Grüner Kardamom", "Gewürz", "Aromatisches Gewürz, ideal für Desserts und Tee."),
+    ("Hibiskusblüten", "Kraut", "Blüten, ideal für Tees und fruchtige Desserts."),
+    ("Ingwerpulver", "Gewürz", "Getrocknetes Gewürz, ideal für Backwaren und Currys."),
+    ("Kaffirlimette", "Kraut", "Aromatische Limette, ideal für thailändische Currys."),
+    ("Kardamomkapseln", "Gewürz", "Aromatische Kapseln, ideal für Tee und Süßspeisen."),
+    ("Korianderblätter", "Kraut", "Frische Blätter, ideal für Currys und Salate."),
+    ("Koriandersamen", "Gewürz", "Würzige Samen, ideal für Brot und Marinaden."),
+    ("Kreuzkümmelsamen", "Gewürz", "Aromatische Samen, ideal für orientalische Gerichte."),
+    ("Kümmelsamen", "Gewürz", "Würzige Samen, ideal für Brot und Kohlgerichte."),
+    ("Lavendelblüten", "Kraut", "Duftende Blüten, ideal für Desserts und Tees."),
+    ("Lorbeerblatt", "Gewürz", "Aromatisches Blatt, ideal für Suppen und Eintöpfe."),
+    ("Majoranpulver", "Gewürz", "Getrocknetes Kraut, ideal für Kartoffel- und Fleischgerichte."),
+    ("Mohn", "Gewürz", "Samen, ideal für Backwaren und Süßspeisen."),
+    ("Muskat", "Gewürz", "Aromatisches Gewürz, ideal für Saucen und Kartoffelgerichte."),
+    ("Nelkenpulver", "Gewürz", "Gemahlene Nelken, ideal für Marinaden und Süßspeisen."),
+    ("Oreganopulver", "Gewürz", "Getrocknetes Kraut, ideal für Pizza und Pasta."),
+    ("Paprikapaste", "Gewürz", "Würzige Paste, ideal für Saucen und Eintöpfe."),
+    ("Pfefferminze", "Kraut", "Frisches Kraut, ideal für Tee und Desserts."),
+    ("Pfefferkörner", "Gewürz", "Ganze Körner, ideal für Pfeffermühlen."),
+    ("Pimentkörner", "Gewürz", "Würzige Körner, ideal für Schmorgerichte."),
+    ("Rosenpaprika", "Gewürz", "Mildes Paprikapulver, ideal für Eintöpfe."),
+    ("Rosmarinblätter", "Kraut", "Frische Blätter, ideal für Braten und Kartoffelgerichte."),
+    ("Safranfäden", "Gewürz", "Teure Fäden, ideal für Risotto und Desserts."),
+    ("Salz", "Gewürz", "Allgemeines Gewürz, ideal für alle herzhaften Speisen."),
+    ("Schwarzer Pfeffer", "Gewürz", "Aromatisches Gewürz, ideal für fast alle Gerichte."),
+    ("Senfsaat", "Gewürz", "Würzige Samen, ideal für Saucen und Marinaden."),
+    ("Szechuanpfeffer", "Gewürz", "Würziges Gewürz, ideal für asiatische Gerichte."),
+    ("Thymianblätter", "Kraut", "Frische Blätter, ideal für mediterrane Gerichte."),
+    ("Vanilleextrakt", "Gewürz", "Flüssiger Vanilleextrakt, ideal für Desserts."),
+    ("Wacholder", "Gewürz", "Aromatische Beeren, ideal für Schmorgerichte."),
+    ("Zimtpulver", "Gewürz", "Gemahlener Zimt, ideal für Süßspeisen."),
+    ("Zitronenbasilikum", "Kraut", "Frisches Kraut, ideal für asiatische und mediterrane Gerichte."),
+    ("Zitronenverbene", "Kraut", "Duftendes Kraut, ideal für Tee und Desserts."),
+    ("Zitronenzeste", "Gewürz", "Abgeriebene Zitronenschale, ideal für Backwaren."),
+    ("Zwiebelpulver", "Gewürz", "Gemahlenes Zwiebelpulver, ideal für Gewürzmischungen."),
+    ("Basilikum, getrocknet", "Kraut", "Getrocknetes Basilikum, ideal für italienische Gerichte."),
+    ("Dill, getrocknet", "Kraut", "Getrockneter Dill, ideal für Fischgerichte."),
+    ("Petersilie, getrocknet", "Kraut", "Getrocknete Petersilie, ideal für Suppen und Saucen."),
+    ("Schnittlauch, getrocknet", "Kraut", "Getrockneter Schnittlauch, ideal für Salate."),
+    ("Thymian, getrocknet", "Kraut", "Getrockneter Thymian, ideal für mediterrane Gerichte."),
+    ("Oregano, getrocknet", "Kraut", "Getrockneter Oregano, ideal für Pizza."),
+    ("Rosmarin, getrocknet", "Kraut", "Getrockneter Rosmarin, ideal für Braten."),
+    ("Salbei, getrocknet", "Kraut", "Getrockneter Salbei, ideal für Buttersoßen."),
+    ("Minze, getrocknet", "Kraut", "Getrocknete Minze, ideal für Tee."),
+    ("Koriander, getrocknet", "Kraut", "Getrockneter Koriander, ideal für Currys."),
+    ("Bohnenkraut, getrocknet", "Kraut", "Getrocknetes Bohnenkraut, ideal für Bohnengerichte."),
+    ("Estragon, getrocknet", "Kraut", "Getrockneter Estragon, ideal für Geflügel."),
+    ("Majoran, getrocknet", "Kraut", "Getrockneter Majoran, ideal für Kartoffelgerichte."),
+    ("Zitronenmelisse, getrocknet", "Kraut", "Getrocknete Zitronenmelisse, ideal für Tee."),
+    ("Basilikum, frisch", "Kraut", "Frisches Basilikum, ideal für Salate."),
+    ("Dill, frisch", "Kraut", "Frischer Dill, ideal für Fisch."),
+    ("Petersilie, frisch", "Kraut", "Frische Petersilie, ideal für Garnierungen."),
+    ("Schnittlauch, frisch", "Kraut", "Frischer Schnittlauch, ideal für Dips."),
+    ("Thymian, frisch", "Kraut", "Frischer Thymian, ideal für Fleischgerichte."),
+    ("Oregano, frisch", "Kraut", "Frischer Oregano, ideal für Pasta."),
+    ("Rosmarin, frisch", "Kraut", "Frischer Rosmarin, ideal für Braten."),
+    ("Salbei, frisch", "Kraut", "Frischer Salbei, ideal für Fleisch."),
+    ("Minze, frisch", "Kraut", "Frische Minze, ideal für Tee."),
+    ("Koriander, frisch", "Kraut", "Frischer Koriander, ideal für Currys."),
+    ("Bohnenkraut, frisch", "Kraut", "Frisches Bohnenkraut, ideal für Bohnengerichte."),
+    ("Estragon, frisch", "Kraut", "Frischer Estragon, ideal für Geflügelgerichte."),
+    ("Majoran, frisch", "Kraut", "Frischer Majoran, ideal für Wurstgerichte."),
+    ("Zitronenmelisse, frisch", "Kraut", "Frische Zitronenmelisse, ideal für Tee."),
+    ("Basilikumöl", "Öl", "Aromatisches Öl, ideal für Salate."),
+    ("Dillöl", "Öl", "Aromatisches Öl, ideal für Fischgerichte."),
+    ("Petersilienöl", "Öl", "Aromatisches Öl, ideal für Suppen."),
+    ("Schnittlauchöl", "Öl", "Aromatisches Öl, ideal für Dips."),
+    ("Thymianöl", "Öl", "Aromatisches Öl, ideal für Braten."),
+    ("Oreganoöl", "Öl", "Aromatisches Öl, ideal für Pizza."),
+    ("Rosmarinöl", "Öl", "Aromatisches Öl, ideal für Fleisch."),
+    ("Salbeiöl", "Öl", "Aromatisches Öl, ideal für Buttersoßen."),
+    ("Minzöl", "Öl", "Aromatisches Öl, ideal für Desserts."),
+    ("Korianderöl", "Öl", "Aromatisches Öl, ideal für Currys."),
+    ("Bohnenkrautöl", "Öl", "Aromatisches Öl, ideal für Bohnengerichte."),
+    ("Estragonöl", "Öl", "Aromatisches Öl, ideal für Fischgerichte und Dressings."),
+    ("Majoranöl", "Öl", "Aromatisches Öl, ideal für Kartoffel- und Fleischgerichte."),
+    ("Zitronenmelissenöl", "Öl", "Aromatisches Öl, ideal für Desserts und Salate."),
+    ("Basilikumpaste", "Paste", "Würzige Paste, ideal für Saucen und Pestos."),
+    ("Dillpaste", "Paste", "Würzige Paste, ideal für Fischgerichte und Dips."),
+    ("Petersilienpaste", "Paste", "Würzige Paste, ideal für Suppen und Dressings."),
+    ("Schnittlauchpaste", "Paste", "Würzige Paste, ideal für Dips und Dressings."),
+    ("Thymianpaste", "Paste", "Würzige Paste, ideal für Fleisch- und Gemüsegerichte."),
+    ("Oreganopaste", "Paste", "Würzige Paste, ideal für mediterrane Saucen."),
+    ("Rosmarinpaste", "Paste", "Würzige Paste, ideal für Braten und Kartoffelgerichte."),
+    ("Salbeipaste", "Paste", "Würzige Paste, ideal für Fleischgerichte."),
+    ("Minzpaste", "Paste", "Frische Paste, ideal für Desserts und Tees."),
+    ("Korianderpaste", "Paste", "Würzige Paste, ideal für Currys und Salate."),
+    ("Bohnenkrautpaste", "Paste", "Würzige Paste, ideal für Bohnengerichte."),
+    ("Estragonpaste", "Paste", "Würzige Paste, ideal für Fisch- und Geflügelgerichte."),
+    ("Majoranpaste", "Paste", "Würzige Paste, ideal für Kartoffelgerichte und Eintöpfe."),
+]
+
+setDatabase([],foodsGewürzeKräuter,[],[])
+
+
+foodsÖleFette = [
+    ("Olivenöl", "Öl", "Hochwertiges Öl, ideal für Dressings und mediterrane Gerichte."),
+    ("Rapsöl", "Öl", "Vielseitiges Öl, ideal zum Braten und Backen."),
+    ("Sonnenblumenöl", "Öl", "Leichtes Öl, ideal für Salate und zum Braten."),
+    ("Kokosöl", "Öl", "Aromatisches Öl, ideal für asiatische Gerichte und Backwaren."),
+    ("Leinöl", "Öl", "Reich an Omega-3-Fettsäuren, ideal für kalte Speisen."),
+    ("Sesamöl", "Öl", "Aromatisches Öl, ideal für asiatische Gerichte."),
+    ("Erdnussöl", "Öl", "Nussiges Öl, ideal für Wokgerichte und zum Frittieren."),
+    ("Distelöl", "Öl", "Mildes Öl, ideal für Salate und zum Dünsten."),
+    ("Traubenkernöl", "Öl", "Leichtes Öl, ideal für Dressings und Saucen."),
+    ("Walnussöl", "Öl", "Aromatisches Öl, ideal für Salate und Desserts."),
+    ("Avocadoöl", "Öl", "Mildes Öl, ideal zum Braten und für Salate."),
+    ("Mandelöl", "Öl", "Nussiges Öl, ideal für Salate und Desserts."),
+    ("Kürbiskernöl", "Öl", "Dunkles, aromatisches Öl, ideal für Salate."),
+    ("Sojaöl", "Öl", "Vielseitiges Öl, ideal zum Braten und Backen."),
+    ("Maiskeimöl", "Öl", "Mildes Öl, ideal für Dressings und zum Braten."),
+    ("Palmöl", "Öl", "Hitzeunempfindliches Öl, ideal zum Frittieren."),
+    ("Palmkernöl", "Öl", "Hitzestabiles Öl, ideal für Backwaren und Frittierfett."),
+    ("Reiskeimöl", "Öl", "Mildes Öl, ideal für Salate und zum Braten."),
+    ("Haselnussöl", "Öl", "Aromatisches Öl, ideal für Salate und Desserts."),
+    ("Macadamianussöl", "Öl", "Cremiges Öl, ideal für Dressings und Desserts."),
+    ("Arganöl", "Öl", "Nussiges, hochwertiges Öl, ideal für Salate."),
+    ("Hanföl", "Öl", "Reich an Omega-3-Fettsäuren, ideal für kalte Speisen."),
+    ("Chiaöl", "Öl", "Reich an Omega-3-Fettsäuren, ideal für Salate."),
+    ("Aprikosenkernöl", "Öl", "Mildes Öl, ideal für Desserts und Salate."),
+    ("Pistazienöl", "Öl", "Aromatisches Öl, ideal für Desserts und Dressings."),
+    ("Pflanzenöl, raffiniert", "Öl", "Allzwecköl, ideal zum Kochen und Braten."),
+    ("Pflanzenöl, kaltgepresst", "Öl", "Aromatisches Öl, ideal für Salate."),
+    ("Butterschmalz (Ghee)", "Fett", "Geklärte Butter, ideal zum Braten."),
+    ("Schweineschmalz", "Fett", "Tierisches Fett, ideal für herzhafte Gerichte."),
+    ("Gänseschmalz", "Fett", "Aromatisches Fett, ideal für Schmorgerichte."),
+    ("Rindertalg", "Fett", "Tierisches Fett, ideal für Braten und Schmorgerichte."),
+    ("Entenschmalz", "Fett", "Aromatisches Fett, ideal für Braten und Schmorgerichte."),
+    ("Lammfett", "Fett", "Tierisches Fett, ideal für Schmorgerichte."),
+    ("Fischöl", "Öl", "Reich an Omega-3-Fettsäuren, ideal als Nahrungsergänzung."),
+    ("Lebertran", "Öl", "Reich an Omega-3-Fettsäuren und Vitamin D, ideal als Nahrungsergänzung."),
+    ("Kakaobutter", "Fett", "Aromatisches Fett, ideal für Schokolade und Backwaren."),
+    ("Sheabutter", "Fett", "Pflanzliches Fett, ideal für Desserts und Hautpflege."),
+    ("Kokosfett", "Fett", "Aromatisches Fett, ideal zum Braten und Backen."),
+    ("Margarine, ungesalzen", "Fett", "Pflanzliches Streichfett, ideal für Brot und Backen."),
+    ("Margarine, gesalzen", "Fett", "Pflanzliches Streichfett, ideal für Brot."),
+    ("Halbfettmargarine", "Fett", "Kalorienreduzierte Margarine, ideal für leichten Genuss."),
+    ("Pflanzenmargarine", "Fett", "Streichfett aus pflanzlichen Ölen, ideal für Brot und Backen."),
+    ("Diätmargarine", "Fett", "Kalorienreduzierte Margarine, ideal für diätische Ernährung."),
+    ("Butter, ungesalzen", "Fett", "Klassische Butter, ideal zum Kochen und Backen."),
+    ("Butter, gesalzen", "Fett", "Gesalzene Butter, ideal für Brot und Kochen."),
+    ("Süßrahmbutter", "Fett", "Butter ohne Milchsäure, ideal für süße Speisen."),
+    ("Mildgesäuerte Butter", "Fett", "Butter mit leichtem Säuregehalt, ideal für Brot."),
+    ("Kräuterbutter", "Fett", "Butter mit Kräutern, ideal für Grillgerichte."),
+    ("Knoblauchbutter", "Fett", "Butter mit Knoblauch, ideal für Baguette und Fleisch."),
+    ("Trüffelbutter", "Fett", "Butter mit Trüffelaroma, ideal für edle Gerichte."),
+    ("Laktosefreie Butter", "Fett", "Butter ohne Laktose, ideal für laktoseintolerante Menschen."),
+    ("Buttermischung mit Rapsöl", "Fett", "Butter-Rapsöl-Mischung, ideal zum Streichen."),
+    ("Streichfett, 70% Fett", "Fett", "Halbfestes Fett, ideal für Brot."),
+    ("Streichfett, 60% Fett", "Fett", "Halbfestes Fett, ideal für Brot."),
+    ("Streichfett, 40% Fett", "Fett", "Kalorienreduziertes Streichfett, ideal für leichte Kost."),
+    ("Streichfett, 20% Fett", "Fett", "Sehr kalorienreduziertes Streichfett, ideal für Diäten."),
+    ("Bratfett, pflanzlich", "Fett", "Pflanzliches Fett, ideal zum Braten."),
+    ("Bratfett, tierisch", "Fett", "Tierisches Fett, ideal für herzhafte Braten."),
+    ("Frittierfett", "Fett", "Hitzeresistentes Fett, ideal zum Frittieren."),
+    ("Backfett", "Fett", "Pflanzliches Fett, ideal für Backwaren."),
+    ("Kokosnussöl, nativ", "Öl", "Aromatisches Öl, ideal für asiatische Gerichte."),
+    ("Kokosnussöl, raffiniert", "Öl", "Mildes Öl, ideal zum Braten und Backen."),
+    ("Olivenöl, extra vergine", "Öl", "Hochwertiges, kaltgepresstes Olivenöl, ideal für Salate."),
+    ("Olivenöl, nativ", "Öl", "Mildes Olivenöl, ideal für Dressings und Saucen."),
+     ("Rapsöl, kaltgepresst", "Öl", "Aromatisches Öl, ideal für Salate."),
+    ("Rapsöl, raffiniert", "Öl", "Mildes Öl, ideal zum Braten und Backen."),
+    ("Sonnenblumenöl, kaltgepresst", "Öl", "Aromatisches Öl, ideal für Dressings."),
+    ("Sonnenblumenöl, raffiniert", "Öl", "Mildes Öl, ideal für Braten und Backen."),
+    ("Sesamöl, geröstet", "Öl", "Aromatisches Öl, ideal für asiatische Gerichte."),
+    ("Sesamöl, ungeröstet", "Öl", "Mildes Öl, ideal für Dressings."),
+    ("Erdnussöl, kaltgepresst", "Öl", "Aromatisches Öl, ideal für Wokgerichte."),
+    ("Erdnussöl, raffiniert", "Öl", "Mildes Öl, ideal für Frittieren."),
+    ("Distelöl, kaltgepresst", "Öl", "Aromatisches Öl, ideal für Salate."),
+    ("Distelöl, raffiniert", "Öl", "Mildes Öl, ideal für Braten."),
+    ("Traubenkernöl, kaltgepresst", "Öl", "Leichtes Öl, ideal für Dressings."),
+    ("Traubenkernöl, raffiniert", "Öl", "Mildes Öl, ideal zum Braten."),
+    ("Walnussöl, kaltgepresst", "Öl", "Aromatisches Öl, ideal für Salate."),
+    ("Walnussöl, raffiniert", "Öl", "Mildes Öl, ideal für Dressings."),
+    ("Avocadoöl, kaltgepresst", "Öl", "Mildes Öl, ideal für Salate."),
+    ("Avocadoöl, raffiniert", "Öl", "Mildes Öl, ideal für Braten."),
+    ("Mandelöl, kaltgepresst", "Öl", "Nussiges Öl, ideal für Desserts."),
+    ("Mandelöl, raffiniert", "Öl", "Mildes Öl, ideal für Salate."),
+    ("Kürbiskernöl, kaltgepresst", "Öl", "Dunkles, aromatisches Öl, ideal für Dressings."),
+    ("Kürbiskernöl, raffiniert", "Öl", "Mildes Öl, ideal für Salate."),
+    ("Sojaöl, kaltgepresst", "Öl", "Vielseitiges Öl, ideal für Dressings."),
+    ("Sojaöl, raffiniert", "Öl", "Mildes Öl, ideal zum Braten."),
+    ("Maiskeimöl, kaltgepresst", "Öl", "Mildes Öl, ideal für Dressings."),
+    ("Maiskeimöl, raffiniert", "Öl", "Vielseitiges Öl, ideal zum Braten."),
+    ("Palmöl, ungehärtet", "Öl", "Hitzeresistentes Öl, ideal zum Braten."),
+    ("Palmöl, gehärtet", "Öl", "Hitzestabiles Öl, ideal für industrielle Zwecke."),
+    ("Palmkernöl, ungehärtet", "Öl", "Hitzestabiles Öl, ideal zum Backen."),
+    ("Palmkernöl, gehärtet", "Öl", "Fetthaltiges Öl, ideal für industrielle Anwendungen."),
+    ("Reiskeimöl, kaltgepresst", "Öl", "Mildes Öl, ideal für Dressings."),
+    ("Reiskeimöl, raffiniert", "Öl", "Vielseitiges Öl, ideal zum Braten."),
+    ("Haselnussöl, kaltgepresst", "Öl", "Aromatisches Öl, ideal für Desserts."),
+    ("Haselnussöl, raffiniert", "Öl", "Mildes Öl, ideal für Dressings."),
+    ("Macadamianussöl, kaltgepresst", "Öl", "Cremiges Öl, ideal für Desserts."),
+    ("Macadamianussöl, raffiniert", "Öl", "Mildes Öl, ideal für Salate."),
+    ("Arganöl, kaltgepresst", "Öl", "Nussiges, hochwertiges Öl, ideal für Salate."),
+    ("Arganöl, raffiniert", "Öl", "Mildes Öl, ideal für Dressings."),
+]
+
+nutritionÖleFette_facts = [
+    (884, 0.0, 0.0, 100.0),  # Olivenöl
+    (884, 0.0, 0.0, 100.0),  # Rapsöl
+    (884, 0.0, 0.0, 100.0),  # Sonnenblumenöl
+    (862, 0.0, 0.0, 100.0),  # Kokosöl
+    (884, 0.0, 0.0, 100.0),  # Leinöl
+    (884, 0.0, 0.0, 100.0),  # Sesamöl
+    (884, 0.0, 0.0, 100.0),  # Erdnussöl
+    (884, 0.0, 0.0, 100.0),  # Distelöl
+    (884, 0.0, 0.0, 100.0),  # Traubenkernöl
+    (884, 0.0, 0.0, 100.0),  # Walnussöl
+    (884, 0.0, 0.0, 100.0),  # Avocadoöl
+    (884, 0.0, 0.0, 100.0),  # Mandelöl
+    (884, 0.0, 0.0, 100.0),  # Kürbiskernöl
+    (884, 0.0, 0.0, 100.0),  # Sojaöl
+    (884, 0.0, 0.0, 100.0),  # Maiskeimöl
+    (884, 0.0, 0.0, 100.0),  # Palmöl
+    (884, 0.0, 0.0, 100.0),  # Palmkernöl
+    (884, 0.0, 0.0, 100.0),  # Reiskeimöl
+    (884, 0.0, 0.0, 100.0),  # Haselnussöl
+    (884, 0.0, 0.0, 100.0),  # Macadamianussöl
+    (884, 0.0, 0.0, 100.0),  # Arganöl
+    (884, 0.0, 0.0, 100.0),  # Hanföl
+    (884, 0.0, 0.0, 100.0),  # Chiaöl
+    (884, 0.0, 0.0, 100.0),  # Aprikosenkernöl
+    (884, 0.0, 0.0, 100.0),  # Pistazienöl
+    (884, 0.0, 0.0, 100.0),  # Pflanzenöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Pflanzenöl, kaltgepresst
+    (876, 0.2, 0.0, 99.8),   # Butterschmalz (Ghee)
+    (900, 0.0, 0.0, 100.0),  # Schweineschmalz
+    (900, 0.0, 0.0, 100.0),  # Gänseschmalz
+    (902, 0.0, 0.0, 100.0),  # Rindertalg
+    (900, 0.0, 0.0, 100.0),  # Entenschmalz
+    (902, 0.0, 0.0, 100.0),  # Lammfett
+    (902, 0.0, 0.0, 100.0),  # Fischöl
+    (902, 0.0, 0.0, 100.0),  # Lebertran
+    (884, 0.0, 0.0, 100.0),  # Kakaobutter
+    (884, 0.0, 0.0, 100.0),  # Sheabutter
+    (862, 0.0, 0.0, 100.0),  # Kokosfett
+    (717, 0.5, 0.7, 81.0),   # Margarine, ungesalzen
+    (717, 0.5, 0.7, 81.0),   # Margarine, gesalzen
+    (369, 0.5, 1.0, 40.0),   # Halbfettmargarine
+    (717, 0.5, 0.7, 81.0),   # Pflanzenmargarine
+    (369, 0.5, 1.0, 40.0),   # Diätmargarine
+    (717, 0.5, 0.7, 81.0),   # Butter, ungesalzen
+    (717, 0.5, 0.7, 81.0),   # Butter, gesalzen
+    (717, 0.5, 0.7, 81.0),   # Süßrahmbutter
+    (717, 0.5, 0.7, 81.0),   # Mildgesäuerte Butter
+    (717, 0.5, 0.7, 81.0),   # Kräuterbutter
+    (717, 0.5, 0.7, 81.0),   # Knoblauchbutter
+    (717, 0.5, 0.7, 81.0),   # Trüffelbutter
+    (717, 0.5, 0.7, 81.0),   # Laktosefreie Butter
+    (717, 0.5, 0.7, 81.0),   # Buttermischung mit Rapsöl
+    (630, 0.5, 1.0, 70.0),   # Streichfett, 70% Fett
+    (540, 0.5, 1.0, 60.0),   # Streichfett, 60% Fett
+    (360, 0.5, 1.0, 40.0),   # Streichfett, 40% Fett
+    (180, 0.5, 1.0, 20.0),   # Streichfett, 20% Fett
+    (884, 0.0, 0.0, 100.0),  # Bratfett, pflanzlich
+    (902, 0.0, 0.0, 100.0),  # Bratfett, tierisch
+    (884, 0.0, 0.0, 100.0),  # Frittierfett
+    (884, 0.0, 0.0, 100.0),  # Backfett
+    (862, 0.0, 0.0, 100.0),  # Kokosnussöl, nativ
+    (884, 0.0, 0.0, 100.0),  # Kokosnussöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Olivenöl, extra vergine
+    (884, 0.0, 0.0, 100.0),  # Olivenöl, nativ
+    (884, 0.0, 0.0, 100.0),  # Rapsöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Rapsöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Sonnenblumenöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Sonnenblumenöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Sesamöl, geröstet
+    (884, 0.0, 0.0, 100.0),  # Sesamöl, ungeröstet
+    (884, 0.0, 0.0, 100.0),  # Erdnussöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Erdnussöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Distelöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Distelöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Traubenkernöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Traubenkernöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Walnussöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Walnussöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Avocadoöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Avocadoöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Mandelöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Mandelöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Kürbiskernöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Kürbiskernöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Sojaöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Sojaöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Maiskeimöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Maiskeimöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Palmöl, ungehärtet
+    (884, 0.0, 0.0, 100.0),  # Palmöl, gehärtet
+    (884, 0.0, 0.0, 100.0),  # Palmkernöl, ungehärtet
+    (884, 0.0, 0.0, 100.0),  # Palmkernöl, gehärtet
+    (884, 0.0, 0.0, 100.0),  # Reiskeimöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Reiskeimöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Haselnussöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Haselnussöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Macadamianussöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Macadamianussöl, raffiniert
+    (884, 0.0, 0.0, 100.0),  # Arganöl, kaltgepresst
+    (884, 0.0, 0.0, 100.0),  # Arganöl, raffiniert
+]
+
+foodÖleFette_tags = [
+    (0, [6, 17]),   # Olivenöl
+    (1, [6, 17]),   # Rapsöl
+    (2, [6, 17]),   # Sonnenblumenöl
+    (3, [6, 17]),   # Kokosöl
+    (4, [6, 17, 19]),   # Leinöl
+    (5, [6, 17]),   # Sesamöl
+    (6, [6, 17]),   # Erdnussöl
+    (7, [6, 17]),   # Distelöl
+    (8, [6, 17]),   # Traubenkernöl
+    (9, [6, 17, 19]),   # Walnussöl
+    (10, [6, 17]),  # Avocadoöl
+    (11, [6, 17]),  # Mandelöl
+    (12, [6, 17]),  # Kürbiskernöl
+    (13, [6, 17]),  # Sojaöl
+    (14, [6, 17]),  # Maiskeimöl
+    (15, [6, 17]),  # Palmöl
+    (16, [6, 17]),  # Palmkernöl
+    (17, [6, 17]),  # Reiskeimöl
+    (18, [6, 17]),  # Haselnussöl
+    (19, [6, 17]),  # Macadamianussöl
+    (20, [6, 17]),  # Arganöl
+    (21, [6, 17, 19]),  # Hanföl
+    (22, [6, 17]),  # Chiaöl
+    (23, [6, 17]),  # Aprikosenkernöl
+    (24, [6, 17]),  # Pistazienöl
+    (25, [6, 17]),  # Pflanzenöl, raffiniert
+    (26, [6, 17]),  # Pflanzenöl, kaltgepresst
+    (27, [6, 12]),  # Butterschmalz (Ghee)
+    (28, [6]),      # Schweineschmalz
+    (29, [6]),      # Gänseschmalz
+    (30, [6]),      # Rindertalg
+    (31, [6]),      # Entenschmalz
+    (32, [6]),      # Lammfett
+    (33, [6, 19]),  # Fischöl
+    (34, [6, 19]),  # Lebertran
+    (35, [6, 17]),  # Kakaobutter
+    (36, [6, 17]),  # Sheabutter
+    (37, [6, 17]),  # Kokosfett
+    (38, [6]),      # Margarine, ungesalzen
+    (39, [6]),      # Margarine, gesalzen
+    (40, [6]),      # Halbfettmargarine
+    (41, [6]),      # Pflanzenmargarine
+    (42, [6]),      # Diätmargarine
+    (43, [6]),      # Butter, ungesalzen
+    (44, [6]),      # Butter, gesalzen
+    (45, [6]),      # Süßrahmbutter
+    (46, [6]),      # Mildgesäuerte Butter
+    (47, [6, 18]),  # Kräuterbutter
+    (48, [6, 18]),  # Knoblauchbutter
+    (49, [6, 18]),  # Trüffelbutter
+    (50, [6]),      # Laktosefreie Butter
+    (51, [6, 17]),  # Buttermischung mit Rapsöl
+    (52, [6]),      # Streichfett, 70% Fett
+    (53, [6]),      # Streichfett, 60% Fett
+    (54, [6]),      # Streichfett, 40% Fett
+    (55, [6]),      # Streichfett, 20% Fett
+    (56, [6, 17]),  # Bratfett, pflanzlich
+    (57, [6]),      # Bratfett, tierisch
+    (58, [6, 17]),  # Frittierfett
+    (59, [6, 17]),  # Backfett
+    (60, [6, 17]),  # Kokosnussöl, nativ
+    (61, [6, 17]),  # Kokosnussöl, raffiniert
+    (62, [6, 17]),  # Olivenöl, extra vergine
+    (63, [6, 17]),  # Olivenöl, nativ
+    (64, [6, 17]),  # Rapsöl, kaltgepresst
+    (65, [6, 17]),  # Rapsöl, raffiniert
+    (66, [6, 17]),  # Sonnenblumenöl, kaltgepresst
+    (67, [6, 17]),  # Sonnenblumenöl, raffiniert
+    (68, [6, 17]),  # Sesamöl, geröstet
+    (69, [6, 17]),  # Sesamöl, ungeröstet
+    (70, [6, 17]),  # Erdnussöl, kaltgepresst
+    (71, [6, 17]),  # Erdnussöl, raffiniert
+    (72, [6, 17]),  # Distelöl, kaltgepresst
+    (73, [6, 17]),  # Distelöl, raffiniert
+    (74, [6, 17]),  # Traubenkernöl, kaltgepresst
+    (75, [6, 17]),  # Traubenkernöl, raffiniert
+    (76, [6, 17]),  # Walnussöl, kaltgepresst
+    (77, [6, 17]),  # Walnussöl, raffiniert
+    (78, [6, 17]),  # Avocadoöl, kaltgepresst
+    (79, [6, 17]),  # Avocadoöl, raffiniert
+    (80, [6, 17]),  # Mandelöl, kaltgepresst
+    (81, [6, 17]),  # Mandelöl, raffiniert
+    (82, [6, 17]),  # Kürbiskernöl, kaltgepresst
+    (83, [6, 17]),  # Kürbiskernöl, raffiniert
+    (84, [6, 17]),  # Sojaöl, kaltgepresst
+    (85, [6, 17]),  # Sojaöl, raffiniert
+    (86, [6, 17]),  # Maiskeimöl, kaltgepresst
+    (87, [6, 17]),  # Maiskeimöl, raffiniert
+    (88, [6, 17]),  # Palmöl, ungehärtet
+    (89, [6, 17]),  # Palmöl, gehärtet
+    (90, [6, 17]),  # Palmkernöl, ungehärtet
+    (91, [6, 17]),  # Palmkernöl, gehärtet
+    (92, [6, 17]),  # Reiskeimöl, kaltgepresst
+    (93, [6, 17]),  # Reiskeimöl, raffiniert
+    (94, [6, 17]),  # Haselnussöl, kaltgepresst
+    (95, [6, 17]),  # Haselnussöl, raffiniert
+    (96, [6, 17]),  # Macadamianussöl, kaltgepresst
+    (97, [6, 17]),  # Macadamianussöl, raffiniert
+    (98, [6, 17]),  # Arganöl, kaltgepresst
+    (99, [6, 17]),  # Arganöl, raffiniert
+]
+
+setDatabase(tags, foodsÖleFette, nutritionÖleFette_facts, foodÖleFette_tags)
+
+
+foodsNüsse = [
+    ("Pinienkerne", "Samen", "Aromatische Samen, ideal für Pesto und Salate."),
+    ("Sesamsamen", "Samen", "Nussige Samen, ideal zum Backen und Kochen."),
+    ("Mohnsamen", "Samen", "Kleine, würzige Samen, ideal für Backwaren."),
+    ("Hanfsamen", "Samen", "Reich an Proteinen, ideal für Müsli und Smoothies."),
+    ("Macadamianüsse", "Nüsse", "Cremige Nüsse, ideal für Desserts und Snacks."),
+    ("Paranüsse", "Nüsse", "Reich an Selen, ideal als Snack oder für Desserts."),
+    ("Pekannüsse", "Nüsse", "Milde Nüsse, ideal für Kuchen und Desserts."),
+    ("Kastanien (Edelkastanien)", "Nüsse", "Milde Nüsse, ideal zum Rösten oder für Füllungen."),
+    ("Ginkgo-Nüsse", "Nüsse", "Nüsse, traditionell in der asiatischen Küche verwendet."),
+    ("Lotosblumensamen", "Samen", "Aromatische Samen, ideal für asiatische Gerichte."),
+    ("Baumwollsamen", "Samen", "Würzige Samen, traditionell in bestimmten Küchen verwendet."),
+    ("Brotnussbaum-Samen", "Samen", "Samen, die als nährstoffreicher Snack dienen."),
+    ("Saflor (Färberdistel) Samen", "Samen", "Würzige Samen, ideal zum Würzen und in Salaten."),
+    ("Pinyon-Kiefersamen", "Samen", "Aromatische Samen, ideal für Snacks und zum Kochen."),
+    ("Schwarznüsse (Schwarze Walnüsse)", "Nüsse", "Würzige Nüsse, ideal für Desserts und Backwaren."),
+    ("Erdmandeln (Tigernüsse)", "Nüsse", "Knusprige Nüsse, ideal als Snack oder in Desserts."),
+    ("Wassermelonenkerne", "Samen", "Nährstoffreiche Samen, ideal als Snack oder für Salate."),
+    ("Basilikumsamen", "Samen", "Würzige Samen, ideal für Desserts und Getränke."),
+    ("Mohnsamen, blau", "Samen", "Würzige Samen, ideal für Backwaren."),
+    ("Mohnsamen, weiß", "Samen", "Milde Samen, ideal für Desserts und Backwaren."),
+    ("Chiasamen, schwarz", "Samen", "Reich an Omega-3-Fettsäuren, ideal für Puddings und Müsli."),
+    ("Chiasamen, weiß", "Samen", "Reich an Omega-3-Fettsäuren, ideal für Smoothies und Desserts."),
+    ("Sesamsamen, schwarz", "Samen", "Aromatische Samen, ideal zum Backen und für asiatische Gerichte."),
+    ("Sesamsamen, weiß", "Samen", "Nussige Samen, ideal zum Backen und für Saucen."),
+    ("Kürbiskerne, grün", "Samen", "Knackige Samen, ideal als Snack oder für Salate."),
+    ("Kürbiskerne, weiß", "Samen", "Milde Samen, ideal für Backwaren und Salate."),
+    ("Sonnenblumenkerne, geschält", "Samen", "Milde Kerne, ideal für Müsli und Salate."),
+    ("Sonnenblumenkerne, ungeschält", "Samen", "Knackige Kerne, ideal als Snack."),
+    ("Leinsamen, braun", "Samen", "Reich an Omega-3-Fettsäuren, ideal für Backwaren."),
+    ("Leinsamen, golden", "Samen", "Reich an Ballaststoffen, ideal für Müsli und Brot."),
+    ("Hanfsamen, geschält", "Samen", "Reich an Proteinen, ideal für Smoothies und Salate."),
+    ("Hanfsamen, ungeschält", "Samen", "Reich an Ballaststoffen, ideal für Müsli und Snacks."),
+    ("Erdnüsse, blanchiert", "Nüsse", "Milde Nüsse, ideal als Snack oder zum Kochen."),
+    ("Erdnüsse, geröstet", "Nüsse", "Knusprige Nüsse, ideal als Snack."),
+    ("Erdnüsse, ungesalzen", "Nüsse", "Milde Nüsse, ideal für Saucen und als Snack."),
+    ("Erdnüsse, gesalzen", "Nüsse", "Knusprige Nüsse, ideal als Snack."),
+    ("Cashewnüsse, roh", "Nüsse", "Cremige Nüsse, ideal als Snack oder für vegane Saucen."),
+    ("Cashewnüsse, geröstet", "Nüsse", "Knusprige Nüsse, ideal als Snack."),
+    ("Cashewnüsse, gesalzen", "Nüsse", "Knusprige Nüsse, ideal als Snack."),
+    ("Mandeln, roh", "Nüsse", "Knusprige Nüsse, ideal als Snack oder zum Backen."),
+    ("Mandeln, geröstet", "Nüsse", "Aromatische Nüsse, ideal als Snack."),
+    ("Mandeln, gesalzen", "Nüsse", "Knusprige Nüsse, ideal als Snack."),
+    ("Haselnüsse, roh", "Nüsse", "Milde Nüsse, ideal für Desserts und Backwaren."),
+    ("Haselnüsse, geröstet", "Nüsse", "Aromatische Nüsse, ideal für Desserts."),
+    ("Haselnüsse, blanchiert", "Nüsse", "Milde Nüsse, ideal für Desserts und Backwaren."),
+    ("Walnüsse, roh", "Nüsse", "Reich an Omega-3-Fettsäuren, ideal für Salate und Desserts."),
+    ("Walnüsse, geröstet", "Nüsse", "Aromatische Nüsse, ideal als Snack."),
+    ("Pistazien, roh", "Nüsse", "Grüne Nüsse, ideal als Snack oder für Desserts."),
+    ("Pistazien, geröstet", "Nüsse", "Aromatische Nüsse, ideal als Snack."),
+    ("Pistazien, gesalzen", "Nüsse", "Knusprige Nüsse, ideal als Snack."),
+    ("Macadamianüsse, roh", "Nüsse", "Cremige Nüsse, ideal als Snack oder für Desserts."),
+    ("Macadamianüsse, geröstet", "Nüsse", "Aromatische Nüsse, ideal als Snack."),
+    ("Paranüsse, roh", "Nüsse", "Reich an Selen, ideal als Snack."),
+    ("Paranüsse, geröstet", "Nüsse", "Aromatische Nüsse, ideal als Snack."),
+    ("Pekannüsse, roh", "Nüsse", "Milde Nüsse, ideal für Kuchen und Desserts."),
+    ("Pekannüsse, geröstet", "Nüsse", "Aromatische Nüsse, ideal als Snack."),
+    ("Kastanien, roh", "Nüsse", "Milde Nüsse, ideal zum Rösten oder für Füllungen."),
+    ("Kastanien, geröstet", "Nüsse", "Aromatische Nüsse, ideal als Snack."),
+    ("Ginkgo-Nüsse, roh", "Nüsse", "Nüsse, traditionell in der asiatischen Küche verwendet."),
+    ("Ginkgo-Nüsse, gekocht", "Nüsse", "Gekochte Nüsse, ideal für asiatische Gerichte."),
+    ("Lotosblumensamen, roh", "Samen", "Aromatische Samen, ideal für asiatische Gerichte."),
+    ("Lotosblumensamen, getrocknet", "Samen", "Trockene Samen, ideal für Suppen und Eintöpfe."),
+    ("Baumwollsamen, roh", "Samen", "Würzige Samen, traditionell in bestimmten Küchen verwendet."),
+    ("Baumwollsamen, geröstet", "Samen", "Geröstete Samen, ideal als Snack."),
+    ("Brotnussbaum-Samen, roh", "Samen", "Samen, die als nährstoffreicher Snack dienen."),
+    ("Brotnussbaum-Samen, getrocknet", "Samen", "Getrocknete Samen, ideal für Suppen und Eintöpfe."),
+    ("Saflor-Samen, roh", "Samen", "Würzige Samen, ideal zum Würzen und in Salaten."),
+    ("Saflor-Samen, getrocknet", "Samen", "Getrocknete Samen, ideal zum Würzen."),
+    ("Pinyon-Kiefersamen, roh", "Samen", "Aromatische Samen, ideal für Snacks und zum Kochen."),
+    ("Pinyon-Kiefersamen, geröstet", "Samen", "Geröstete Samen, ideal als Snack."),
+    ("Schwarznüsse, roh", "Nüsse", "Würzige Nüsse, ideal für Desserts und Backwaren."),
+    ("Schwarznüsse, getrocknet", "Nüsse", "Getrocknete Nüsse, ideal für Backwaren."),
+    ("Erdmandeln, roh", "Nüsse", "Knusprige Nüsse, ideal als Snack oder in Desserts."),
+    ("Erdmandeln, getrocknet", "Nüsse", "Getrocknete Nüsse, ideal für Müslis und Backwaren."),
+    ("Wassermelonenkerne, roh", "Samen", "Nährstoffreiche Samen, ideal als Snack oder für Salate."),
+    ("Wassermelonenkerne, geröstet", "Samen", "Geröstete Samen, ideal als Snack."),
+    ("Basilikumsamen, roh", "Samen", "Würzige Samen, ideal für Desserts und Getränke."),
+    ("Basilikumsamen, getrocknet", "Samen", "Getrocknete Samen, ideal für Tee und Desserts."),
+    ("Mohnsamen, blau, roh", "Samen", "Würzige Samen, ideal für Backwaren."),
+    ("Mohnsamen, weiß, roh", "Samen", "Milde Samen, ideal für Desserts und Backwaren."),
+    ("Chiasamen, schwarz, roh", "Samen", "Reich an Omega-3-Fettsäuren, ideal für Puddings und Müslis."),
+    ("Chiasamen, weiß, roh", "Samen", "Reich an Omega-3-Fettsäuren, ideal für Smoothies und Desserts."),
+    ("Sesamsamen, schwarz, roh", "Samen", "Aromatische Samen, ideal zum Backen und für asiatische Gerichte."),
+    ("Sesamsamen, weiß, roh", "Samen", "Nussige Samen, ideal zum Backen und für Saucen."),
+    ("Kürbiskerne, grün, roh", "Samen", "Knackige Samen, ideal als Snack oder für Salate."),
+    ("Kürbiskerne, weiß, roh", "Samen", "Milde Samen, ideal für Backwaren und Salate."),
+    ("Sonnenblumenkerne, geschält, roh", "Samen", "Milde Kerne, ideal für Müsli und Salate."),
+    ("Sonnenblumenkerne, ungeschält, roh", "Samen", "Knackige Kerne, ideal als Snack."),
+    ("Leinsamen, braun, roh", "Samen", "Reich an Omega-3-Fettsäuren, ideal für Backwaren."),
+    ("Leinsamen, golden, roh", "Samen", "Reich an Ballaststoffen, ideal für Müsli und Brot."),
+    ("Hanfsamen, geschält, roh", "Samen", "Reich an Proteinen, ideal für Smoothies und Salate."),
+    ("Hanfsamen, ungeschält, roh", "Samen", "Reich an Ballaststoffen, ideal für Müslis und Snacks."),
+    ("Erdnussbutter", "Butter", "Cremige Paste, ideal für Brotaufstrich und Backwaren."),
+    ("Mandelbutter", "Butter", "Aromatische Nussbutter, ideal für Brotaufstrich und Desserts."),
+    ("Cashewbutter", "Butter", "Cremige Paste, ideal für Brotaufstrich und vegane Rezepte."),
+    ("Haselnusscreme", "Butter", "Süße Nusscreme, ideal als Brotaufstrich und für Desserts."),
+    ("Tahini (Sesampaste)", "Paste", "Würzige Sesampaste, ideal für Saucen und Hummus."),
+    ("Pistazienpaste", "Paste", "Cremige Paste, ideal für Desserts und Saucen."),
+    ("Macadamianussbutter", "Butter", "Cremige Nussbutter, ideal für Brotaufstrich und Desserts."),
+    ("Sonnenblumenkernbutter", "Butter", "Cremige Butter, ideal für Brotaufstrich und Backen."),
+]
+
+
+nutritionNüsse_facts = [
+    (673, 13.7, 13.1, 68.4),  # Pinienkerne
+    (573, 17.0, 23.5, 49.7),  # Sesamsamen
+    (525, 20.5, 28.1, 42.2),  # Mohnsamen
+    (553, 32.0, 8.7, 48.8),   # Hanfsamen
+    (718, 7.8, 13.8, 75.8),   # Macadamianüsse
+    (656, 14.3, 12.3, 66.4),  # Paranüsse
+    (691, 9.2, 13.9, 72.0),   # Pekannüsse
+    (196, 2.4, 45.5, 1.8),    # Kastanien (Edelkastanien)
+    (182, 4.3, 37.6, 1.3),    # Ginkgo-Nüsse
+    (332, 17.0, 64.0, 1.9),   # Lotosblumensamen
+    (506, 17.0, 13.3, 40.0),  # Baumwollsamen
+    (431, 7.0, 53.0, 16.0),   # Brotnussbaum-Samen
+    (517, 14.0, 21.0, 37.0),  # Saflor (Färberdistel) Samen
+    (592, 8.8, 20.5, 47.0),   # Pinyon-Kiefersamen
+    (618, 24.0, 12.3, 59.0),  # Schwarznüsse (Schwarze Walnüsse)
+    (450, 4.0, 50.0, 25.0),   # Erdmandeln (Tigernüsse)
+    (557, 28.3, 15.3, 47.0),  # Wassermelonenkerne
+    (233, 2.9, 54.0, 1.7),    # Basilikumsamen
+    (525, 20.5, 28.1, 42.2),  # Mohnsamen, blau
+    (525, 20.5, 28.1, 42.2),  # Mohnsamen, weiß
+    (486, 16.5, 42.1, 30.7),  # Chiasamen, schwarz
+    (486, 16.5, 42.1, 30.7),  # Chiasamen, weiß
+    (573, 17.0, 23.5, 49.7),  # Sesamsamen, schwarz
+    (573, 17.0, 23.5, 49.7),  # Sesamsamen, weiß
+    (559, 30.2, 10.7, 49.1),  # Kürbiskerne, grün
+    (559, 30.2, 10.7, 49.1),  # Kürbiskerne, weiß
+    (584, 24.4, 20.0, 51.5),  # Sonnenblumenkerne, geschält
+    (584, 24.4, 20.0, 51.5),  # Sonnenblumenkerne, ungeschält
+    (534, 18.3, 29.0, 42.2),  # Leinsamen, braun
+    (534, 18.3, 29.0, 42.2),  # Leinsamen, golden
+    (553, 32.0, 8.7, 48.8),   # Hanfsamen, geschält
+    (553, 32.0, 8.7, 48.8),   # Hanfsamen, ungeschält
+    (567, 25.8, 16.1, 49.2),  # Erdnüsse, blanchiert
+    (585, 25.2, 16.1, 49.7),  # Erdnüsse, geröstet
+    (567, 25.8, 16.1, 49.2),  # Erdnüsse, ungesalzen
+    (585, 25.2, 16.1, 49.7),  # Erdnüsse, gesalzen
+    (553, 18.2, 30.2, 43.8),  # Cashewnüsse, roh
+    (574, 15.3, 32.7, 46.4),  # Cashewnüsse, geröstet
+    (574, 15.3, 32.7, 46.4),  # Cashewnüsse, gesalzen
+    (579, 21.2, 21.7, 49.9),  # Mandeln, roh
+    (607, 20.0, 21.0, 54.0),  # Mandeln, geröstet
+    (607, 20.0, 21.0, 54.0),  # Mandeln, gesalzen
+    (628, 15.0, 17.0, 61.0),  # Haselnüsse, roh
+    (646, 14.0, 16.7, 63.5),  # Haselnüsse, geröstet
+    (646, 14.0, 16.7, 63.5),  # Haselnüsse, blanchiert
+    (654, 15.2, 13.7, 65.2),  # Walnüsse, roh
+    (684, 15.0, 14.0, 68.0),  # Walnüsse, geröstet
+    (557, 21.0, 27.0, 44.0),  # Pistazien, roh
+    (571, 21.0, 28.0, 45.0),  # Pistazien, geröstet
+    (571, 21.0, 28.0, 45.0),  # Pistazien, gesalzen
+    (718, 7.8, 13.8, 75.8),   # Macadamianüsse, roh
+    (740, 7.5, 14.2, 78.0),   # Macadamianüsse, geröstet
+    (656, 14.3, 12.3, 66.4),  # Paranüsse, roh
+    (670, 13.5, 12.0, 68.2),  # Paranüsse, geröstet
+    (691, 9.2, 13.9, 72.0),   # Pekannüsse, roh
+    (705, 9.0, 14.0, 74.0),   # Pekannüsse, geröstet
+    (196, 2.4, 45.5, 1.8),    # Kastanien, roh
+    (245, 3.2, 51.2, 2.5),    # Kastanien, geröstet
+    (182, 4.3, 37.6, 1.3),    # Ginkgo-Nüsse, roh
+    (185, 5.0, 39.0, 1.5),    # Ginkgo-Nüsse, gekocht
+    (332, 17.0, 64.0, 1.9),   # Lotosblumensamen, roh
+    (370, 19.0, 70.0, 2.5),   # Lotosblumensamen, getrocknet
+    (506, 17.0, 13.3, 40.0),  # Baumwollsamen, roh
+    (525, 17.5, 14.0, 42.0),  # Baumwollsamen, geröstet
+    (431, 7.0, 53.0, 16.0),   # Brotnussbaum-Samen, roh
+    (460, 8.0, 56.0, 18.0),   # Brotnussbaum-Samen, getrocknet
+    (517, 14.0, 21.0, 37.0),  # Saflor-Samen, roh
+    (540, 15.0, 23.0, 39.0),  # Saflor-Samen, getrocknet
+    (592, 8.8, 20.5, 47.0),   # Pinyon-Kiefersamen, roh
+    (610, 9.0, 21.0, 49.0),   # Pinyon-Kiefersamen, geröstet
+    (618, 24.0, 12.3, 59.0),  # Schwarznüsse, roh
+    (630, 25.0, 13.0, 60.0),  # Schwarznüsse, getrocknet
+    (450, 4.0, 50.0, 25.0),   # Erdmandeln, roh
+    (470, 4.5, 52.0, 26.0),   # Erdmandeln, getrocknet
+    (557, 28.3, 15.3, 47.0),  # Wassermelonenkerne, roh
+    (580, 29.0, 16.0, 49.0),  # Wassermelonenkerne, geröstet
+    (233, 2.9, 54.0, 1.7),    # Basilikumsamen, roh
+    (245, 3.2, 57.0, 1.9),    # Basilikumsamen, getrocknet
+    (525, 20.5, 28.1, 42.2),  # Mohnsamen, blau, roh
+    (525, 20.5, 28.1, 42.2),  # Mohnsamen, weiß, roh
+    (486, 16.5, 42.1, 30.7),  # Chiasamen, schwarz, roh
+    (486, 16.5, 42.1, 30.7),  # Chiasamen, weiß, roh
+    (573, 17.0, 23.5, 49.7),  # Sesamsamen, schwarz, roh
+    (573, 17.0, 23.5, 49.7),  # Sesamsamen, weiß, roh
+    (559, 30.2, 10.7, 49.1),  # Kürbiskerne, grün, roh
+    (559, 30.2, 10.7, 49.1),  # Kürbiskerne, weiß, roh
+    (584, 24.4, 20.0, 51.5),  # Sonnenblumenkerne, geschält, roh
+    (584, 24.4, 20.0, 51.5),  # Sonnenblumenkerne, ungeschält, roh
+    (534, 18.3, 29.0, 42.2),  # Leinsamen, braun, roh
+    (534, 18.3, 29.0, 42.2),  # Leinsamen, golden, roh
+    (553, 32.0, 8.7, 48.8),   # Hanfsamen, geschält, roh
+    (553, 32.0, 8.7, 48.8),   # Hanfsamen, ungeschält, roh
+    (567, 25.8, 16.1, 49.2),  # Erdnussbutter
+    (614, 21.2, 18.0, 56.0),  # Mandelbutter
+    (580, 18.5, 27.0, 47.5),  # Cashewbutter
+    (572, 13.0, 57.0, 37.0),  # Haselnusscreme
+    (595, 17.0, 26.0, 50.0),  # Tahini (Sesampaste)
+    (620, 18.0, 28.0, 53.0),  # Pistazienpaste
+    (716, 7.8, 13.0, 78.5),   # Macadamianussbutter
+    (619, 18.3, 26.0, 55.3),  # Sonnenblumenkernbutter
+]
+
+foodNüsse_tags = [
+    (0, [6, 19]),  # Pinienkerne
+    (1, [6, 17]),  # Sesamsamen
+    (2, [6, 17]),  # Mohnsamen
+    (3, [6, 12, 17]),  # Hanfsamen
+    (4, [6, 12]),  # Macadamianüsse
+    (5, [6, 12, 21]),  # Paranüsse
+    (6, [6, 12]),  # Pekannüsse
+    (7, [6, 17, 22]),  # Kastanien (Edelkastanien)
+    (8, [6, 19]),  # Ginkgo-Nüsse
+    (9, [6, 17]),  # Lotosblumensamen
+    (10, [6, 17]),  # Baumwollsamen
+    (11, [6, 17]),  # Brotnussbaum-Samen
+    (12, [6, 17]),  # Saflor (Färberdistel) Samen
+    (13, [6, 17]),  # Pinyon-Kiefersamen
+    (14, [6, 12]),  # Schwarznüsse (Schwarze Walnüsse)
+    (15, [6, 17]),  # Erdmandeln (Tigernüsse)
+    (16, [6, 17]),  # Wassermelonenkerne
+    (17, [6, 17]),  # Basilikumsamen
+    (18, [6, 17]),  # Mohnsamen, blau
+    (19, [6, 17]),  # Mohnsamen, weiß
+    (20, [6, 17, 19]),  # Chiasamen, schwarz
+    (21, [6, 17, 19]),  # Chiasamen, weiß
+    (22, [6, 17]),  # Sesamsamen, schwarz
+    (23, [6, 17]),  # Sesamsamen, weiß
+    (24, [6, 17, 19]),  # Kürbiskerne, grün
+    (25, [6, 17, 19]),  # Kürbiskerne, weiß
+    (26, [6, 17, 19]),  # Sonnenblumenkerne, geschält
+    (27, [6, 17, 19]),  # Sonnenblumenkerne, ungeschält
+    (28, [6, 17, 19]),  # Leinsamen, braun
+    (29, [6, 17, 19]),  # Leinsamen, golden
+    (30, [6, 17, 19]),  # Hanfsamen, geschält
+    (31, [6, 17, 19]),  # Hanfsamen, ungeschält
+    (32, [6, 12, 19]),  # Erdnüsse, blanchiert
+    (33, [6, 12, 19]),  # Erdnüsse, geröstet
+    (34, [6, 12, 19]),  # Erdnüsse, ungesalzen
+    (35, [6, 12, 19]),  # Erdnüsse, gesalzen
+    (36, [6, 12]),  # Cashewnüsse, roh
+    (37, [6, 12]),  # Cashewnüsse, geröstet
+    (38, [6, 12]),  # Cashewnüsse, gesalzen
+    (39, [6, 12, 19]),  # Mandeln, roh
+    (40, [6, 12, 19]),  # Mandeln, geröstet
+    (41, [6, 12, 19]),  # Mandeln, gesalzen
+    (42, [6, 12]),  # Haselnüsse, roh
+    (43, [6, 12]),  # Haselnüsse, geröstet
+    (44, [6, 12]),  # Haselnüsse, blanchiert
+    (45, [6, 12, 19]),  # Walnüsse, roh
+    (46, [6, 12, 19]),  # Walnüsse, geröstet
+    (47, [6, 12]),  # Pistazien, roh
+    (48, [6, 12]),  # Pistazien, geröstet
+    (49, [6, 12]),  # Pistazien, gesalzen
+    (50, [6, 12]),  # Macadamianüsse, roh
+    (51, [6, 12]),  # Macadamianüsse, geröstet
+    (52, [6, 12, 21]),  # Paranüsse, roh
+    (53, [6, 12, 21]),  # Paranüsse, geröstet
+    (54, [6, 12]),  # Pekannüsse, roh
+    (55, [6, 12]),  # Pekannüsse, geröstet
+    (56, [6, 17, 22]),  # Kastanien, roh
+    (57, [6, 17, 22]),  # Kastanien, geröstet
+    (58, [6, 19]),  # Ginkgo-Nüsse, roh
+    (59, [6, 19]),  # Ginkgo-Nüsse, gekocht
+    (60, [6, 17]),  # Lotosblumensamen, roh
+    (61, [6, 17]),  # Lotosblumensamen, getrocknet
+    (62, [6, 17]),  # Baumwollsamen, roh
+    (63, [6, 17]),  # Baumwollsamen, geröstet
+    (64, [6, 17]),  # Brotnussbaum-Samen, roh
+    (65, [6, 17]),  # Brotnussbaum-Samen, getrocknet
+    (66, [6, 17]),  # Saflor-Samen, roh
+    (67, [6, 17]),  # Saflor-Samen, getrocknet
+    (68, [6, 17]),  # Pinyon-Kiefersamen, roh
+    (69, [6, 17]),  # Pinyon-Kiefersamen, geröstet
+    (70, [6, 12]),  # Schwarznüsse, roh
+    (71, [6, 12]),  # Schwarznüsse, getrocknet
+    (72, [6, 17, 19]),  # Erdmandeln, roh
+    (73, [6, 17, 19]),  # Erdmandeln, getrocknet
+    (74, [6, 17, 19]),  # Wassermelonenkerne, roh
+    (75, [6, 17, 19]),  # Wassermelonenkerne, geröstet
+    (76, [6, 17]),  # Basilikumsamen, roh
+    (77, [6, 17]),  # Basilikumsamen, getrocknet
+    (78, [6, 17]),  # Mohnsamen, blau, roh
+    (79, [6, 17]),  # Mohnsamen, weiß, roh
+    (80, [6, 17, 19]),  # Chiasamen, schwarz, roh
+    (81, [6, 17, 19]),  # Chiasamen, weiß, roh
+    (82, [6, 17]),  # Sesamsamen, schwarz, roh
+    (83, [6, 17]),  # Sesamsamen, weiß, roh
+    (84, [6, 17, 19]),  # Kürbiskerne, grün, roh
+    (85, [6, 17, 19]),  # Kürbiskerne, weiß, roh
+    (86, [6, 17, 19]),  # Sonnenblumenkerne, geschält, roh
+    (87, [6, 17, 19]),  # Sonnenblumenkerne, ungeschält, roh
+    (88, [6, 17, 19]),  # Leinsamen, braun, roh
+    (89, [6, 17, 19]),  # Leinsamen, golden, roh
+    (90, [6, 17, 19]),  # Hanfsamen, geschält, roh
+    (91, [6, 17, 19]),  # Hanfsamen, ungeschält, roh
+    (92, [6, 19]),  # Erdnussbutter
+    (93, [6, 19]),  # Mandelbutter
+    (94, [6, 19]),  # Cashewbutter
+    (95, [6, 19]),  # Haselnusscreme
+    (96, [6, 19]),  # Tahini (Sesampaste)
+    (97, [6, 19]),  # Pistazienpaste
+    (98, [6, 19]),  # Macadamianussbutter
+    (99, [6, 19]),  # Sonnenblumenkernbutter
+]
+
+setDatabase(tags,foodsNüsse,nutritionNüsse_facts,foodNüsse_tags)
+
+foodsBackzutaten = [
+    ("Backpulver", "Backzutat", "Ein chemisches Triebmittel, das Teige auflockert und ihnen Volumen verleiht."),
+    ("Natron (Speisesoda)", "Backzutat", "Wird als Backtriebmittel verwendet, insbesondere in Kombination mit sauren Zutaten."),
+    ("Hefe", "Backzutat", "Ein biologisches Triebmittel, das Teige durch Gärung aufgehen lässt."),
+    ("Hirschhornsalz", "Backzutat", "Ein traditionelles Backtriebmittel, hauptsächlich für flache Gebäcke wie Lebkuchen."),
+    ("Pottasche", "Backzutat", "Wird in der Weihnachtsbäckerei verwendet, um Teige aufzulockern."),
+    ("Vanillezucker", "Backzutat", "Aromatisiert Backwaren mit Vanillegeschmack."),
+    ("Zitronenschale (abgeriebene)", "Backzutat", "Verleiht Teigen und Füllungen ein frisches Aroma."),
+    ("Orangenschale (abgeriebene)", "Backzutat", "Für ein fruchtiges Aroma in Backwaren."),
+    ("Kakaopulver", "Backzutat", "Für schokoladigen Geschmack in Kuchen und Keksen."),
+    ("Schokoladenstückchen", "Backzutat", "Kleine Schokostücke, die in Teige eingearbeitet werden."),
+    ("Kuvertüre", "Backzutat", "Hochwertige Schokolade zum Überziehen von Gebäck."),
+    ("Puddingpulver", "Backzutat", "Basis für Puddingfüllungen in Kuchen und Gebäck."),
+    ("Speisestärke", "Backzutat", "Zum Binden von Füllungen und Auflockern von Teigen."),
+    ("Gelatine", "Backzutat", "Zum Gelieren von Cremes und Füllungen."),
+    ("Agar-Agar", "Backzutat", "Pflanzliches Geliermittel als Alternative zu Gelatine."),
+    ("Pektin", "Backzutat", "Natürliches Geliermittel, oft in Fruchtfüllungen verwendet."),
+    ("Tortenguss", "Backzutat", "Zum Überziehen von Obstkuchen, um einen glänzenden Abschluss zu erzielen."),
+    ("Marzipan", "Backzutat", "Süße Mandelmasse für Füllungen und Dekorationen."),
+    ("Fondant", "Backzutat", "Weiche Zuckermasse zum Überziehen und Dekorieren von Torten."),
+    ("Zitronat", "Backzutat", "Kandierte Zitronenschale, verwendet in Früchtebroten und Kuchen."),
+    ("Orangeat", "Backzutat", "Kandierte Orangenschale für aromatische Backwaren."),
+    ("Rosinen", "Backzutat", "Getrocknete Weintrauben, die in vielen Backwaren verwendet werden."),
+    ("Sultaninen", "Backzutat", "Helle Rosinen, oft in Hefeteigen verwendet."),
+    ("Korinten", "Backzutat", "Kleine, dunkle Rosinen mit intensivem Geschmack."),
+    ("Cranberries (getrocknet)", "Backzutat", "Für eine fruchtige Note in Gebäck."),
+    ("Datteln (getrocknet)", "Backzutat", "Süße Trockenfrüchte für Brote und Kuchen."),
+    ("Feigen (getrocknet)", "Backzutat", "Aromatische Ergänzung in Backwaren."),
+    ("Aprikosen (getrocknet)", "Backzutat", "Für eine fruchtige Komponente in Gebäck."),
+    ("Backoblaten", "Backzutat", "Essbare Unterlagen für Makronen und Lebkuchen."),
+    ("Mohnfüllung", "Backzutat", "Fertige Mischung für Mohnkuchen und -gebäck."),
+    ("Nussfüllung", "Backzutat", "Fertige Füllung aus gemahlenen Nüssen für Gebäck."),
+    ("Zuckerstreusel", "Dekoration", "Bunte Dekoration für Kuchen und Kekse."),
+    ("Schokostreusel", "Dekoration", "Schokoladige Dekoration für Backwaren."),
+    ("Perlzucker", "Dekoration", "Grober Zucker für dekorative Zwecke."),
+    ("Kokosraspeln", "Backzutat", "Getrocknete Kokosflocken für Teige und Dekoration."),
+    ("Mandelblättchen", "Dekoration", "Dünne Scheiben von Mandeln, oft als Topping verwendet."),
+    ("Gehackte Nüsse", "Dekoration", "Kleine Nussstücke für Teige und als Dekoration."),
+    ("Kandiszucker", "Dekoration", "Große Zuckerkristalle, die langsam schmelzen und Süße abgeben."),
+    ("Honig", "Süßungsmittel", "Natürlicher Süßstoff mit eigenem Aroma."),
+    ("Ahornsirup", "Süßungsmittel", "Süßungsmittel mit charakteristischem Geschmack."),
+    ("Agavendicksaft", "Süßungsmittel", "Pflanzlicher Süßstoff aus der Agave."),
+    ("Reissirup", "Süßungsmittel", "Milder Süßstoff aus Reis."),
+    ("Kokosblütenzucker", "Süßungsmittel", "Zucker mit karamellartigem Geschmack."),
+    ("Stevia", "Süßungsmittel", "Pflanzlicher Süßstoff ohne Kalorien."),
+    ("Erythrit", "Süßungsmittel", "Zuckeralkohol als kalorienarmer Zuckerersatz."),
+]
+nutritionBackzutaten_facts = [
+    (288, 0.0, 71.0, 0.5),   # Backpulver
+    (0, 0.0, 0.0, 0.0),      # Natron (Speisesoda)
+    (321, 40.0, 5.1, 1.2),   # Hefe
+    (0, 0.0, 0.0, 0.0),      # Hirschhornsalz
+    (0, 0.0, 0.0, 0.0),      # Pottasche
+    (374, 0.0, 93.6, 0.0),   # Vanillezucker
+    (47, 1.3, 12.2, 0.3),    # Zitronenschale (abgeriebene)
+    (47, 0.9, 11.3, 0.2),    # Orangenschale (abgeriebene)
+    (228, 19.6, 11.9, 13.7), # Kakaopulver
+    (489, 5.2, 57.0, 25.0),  # Schokoladenstückchen
+    (533, 5.4, 51.5, 31.0),  # Kuvertüre
+    (371, 0.5, 89.0, 0.2),   # Puddingpulver
+    (381, 0.2, 91.0, 0.1),   # Speisestärke
+    (346, 84.0, 0.0, 0.0),   # Gelatine
+    (26, 0.0, 0.1, 0.0),     # Agar-Agar
+    (87, 0.0, 22.0, 0.0),    # Pektin
+    (301, 0.0, 75.3, 0.0),   # Tortenguss
+    (457, 6.5, 50.0, 25.0),  # Marzipan
+    (384, 0.0, 92.5, 0.0),   # Fondant
+    (329, 0.3, 82.4, 0.2),   # Zitronat
+    (337, 0.3, 83.3, 0.1),   # Orangeat
+    (299, 3.1, 79.2, 0.5),   # Rosinen
+    (304, 3.3, 80.0, 0.5),   # Sultaninen
+    (283, 3.6, 74.1, 0.5),   # Korinten
+    (325, 1.0, 82.0, 1.5),   # Cranberries (getrocknet)
+    (282, 2.5, 65.0, 0.6),   # Datteln (getrocknet)
+    (274, 2.7, 62.0, 1.3),   # Feigen (getrocknet)
+    (241, 3.4, 62.0, 0.5),   # Aprikosen (getrocknet)
+    (367, 0.0, 90.0, 0.0),   # Backoblaten
+    (355, 6.7, 45.0, 13.0),  # Mohnfüllung
+    (418, 10.0, 34.0, 27.0), # Nussfüllung
+    (389, 0.0, 98.0, 0.0),   # Zuckerstreusel
+    (491, 2.8, 69.1, 25.6),  # Schokostreusel
+    (400, 0.0, 100.0, 0.0),  # Perlzucker
+    (660, 7.0, 23.0, 64.0),  # Kokosraspeln
+    (579, 21.2, 21.7, 49.9), # Mandelblättchen
+    (654, 15.2, 13.7, 65.2), # Gehackte Nüsse
+    (399, 0.0, 100.0, 0.0),  # Kandiszucker
+    (304, 0.3, 82.4, 0.0),   # Honig
+    (260, 0.0, 67.0, 0.1),   # Ahornsirup
+    (310, 0.0, 76.0, 0.1),   # Agavendicksaft
+    (316, 0.5, 78.0, 0.1),   # Reissirup
+    (380, 0.6, 92.0, 0.4),   # Kokosblütenzucker
+    (0, 0.0, 0.0, 0.0),      # Stevia
+    (0, 0.0, 0.0, 0.0),      # Erythrit
+]
+
+foodBackzutaten_tags = [
+    (0, [6]),  # Backpulver
+    (1, [6]),  # Natron (Speisesoda)
+    (2, [6, 22]),  # Hefe
+    (3, [6]),  # Hirschhornsalz
+    (4, [6]),  # Pottasche
+    (5, [6, 18]),  # Vanillezucker
+    (6, [6, 18]),  # Zitronenschale (abgeriebene)
+    (7, [6, 18]),  # Orangenschale (abgeriebene)
+    (8, [6, 18]),  # Kakaopulver
+    (9, [6, 18]),  # Schokoladenstückchen
+    (10, [6, 18]),  # Kuvertüre
+    (11, [6]),  # Puddingpulver
+    (12, [6]),  # Speisestärke
+    (13, [6]),  # Gelatine
+    (14, [6, 23]),  # Agar-Agar
+    (15, [6, 23]),  # Pektin
+    (16, [6]),  # Tortenguss
+    (17, [6, 18]),  # Marzipan
+    (18, [6, 18]),  # Fondant
+    (19, [6, 18]),  # Zitronat
+    (20, [6, 18]),  # Orangeat
+    (21, [6, 19]),  # Rosinen
+    (22, [6, 19]),  # Sultaninen
+    (23, [6, 19]),  # Korinten
+    (24, [6, 19]),  # Cranberries (getrocknet)
+    (25, [6, 19]),  # Datteln (getrocknet)
+    (26, [6, 19]),  # Feigen (getrocknet)
+    (27, [6, 19]),  # Aprikosen (getrocknet)
+    (28, [6]),  # Backoblaten
+    (29, [6, 18]),  # Mohnfüllung
+    (30, [6, 18]),  # Nussfüllung
+    (31, [6, 18]),  # Zuckerstreusel
+    (32, [6, 18]),  # Schokostreusel
+    (33, [6]),  # Perlzucker
+    (34, [6, 18]),  # Kokosraspeln
+    (35, [6, 18]),  # Mandelblättchen
+    (36, [6, 18]),  # Gehackte Nüsse
+    (37, [6]),  # Kandiszucker
+    (38, [6, 20]),  # Honig
+    (39, [6, 20]),  # Ahornsirup
+    (40, [6, 20]),  # Agavendicksaft
+    (41, [6, 20]),  # Reissirup
+    (42, [6, 20]),  # Kokosblütenzucker
+    (43, [6, 20]),  # Stevia
+    (44, [6, 20]),  # Erythrit
+]
