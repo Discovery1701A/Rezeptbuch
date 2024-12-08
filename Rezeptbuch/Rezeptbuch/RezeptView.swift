@@ -27,6 +27,9 @@ struct RecipeView: View {
     @State private var originDiameter : Double
     @State private var originLenght : Double
     @State private var originWidth : Double
+    var summary = NutritionSummary()
+    
+
         
     init(recipe: Recipe, modelView: ViewModel) {
         self.recipe = recipe
@@ -81,6 +84,7 @@ struct RecipeView: View {
             self.originWidth  = 0
          
         }
+        summary.calculate(from: ingredients)
      
     }
     func extractYouTubeID(from link: String) -> String? {
@@ -213,6 +217,11 @@ struct RecipeView: View {
                             
                         }
                                         }
+                        
+                            Divider().padding(.horizontal, 16)
+                           
+                                  NutritionSummaryView(summary: summary)
+                            
                             Divider().padding(.horizontal, 16)
                     RecipeIngredientsView(ingredients: ingredients)
                                 .onAppear {
@@ -528,6 +537,9 @@ struct RecipeInstructionsView: View {
     }
 }
 
+
+
+
 struct YouTubeView: UIViewRepresentable {
     var videoID: String
     
@@ -550,3 +562,73 @@ extension Double {
         return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
     }
 }
+
+
+
+// Struktur zur Zusammenfassung der Nährwerte
+struct NutritionSummary {
+    var totalCalories: Int = 0
+    var totalProtein: Double = 0.0
+    var totalCarbohydrates: Double = 0.0
+    var totalFat: Double = 0.0
+
+    mutating func calculate(from items: [FoodItemStruct]) {
+        totalCalories = 0
+        totalProtein = 0.0
+        totalCarbohydrates = 0.0
+        totalFat = 0.0
+
+        for item in items {
+            if let nutrition = item.food.nutritionFacts {
+                print(nutrition)
+                totalCalories += Int(Double(nutrition.calories ?? 0) * item.quantity / 100)
+                totalProtein += (nutrition.protein ?? 0.0) * item.quantity / 100
+                totalCarbohydrates += (nutrition.carbohydrates ?? 0.0) * item.quantity / 100
+                totalFat += (nutrition.fat ?? 0.0) * item.quantity / 100
+            }
+        }
+    
+    }
+}
+
+struct NutritionSummaryView: View {
+    let summary: NutritionSummary
+
+    var body: some View {
+        VStack {
+            Text("Nährwerte")
+                .font(.headline)
+                .padding()
+
+            HStack {
+                NutritionBar(value: summary.totalCalories, label: "Kalorien", color: .red)
+                NutritionBar(value: Int(summary.totalProtein), label: "Protein", color: .blue)
+                NutritionBar(value: Int(summary.totalCarbohydrates), label: "Kohlenhydrate", color: .green)
+                NutritionBar(value: Int(summary.totalFat), label: "Fett", color: .yellow)
+            }
+            .padding()
+        }
+    }
+}
+
+// Hilfskomponente für Balkendiagramme
+struct NutritionBar: View {
+    var value: Int
+    var label: String
+    var color: Color
+
+    var body: some View {
+        VStack {
+            
+             Text(label)
+                 .font(.caption)
+                 .rotationEffect(.degrees(-45))
+                 .padding(.vertical)
+            Text("\(value)")
+                .font(.caption)
+                .padding(.vertical)
+        
+        }
+    }
+}
+
