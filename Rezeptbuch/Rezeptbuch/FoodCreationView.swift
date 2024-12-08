@@ -17,12 +17,16 @@ struct FoodCreationView: View {
     @State private var protein = ""
     @State private var carbohydrates = ""
     @State private var fat = ""
+    @State private var allTags: [TagStruct]
+    @State private var selectedTags: Set<UUID>
     var existingFood: FoodStruct? = nil
     
     init(modelView: ViewModel, existingFood: FoodStruct? = nil, onSave: @escaping () -> Void) {
         self.modelView = modelView
         self.existingFood = existingFood
         self.onSave = onSave
+        self.allTags = modelView.tags
+        self.selectedTags = []
 
         // Lade die bestehenden Daten, falls vorhanden
         if let existingFood = existingFood {
@@ -33,6 +37,10 @@ struct FoodCreationView: View {
             _protein = State(initialValue: "\(existingFood.nutritionFacts?.protein ?? 0.0)")
             _carbohydrates = State(initialValue: "\(existingFood.nutritionFacts?.carbohydrates ?? 0.0)")
             _fat = State(initialValue: "\(existingFood.nutritionFacts?.fat ?? 0.0)")
+            let tagStructs = existingFood.tags!.compactMap {  $0}
+            _selectedTags = State(initialValue: Set(tagStructs.map(\.id)))
+
+        
         }
     }
 
@@ -68,6 +76,9 @@ struct FoodCreationView: View {
                 TextField("Lebensmittelname", text: $foodName)
                 TextField("Kategorie", text: $foodCategory)
                 TextField("Info", text: $foodInfo)
+            }
+            Section(header: Text("Tags")){
+                TagsSectionView( allTags: $allTags, selectedTags: $selectedTags)
             }
 #if os(macOS)
             Section(header: Text("Nährwertangaben auf 100g")) {
@@ -116,20 +127,25 @@ struct FoodCreationView: View {
         let proteinValue = protein.isEmpty ? nil : Double(protein)
         let carbohydratesValue = carbohydrates.isEmpty ? nil : Double(carbohydrates)
         let fatValue = fat.isEmpty ? nil : Double(fat)
+        let tags = selectedTags.isEmpty ? nil : allTags.filter { selectedTags.contains($0.id) }
+               
+           
 
         let nutritionFacts = NutritionFactsStruct(
             calories: caloriesValue, protein: proteinValue,
             carbohydrates: carbohydratesValue, fat: fatValue
         )
-
+     
         if let existingFood = existingFood {
             // Aktualisiere die bestehende Zutat
+          
             let updatedFood = FoodStruct(
                 id: existingFood.id,
                 name: foodName,
                 category: category,
                 info: info,
-                nutritionFacts: nutritionFacts
+                nutritionFacts: nutritionFacts,
+                tags: tags
             )
             CoreDataManager().updateFood(foodStruct: updatedFood)
         } else {
@@ -139,7 +155,8 @@ struct FoodCreationView: View {
                 name: foodName,
                 category: category,
                 info: info,
-                nutritionFacts: nutritionFacts
+                nutritionFacts: nutritionFacts,
+                tags: tags
             )
             CoreDataManager().saveFood(foodStruct: newFood)
         }

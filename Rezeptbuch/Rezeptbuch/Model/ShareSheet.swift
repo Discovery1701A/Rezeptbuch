@@ -274,6 +274,7 @@ func deserializePlistToRecipe(plistData: Data) -> Recipe? {
                        let foodId = UUID(uuidString: foodDict["id"] as? String ?? ""),
                        let unitString = ingredientDict["unit"] as? String,
                        let unit = Unit(rawValue: unitString),
+                       let id = UUID(uuidString: ingredientDict["id"] as? String ?? ""),
                        let quantity = ingredientDict["quantity"] as? Double {
 
                         let nutritionFacts = NutritionFactsStruct(
@@ -292,7 +293,7 @@ func deserializePlistToRecipe(plistData: Data) -> Recipe? {
                             tags: [] // Tags handling might be added here similarly
                         )
 
-                        let foodItem = FoodItemStruct(food: food, unit: unit, quantity: quantity)
+                        let foodItem = FoodItemStruct(food: food, unit: unit, quantity: quantity, id: id)
                         ingredients.append(foodItem)
                     }
                 }

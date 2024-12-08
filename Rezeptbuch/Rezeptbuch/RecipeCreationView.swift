@@ -338,7 +338,8 @@ struct RecipeCreationView: View {
             if foods[i] != emptyFood {
                 ingredients[i] = FoodItemStruct(food: foods[i],
                                                 unit: selectedUnit[i],
-                                                quantity: Double(quantity[i])!)
+                                                quantity: Double(quantity[i])!,
+                                                id : UUID())
             }
         }
         

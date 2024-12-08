@@ -69,11 +69,11 @@ let pastaRecipe = Recipe(
     id: UUID(),
     title: "Spaghetti Bolognese",
     ingredients: [
-        FoodItemStruct(food: FoodStruct(id: UUID(), name: "Hackfleisch", category: "Fleisch & Wurst"), unit: .gram, quantity: 500),
-        FoodItemStruct(food: FoodStruct(id: UUID(), name: "Zwiebel", category: "Gemüse"), unit: .piece, quantity: 1),
-        FoodItemStruct(food: FoodStruct(id: UUID(), name: "Knoblauchzehen", category: "Gemüse"), unit: .piece, quantity: 2),
-        FoodItemStruct(food: FoodStruct(id: UUID(), name: "Tomatensoße", category: "Saucen"), unit: .milliliter, quantity: 500),
-        FoodItemStruct(food: FoodStruct(id: UUID(), name: "Spaghetti", category: "Nudeln & Teigwaren"), unit: .gram, quantity: 250)
+        FoodItemStruct(food: FoodStruct(id: UUID(), name: "Hackfleisch", category: "Fleisch & Wurst"), unit: .gram, quantity: 500, id: UUID()),
+        FoodItemStruct(food: FoodStruct(id: UUID(), name: "Zwiebel", category: "Gemüse"), unit: .piece, quantity: 1, id: UUID()),
+        FoodItemStruct(food: FoodStruct(id: UUID(), name: "Knoblauchzehen", category: "Gemüse"), unit: .piece, quantity: 2, id: UUID()),
+        FoodItemStruct(food: FoodStruct(id: UUID(), name: "Tomatensoße", category: "Saucen"), unit: .milliliter, quantity: 500, id: UUID()),
+        FoodItemStruct(food: FoodStruct(id: UUID(), name: "Spaghetti", category: "Nudeln & Teigwaren"), unit: .gram, quantity: 250, id: UUID())
     ],
     instructions: [
         "Hackfleisch anbraten",
@@ -90,13 +90,13 @@ let brownieRecipe = Recipe(
     id: UUID(),
     title: "Brownie",
     ingredients: [
-        FoodItemStruct(food: zartbitterSchokolade, unit: .gram, quantity: 250),
-        FoodItemStruct(food: butter, unit: .gram, quantity: 250),
-        FoodItemStruct(food: vanilleExtrakt, unit: .teaspoon, quantity: 1),
-        FoodItemStruct(food: zucker, unit: .gram, quantity: 350),
-        FoodItemStruct(food: eier, unit: .piece, quantity: 6),
-        FoodItemStruct(food: mehl, unit: .gram, quantity: 150),
-        FoodItemStruct(food: schokostücke, unit: .gram, quantity: 200)
+        FoodItemStruct(food: zartbitterSchokolade, unit: .gram, quantity: 250, id: UUID()),
+        FoodItemStruct(food: butter, unit: .gram, quantity: 250, id: UUID()),
+        FoodItemStruct(food: vanilleExtrakt, unit: .teaspoon, quantity: 1, id: UUID()),
+        FoodItemStruct(food: zucker, unit: .gram, quantity: 350, id: UUID()),
+        FoodItemStruct(food: eier, unit: .piece, quantity: 6, id: UUID()),
+        FoodItemStruct(food: mehl, unit: .gram, quantity: 150, id: UUID()),
+        FoodItemStruct(food: schokostücke, unit: .gram, quantity: 200, id: UUID())
     ],
     instructions: [
         "Ofen auf 180°C vorheizen",

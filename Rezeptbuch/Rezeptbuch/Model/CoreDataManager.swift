@@ -302,6 +302,7 @@ class CoreDataManager {
         } else {
             let newTag = Tag(context: managedContext)
             newTag.name = name
+            newTag.id = UUID()
             return newTag
         }
     }
@@ -312,9 +313,10 @@ class CoreDataManager {
         let predicateName = NSPredicate(format: "food.name == %@", item.food.name)
         let predicateUnit = NSPredicate(format: "unit == %@", Unit.toString(item.unit))
         let predicateQuantity = NSPredicate(format: "quantity == %lf", item.quantity)
+        let predictionid = NSPredicate(format: "id == %@", item.id as CVarArg)
         
         // Kombiniere alle drei Predikate zu einem einzigen zusammengesetzten Prädikat
-        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicateName, predicateUnit, predicateQuantity])
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicateName, predicateUnit, predicateQuantity,predictionid])
         fetchRequest.predicate = compoundPredicate
 
         if let existingItem = try? managedContext.fetch(fetchRequest).first {
@@ -327,6 +329,7 @@ class CoreDataManager {
             newFoodItem.food = food
             newFoodItem.unit = Unit.toString(item.unit)
             newFoodItem.quantity = item.quantity
+            newFoodItem.id = item.id
             return newFoodItem
         }
     }
@@ -353,7 +356,7 @@ class CoreDataManager {
                     let nutrition = NutritionFacts(context: managedContext)
                 
                     nutrition.calories = Int64(facts.calories ?? 0)
-                print("kallooss",facts.calories)
+//                print("kallooss",facts.calories)
                     nutrition.protein = facts.protein ?? 0.0
                     nutrition.carbohydrates = facts.carbohydrates ?? 0.0
                     nutrition.fat = facts.fat ?? 0.0
@@ -368,6 +371,7 @@ class CoreDataManager {
         food.name = foodStruct.name
         food.category = foodStruct.category
         food.info = foodStruct.info
+        food.id = foodStruct.id
             
         if let tags = foodStruct.tags {
             for tag in tags {
@@ -393,9 +397,20 @@ class CoreDataManager {
     
     func updateFood(foodStruct: FoodStruct) {
         let fetchRequest: NSFetchRequest<Food> = Food.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", foodStruct.id as CVarArg)
+        
+        fetchRequest.predicate = NSPredicate(format: "id == %@", foodStruct.id.uuidString)
+
 
         do {
+            let allFoods = try managedContext.fetch(Food.fetchRequest())
+            for food in allFoods {
+                if let id = food.id {
+                    print("Valid UUID: \(id)")
+                } else {
+                    print("Invalid UUID: \(food)")
+                }
+            }
+
             if let existingFood = try managedContext.fetch(fetchRequest).first {
                 // Aktualisiere die vorhandene Food-Entität
                 existingFood.name = foodStruct.name
@@ -600,6 +615,7 @@ extension FoodItemStruct {
         food = FoodStruct(from: managedObject.food!)
         unit = Unit.fromString(managedObject.unit ?? "") ?? .gram
         quantity = managedObject.quantity
+        id = managedObject.id ?? UUID()
     }
 }
 
