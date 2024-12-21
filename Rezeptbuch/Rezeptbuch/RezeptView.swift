@@ -502,23 +502,77 @@ struct RecipeTagsView: View {
     }
 }
 
-struct RecipeIngredientsView: View {
-    var ingredients: [FoodItemStruct]
+import SwiftUI
 
+struct RecipeIngredientsView: View {
+    @State var ingredients: [FoodItemStruct] // Ingredients als @State, da wir Änderungen verfolgen müssen
+    @State private var showingPickerIndex: Int? // Index des aktuellen Pickers, der angezeigt wird
+    @State private var unitSelection: [Unit] // Separate Unit-Auswahl
+
+      init(ingredients: [FoodItemStruct]) {
+          self._ingredients = State(initialValue: ingredients)
+          self._unitSelection = State(initialValue: ingredients.map { $0.unit }) // Initialisierung
+      }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text("Zutaten:")
                 .font(.headline)
                 .multilineTextAlignment(.center)
-            ForEach(ingredients, id: \.self) { ingredient in
-                Text("\(ingredient.quantity.rounded(toPlaces: 2).formatted(toPlaces: 2)) \(ingredient.unit.rawValue) \(ingredient.food.name)")
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            
+            ForEach(ingredients.indices, id: \.self) { index in
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("\(ingredients[index].food.name)")
+                            .font(.body)
+                        
+                        HStack {
+                            Text("\(ingredients[index].quantity.rounded(toPlaces: 2).formatted(toPlaces: 2))")
+                                .font(.subheadline)
+                            
+                            // Einheit mit LongPressGesture
+                            Text(ingredients[index].unit.rawValue)
+                                .font(.subheadline)
+                                .onLongPressGesture {
+                                    showingPickerIndex = index // Picker anzeigen
+                                }
+                        }
+                        .padding(.bottom, 5)
+                    }
+                    
+                    // Picker nur anzeigen, wenn der Index übereinstimmt
+                    if showingPickerIndex == index, ingredients[index].food.density != nil {
+                        Picker("Einheit", selection: $unitSelection[index]) {
+                            ForEach(Unit.allCases, id: \.self) { unit in
+                                Text(unit.rawValue).tag(unit)
+                            }
+                        }
+                        .pickerStyle(WheelPickerStyle())
+                        .frame(maxWidth: 120)
+                        .onChange(of: unitSelection[index]) { newUnit in
+                            // Umrechnung der Menge beim Ändern der Einheit
+                            if let newQuantity = Unit.convert(
+                                value: ingredients[index].quantity,
+                                from: ingredients[index].unit,
+                                to: newUnit,
+                                density: ingredients[index].food.density ?? 0
+                            ) {
+                                print("fjvndfovnfovnfoivno",newQuantity)
+                                ingredients[index].quantity = newQuantity
+                                ingredients[index].unit = newUnit
+                            }
+                            showingPickerIndex = nil // Picker ausblenden
+                        }
+                    }
+                }
+                .padding()
             }
         }
+        .padding()
     }
 }
+
+
 
 struct RecipeInstructionsView: View {
     var instructions: [String]
@@ -577,14 +631,15 @@ struct NutritionSummary {
         totalProtein = 0.0
         totalCarbohydrates = 0.0
         totalFat = 0.0
-
+       
         for item in items {
+           
             if let nutrition = item.food.nutritionFacts {
                 print(nutrition)
-                totalCalories += Int(Double(nutrition.calories ?? 0) * item.quantity / 100)
-                totalProtein += (nutrition.protein ?? 0.0) * item.quantity / 100
-                totalCarbohydrates += (nutrition.carbohydrates ?? 0.0) * item.quantity / 100
-                totalFat += (nutrition.fat ?? 0.0) * item.quantity / 100
+                totalCalories += Int(Double(nutrition.calories ?? 0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100)
+                totalProtein += (nutrition.protein ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
+                totalCarbohydrates += (nutrition.carbohydrates ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
+                totalFat += (nutrition.fat ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
             }
         }
     

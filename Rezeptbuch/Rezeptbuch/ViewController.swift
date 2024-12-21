@@ -161,7 +161,6 @@ struct FoodItemStruct: Hashable, Equatable {
     }
 }
 
-// Enumerations for various details within the data model
 enum Unit: String, CaseIterable {
     case gram = "g"
     case kilogram = "kg"
@@ -169,6 +168,7 @@ enum Unit: String, CaseIterable {
     case liter = "l"
     case piece = "Stk"
     case teaspoon = "Teelöffel"
+    case tablespoon = "Esslöffel"
 
     static func fromString(_ stringValue: String) -> Unit? {
         return Unit(rawValue: stringValue)
@@ -177,7 +177,59 @@ enum Unit: String, CaseIterable {
     static func toString(_ unit: Unit) -> String {
         return unit.rawValue
     }
-}
+
+   
+    static func convert(value: Double, from: Unit, to: Unit, density: Double = 1.0) -> Double? {
+            guard density > 0 else { return nil } // Dichte muss positiv sein
+
+        print("fdvfvf",from)
+            // Schritt 1: Umrechnung in die Basiseinheit
+            let baseValue: Double? = {
+                switch from {
+                case .gram:
+                    return value
+                case .kilogram:
+                    return value * 1000.0
+                case .milliliter:
+                    return value * density
+                case .liter:
+                    return value * 1000.0 * density
+                case .teaspoon:
+                    return value * density * 5.0 // 1 Teelöffel = 5 ml
+                case .tablespoon:
+                    return value * density * 15.0 // 1 Esslöffel = 15 ml
+                case .piece:
+                    return nil // Stück kann nicht in Basiseinheit umgerechnet werden
+                }
+            }()
+
+            guard let base = baseValue else { return nil }
+
+            // Schritt 2: Umrechnung von der Basiseinheit in die Ziel-Einheit
+        print("dfivfivnfovifvo", base)
+            return {
+                switch to {
+                case .gram:
+                    return (base)
+                case .kilogram:
+                    print("kllllll")
+                    return (base / 1000.0)
+                case .milliliter:
+                    return (base / density)
+                case .liter:
+                    return (base / 1000.0 / density)
+                case .teaspoon:
+                    return (base / 5.0 / density)
+                case .tablespoon:
+                    return (base / 15.0 /  density)
+                case .piece:
+                    return nil // Stück kann nicht dichtebasiert umgerechnet werden
+                }
+            }()
+        }
+    }
+
+
 
 enum PortionsInfo: Equatable {
     case Portion(Double)
