@@ -344,6 +344,7 @@ class CoreDataManager {
             let newFood = Food(context: managedContext)
             newFood.name = foodStruct.name
             newFood.category = foodStruct.category
+            newFood.density = foodStruct.density as? NSNumber
             newFood.info = foodStruct.info
             newFood.id = foodStruct.id
             if let tags = foodStruct.tags {
@@ -370,6 +371,7 @@ class CoreDataManager {
             let food = Food(context: managedContext)
         food.name = foodStruct.name
         food.category = foodStruct.category
+        food.density = foodStruct.density as? NSNumber
         food.info = foodStruct.info
         food.id = foodStruct.id
             
@@ -416,6 +418,7 @@ class CoreDataManager {
                 existingFood.name = foodStruct.name
                 existingFood.category = foodStruct.category
                 existingFood.info = foodStruct.info
+                existingFood.density = foodStruct.density as? NSNumber
                 
                 // Aktualisiere Tags
                 if let tags = foodStruct.tags {
@@ -624,6 +627,7 @@ extension FoodStruct {
     init(from managedObject: Food) {
         self.name = managedObject.name ?? ""
         self.category = managedObject.category
+        self.density = managedObject.density as? Double
         self.info = managedObject.info
         self.nutritionFacts = NutritionFactsStruct(from: managedObject.nutritionFacts)
         self.id = managedObject.id ?? UUID()

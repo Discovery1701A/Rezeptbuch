@@ -42,6 +42,7 @@ struct FoodStruct: Hashable, Equatable, Identifiable {
     var id: UUID
     var name: String
     var category: String?
+    var density : Double?
     var info: String?
     var nutritionFacts: NutritionFactsStruct?
     var tags: [TagStruct]?
@@ -49,6 +50,7 @@ struct FoodStruct: Hashable, Equatable, Identifiable {
     static func == (lhs: FoodStruct, rhs: FoodStruct) -> Bool {
         return lhs.name == rhs.name &&
                lhs.category == rhs.category &&
+            lhs.density == rhs.density &&
                lhs.info == rhs.info &&
                lhs.nutritionFacts == rhs.nutritionFacts &&
                lhs.tags == rhs.tags
@@ -57,6 +59,7 @@ struct FoodStruct: Hashable, Equatable, Identifiable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(name)
         hasher.combine(category)
+        hasher.combine(density)
         hasher.combine(info)
         hasher.combine(nutritionFacts)
         hasher.combine(tags)

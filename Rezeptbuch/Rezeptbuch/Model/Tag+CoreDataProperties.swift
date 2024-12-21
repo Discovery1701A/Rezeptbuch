@@ -2,7 +2,7 @@
 //  Tag+CoreDataProperties.swift
 //  Rezeptbuch
 //
-//  Created by Anna Rieckmann on 08.12.24.
+//  Created by Anna Rieckmann on 21.12.24.
 //
 //
 

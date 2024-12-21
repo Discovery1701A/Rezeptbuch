@@ -2,7 +2,7 @@
 //  Food+CoreDataProperties.swift
 //  Rezeptbuch
 //
-//  Created by Anna Rieckmann on 08.12.24.
+//  Created by Anna Rieckmann on 21.12.24.
 //
 //
 
@@ -20,6 +20,7 @@ extension Food {
     @NSManaged public var id: UUID?
     @NSManaged public var info: String?
     @NSManaged public var name: String?
+    @NSManaged public var density: NSNumber?
     @NSManaged public var foodItem: NSSet?
     @NSManaged public var nutritionFacts: NutritionFacts?
     @NSManaged public var tags: NSSet?

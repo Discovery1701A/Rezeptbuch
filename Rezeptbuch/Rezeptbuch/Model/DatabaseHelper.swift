@@ -91,12 +91,13 @@ class DatabaseService {
 
     func loadFoods() -> [FoodStruct] {
         print("lade")
-        let query = "SELECT id, name, category, info FROM Food;"
+        let query = "SELECT id, name, category, info, density FROM Food;"
         return dbHelper.fetchAllRows(query: query) { stmt in
             let id = UUID(uuidString: String(cString: sqlite3_column_text(stmt, 0))) ?? UUID()
             let name = String(cString: sqlite3_column_text(stmt, 1))
             let category = String(cString: sqlite3_column_text(stmt, 2))
             let info = String(cString: sqlite3_column_text(stmt, 3))
+            let density = Double(sqlite3_column_double(stmt, 4))
 
             let nutritionFacts = self.loadNutritionFacts(for: id)
             let tags = self.loadFoodTags(for: id)
@@ -105,6 +106,7 @@ class DatabaseService {
                 id: id,
                 name: name,
                 category: category,
+                density: density,
                 info: info,
                 nutritionFacts: nutritionFacts,
                 tags: tags

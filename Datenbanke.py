@@ -1,7 +1,7 @@
 import sqlite3
 import uuid
 
-def setDatabase(tags, foods, nutrition_facts, food_tags):
+def setDatabase(tags, foods, nutrition_facts, food_tags, densities):
     # Verbindung zur SQLite-Datenbank herstellen (erstellt die Datei, falls nicht vorhanden)
     conn = sqlite3.connect('/Users/annarieckmann/Documents/GitHub/Rezeptbuch/Rezeptbuch.sqlite')
     cursor = conn.cursor()
@@ -12,7 +12,8 @@ def setDatabase(tags, foods, nutrition_facts, food_tags):
             id TEXT PRIMARY KEY,
             name TEXT,
             category TEXT,
-            info TEXT
+            info TEXT,
+            density REAL
         )
     ''')
 
@@ -65,7 +66,9 @@ def setDatabase(tags, foods, nutrition_facts, food_tags):
     # Lebensmittel und Nährwerte einfügen
     for i, (food, nutrition) in enumerate(zip(foods, nutrition_facts)):
         food_id = str(uuid.uuid4())
-        cursor.execute('INSERT INTO Food (id, name, category, info) VALUES (?, ?, ?, ?)', (food_id, food[0], food[1], food[2]))
+        density = densities[i] if densities[i] is not None else None  # Falls keine Dichte verfügbar ist, None verwenden
+        cursor.execute('INSERT INTO Food (id, name, category, info, density) VALUES (?, ?, ?, ?, ?)', 
+                       (food_id, food[0], food[1], food[2], density))
         cursor.execute('INSERT INTO NutritionFacts (id, calories, protein, carbohydrates, fat, food_id) VALUES (?, ?, ?, ?, ?, ?)',
                        (str(uuid.uuid4()), nutrition[0], nutrition[1], nutrition[2], nutrition[3], food_id))
         
@@ -251,6 +254,90 @@ nutritionGemüse_facts = [
     (41, 0.9, 9.2, 0.1),   # Feigenkaktus
     (19, 1.8, 3.2, 0.3)    # Malabarspinat
 ]
+dichtenGemüse = [
+    0.94,  # Zwiebel, frisch
+    0.85,  # Tomaten, frisch
+    0.95,  # Rote Paprika
+    0.92,  # Karotten
+    0.60,  # Brokkoli
+    0.65,  # Blumenkohl
+    0.91,  # Spinat
+    0.98,  # Gurke
+    0.93,  # Aubergine
+    0.94,  # Zucchini
+    0.80,  # Kartoffeln
+    0.80,  # Kürbis
+    0.93,  # Knoblauch
+    0.85,  # Eisbergsalat
+    0.60,  # Spargel
+    0.80,  # Rosenkohl
+    0.80,  # Rettich
+    0.90,  # Radieschen
+    0.88,  # Kohlrabi
+    0.85,  # Sellerie
+    0.91,  # Lauch
+    0.92,  # Rucola
+    0.80,  # Fenchel
+    0.93,  # Grüner Paprika
+    0.95,  # Weißkohl
+    0.96,  # Rotkohl
+    0.90,  # Mangold
+    0.89,  # Kohlrübe
+    0.90,  # Bohnen, grün
+    0.72,  # Erbsen
+    0.73,  # Mais
+    0.91,  # Okra
+    0.65,  # Artischocken
+    0.82,  # Süßkartoffeln
+    0.80,  # Chinakohl
+    0.82,  # Bok Choy
+    0.91,  # Kresse
+    0.80,  # Rettich, rot
+    0.78,  # Schwarzwurzeln
+    0.75,  # Wirsing
+    0.92,  # Endivien
+    0.82,  # Pak Choi
+    0.85,  # Batavia-Salat
+    0.60,  # Grünkohl
+    0.80,  # Topinambur
+    0.78,  # Pastinaken
+    0.78,  # Mairübe
+    0.90,  # Löwenzahnblätter
+    0.92,  # Portulak
+    0.95,  # Gartenkresse
+    0.85,  # Radicchio
+    0.80,  # Chicorée
+    0.92,  # Sauerampfer
+    0.92,  # Brunnenkresse
+    0.94,  # Bambussprossen
+    0.95,  # Zuckerschoten
+    0.94,  # Schalotten
+    0.90,  # Knollensellerie
+    0.90,  # Romanesco
+    0.78,  # Meerrettich
+    0.80,  # Rote Bete
+    0.95,  # Chayote
+    0.84,  # Yacon
+    0.85,  # Petersilienwurzel
+    0.94,  # Wasabi
+    0.91,  # Eichblattsalat
+    0.92,  # Mizuna
+    0.90,  # Grüne Bohnen
+    0.92,  # Kaiserschoten
+    0.93,  # Gelbe Paprika
+    0.91,  # Lila Karotten
+    0.80,  # Spaghettikürbis
+    0.92,  # Klettenwurzel
+    0.80,  # Herbstkürbis
+    0.82,  # Yamswurzel
+    0.85,  # Puntarelle
+    0.90,  # Palmherzen
+    0.94,  # Gelbe Zucchini
+    0.85,  # Kohlblätter
+    0.91,  # Feigenkaktus
+    0.92,  # Malabarspinat
+]
+
 
 tags = [
     ("Gemüse",),
@@ -390,7 +477,7 @@ foodGemüse_tags = [
 ]
 
 # Gemüse
-setDatabase( tags,foodsGemüse,nutritionGemüse_facts, foodGemüse_tags)
+setDatabase( tags,foodsGemüse,nutritionGemüse_facts, foodGemüse_tags, dichtenGemüse)
 
 
 
@@ -494,6 +581,108 @@ foodsObst = [
     ("Tamarillo", "Obst", "Frische Tamarillo, auch Baumtomate genannt, reich an Vitamin C und Ballaststoffen, unterstützt die Verdauung."),
     ("Wachsapfel", "Obst", "Frischer Wachsapfel, reich an Vitamin C und Antioxidantien, unterstützt die Hautgesundheit und das Immunsystem.")
 ]
+
+dichten_obst = [
+    0.85,  # Apfel
+    0.94,  # Banane
+    0.61,  # Erdbeere
+    0.96,  # Orange
+    0.65,  # Blaubeere
+    0.85,  # Kirsche
+    0.90,  # Wassermelone
+    0.80,  # Pfirsich
+    0.60,  # Birne
+    0.88,  # Kiwi
+    0.93,  # Ananas
+    0.95,  # Mango
+    0.97,  # Granatapfel
+    0.69,  # Traube
+    0.88,  # Papaya
+    0.94,  # Feige
+    0.96,  # Zitrone
+    0.85,  # Aprikose
+    0.95,  # Passionsfrucht
+    0.60,  # Himbeere
+    0.63,  # Johannisbeere
+    0.64,  # Brombeere
+    0.91,  # Melone
+    0.89,  # Nektarine
+    0.86,  # Guave
+    0.82,  # Litschi
+    0.95,  # Drachenfrucht
+    0.92,  # Kaktusfeige
+    0.94,  # Maracuja
+    0.93,  # Quitte
+    0.86,  # Sternfrucht
+    0.92,  # Kumquat
+    0.90,  # Mandarine
+    0.94,  # Cranberry
+    0.93,  # Pflaume
+    0.89,  # Kaktusbirne
+    0.94,  # Jujube
+    0.86,  # Physalis
+    0.92,  # Pomelo
+    0.90,  # Dattel
+    0.87,  # Zuckerapfel
+    0.85,  # Schlehe
+    0.93,  # Kirschtomate
+    0.88,  # Cantaloupe
+    0.93,  # Salak
+    0.89,  # Mangostan
+    0.90,  # Longan
+    0.92,  # Rambutan
+    0.89,  # Maulbeere
+    0.85,  # Mirabelle
+    0.89,  # Nashi-Birne
+    0.86,  # Gojibeere
+    0.95,  # Pampelmuse
+    0.90,  # Buddhas Hand
+    0.92,  # Rosenapfel
+    0.87,  # Hagebutte
+    0.88,  # Jackfrucht
+    0.92,  # Akebia
+    0.85,  # Durian
+    0.92,  # Sapote
+    0.90,  # Satsuma
+    0.88,  # Fingerlimette
+    0.89,  # Loquat
+    0.91,  # Cloudberry
+    0.92,  # Ackerminze
+    0.86,  # Kapstachelbeere
+    0.90,  # Cherimoya
+    0.89,  # Kaffirlimette
+    0.88,  # Pepino
+    0.94,  # Jocote
+    0.93,  # Korallenbeere
+    0.92,  # Medlar
+    0.94,  # Santol
+    0.89,  # Ugli-Frucht
+    0.94,  # Monstera
+    0.88,  # Guanabana
+    0.91,  # Hainbuche
+    0.93,  # Jabotikaba
+    0.87,  # Sapodilla
+    0.92,  # Sauerampfer
+    0.89,  # Weinbergpfirsich
+    0.90,  # Wollmispel
+    0.94,  # Starapple
+    0.86,  # Ziziphus
+    0.88,  # Ackerlupine
+    0.91,  # Amerikanische Persimone
+    0.88,  # Bitterorange
+    0.95,  # Brotfrucht
+    0.90,  # Kastanienkirsche
+    0.94,  # Keule
+    0.92,  # Mispel
+    0.87,  # Paradiesfeige
+    0.94,  # Prunus
+    0.93,  # Purpurgranatapfel
+    0.92,  # Schwarze Sapote
+    0.86,  # Sommerhimbeere
+    0.88,  # Tamarillo
+    0.91,  # Wachsapfel
+]
+
 nutritionObst_facts = [
     (52, 0.3, 13.8, 0.2),   # Apfel
     (89, 1.1, 22.8, 0.3),   # Banane
@@ -699,7 +888,7 @@ foodObst_tags = [
 
 
 # Obst
-setDatabase( tags,foodsObst,nutritionObst_facts, foodObst_tags)
+setDatabase( tags,foodsObst,nutritionObst_facts, foodObst_tags, dichten_obst)
 
 
 foodsFleisch = [
@@ -804,6 +993,110 @@ foodsFleisch = [
     ("Fasanenkeulen", "Fleisch", "Saftige Fasanenkeulen, ideal für Schmorgerichte."),
     ("Hasenrücken", "Fleisch", "Zarter Hasenrücken, ideal für feine Braten.")
 ]
+
+dichten_fleisch = [
+    1.05,  # Rinderfilet
+    1.03,  # Rinderhüfte
+    1.04,  # Rinderbrust
+    1.10,  # Rinderknochenmark
+    1.06,  # Rinderhackfleisch
+    1.04,  # Rinderzunge
+    1.06,  # Rinderleber
+    1.04,  # Rinderschulter
+    1.05,  # Rindersteak
+    1.03,  # Entrecôte (Rind)
+    1.02,  # Tafelspitz (Rind)
+    1.05,  # Rinderbacke
+    1.04,  # Rinderkotelett
+    1.06,  # Kalbsfilet
+    1.05,  # Kalbsschnitzel
+    1.04,  # Kalbsrücken
+    1.05,  # Kalbsbäckchen
+    1.03,  # Kalbshaxe
+    1.07,  # Kalbsleber
+    1.06,  # Kalbsnieren
+    1.05,  # Kalbszunge
+    1.04,  # Kalbsbrust
+    1.03,  # Schweinefilet
+    1.08,  # Schweinebauch
+    1.04,  # Schweinekotelett
+    1.03,  # Schweineschnitzel
+    1.05,  # Schweineschulter
+    1.06,  # Schweinehaxe
+    1.04,  # Schweinerücken
+    1.07,  # Schweineleber
+    1.05,  # Schweinebacke
+    1.09,  # Schweinespeck
+    1.05,  # Schweineohren
+    1.04,  # Schweinefuß
+    1.03,  # Schweineherz
+    1.05,  # Schweinezunge
+    1.04,  # Lammkeule
+    1.03,  # Lammkotelett
+    1.03,  # Lammrücken
+    1.05,  # Lammhaxe
+    1.04,  # Lammschulter
+    1.06,  # Lammfilet
+    1.07,  # Lammleber
+    1.06,  # Lammnieren
+    1.04,  # Lammbrust
+    1.04,  # Ziegenkeule
+    1.03,  # Ziegenrücken
+    1.03,  # Ziegenkotelett
+    1.06,  # Ziegenfilet
+    1.03,  # Hähnchenbrust
+    1.04,  # Hähnchenkeulen
+    1.04,  # Hähnchenflügel
+    1.05,  # Hähnchenrücken
+    1.06,  # Hähnchenleber
+    1.04,  # Hähnchenherz
+    1.05,  # Hähnchenflügelspitzen
+    1.03,  # Entenbrust
+    1.04,  # Entenkeulen
+    1.05,  # Entenrücken
+    1.07,  # Entenleber
+    1.04,  # Entenflügel
+    1.05,  # Entenhals
+    1.03,  # Gänsebrust
+    1.04,  # Gänsekeulen
+    1.07,  # Gänseleber
+    1.04,  # Gänseherz
+    1.05,  # Gänsehals
+    1.04,  # Wildschweinrücken
+    1.05,  # Wildschweinkeule
+    1.06,  # Wildschweinfilet
+    1.05,  # Wildschweinhaxe
+    1.03,  # Hirschrücken
+    1.04,  # Hirschkeule
+    1.05,  # Hirschfilet
+    1.05,  # Hirschmedaillons
+    1.03,  # Rehrücken
+    1.04,  # Rehkeule
+    1.05,  # Rehfilet
+    1.06,  # Rehleber
+    1.03,  # Taubenbrust
+    1.04,  # Wachtelkeulen
+    1.04,  # Wachtelbrust
+    1.03,  # Kaninchenkeule
+    1.03,  # Kaninchenrücken
+    1.07,  # Kaninchenleber
+    1.04,  # Ziegenherz
+    1.03,  # Truthahnbrust
+    1.04,  # Truthahnkeule
+    1.05,  # Truthahnflügel
+    1.06,  # Straußenfilet
+    1.05,  # Straußensteak
+    1.05,  # Kängurufilet
+    1.05,  # Känguru-Hüftsteak
+    1.05,  # Bisonfilet
+    1.04,  # Bisonrücken
+    1.04,  # Perlhuhnkeulen
+    1.03,  # Perlhuhnbrust
+    1.03,  # Fasanenbrust
+    1.04,  # Fasanenkeulen
+    1.03,  # Hasenrücken
+]
+
 nutritionFleisch_facts = [
     (123, 20.0, 0.0, 4.0),    # Rinderfilet
     (150, 21.0, 0.0, 7.0),    # Rinderhüfte
@@ -1011,7 +1304,7 @@ foodFleisch_tags = [
     (99, [11, 25, 30, 33, 36])             # Hasenrücken
 ]
 
-setDatabase(tags,foodsFleisch,nutritionFleisch_facts,foodFleisch_tags)
+setDatabase(tags,foodsFleisch,nutritionFleisch_facts,foodFleisch_tags,dichten_fleisch)
 
 foodsFisch = [
     ("Aal", "Fisch", "Frischer Aal, reich an Omega-3-Fettsäuren, ideal zum Räuchern oder Braten."),
@@ -1115,6 +1408,110 @@ foodsFisch = [
     ("Glasaal", "Fisch", "Junger Aal, ideal zum Räuchern."),
     ("Zackenbarsch", "Fisch", "Fester Zackenbarsch, ideal für Grillgerichte.")
 ]
+
+dichten_fisch = [
+    1.15,  # Aal
+    1.20,  # Anchovis (Sardellen)
+    1.04,  # Barsch
+    1.10,  # Blaufisch
+    1.05,  # Butterfisch
+    1.03,  # Cicso
+    1.03,  # Croaker
+    1.10,  # Fischstäbchen (durch Panade dichter)
+    1.04,  # Goldmakrelen
+    1.02,  # Hecht
+    1.05,  # Heilbutt
+    1.10,  # Hering
+    1.02,  # Kabeljau (Dorsch)
+    1.03,  # Karpfen
+    1.10,  # Kaviar (Schwarz & Rot)
+    1.05,  # Lengfisch
+    1.06,  # Lingcod
+    1.06,  # Lumb
+    1.08,  # Makrele
+    1.03,  # Mahi Mahi
+    1.00,  # Pangasius
+    1.05,  # Rotbarsch
+    1.08,  # Sardinen
+    1.02,  # Schellfisch
+    1.01,  # Scholle
+    1.01,  # Seelachs
+    1.07,  # Seeteufel
+    1.06,  # Seeforelle
+    1.06,  # Seesaibling
+    1.07,  # Seewolf
+    1.06,  # Steinbutt
+    1.04,  # Stör
+    1.03,  # Tilapia
+    1.08,  # Thunfisch
+    1.10,  # Wels
+    1.03,  # Zander
+    1.02,  # Alaska-Seelachs
+    1.12,  # Atlantischer Lachs
+    1.04,  # Barramundi
+    1.05,  # Dorade
+    1.03,  # Flunder
+    1.12,  # Heilbutt (geräuchert)
+    1.12,  # Hering (geräuchert)
+    1.15,  # Lachs (geräuchert)
+    1.14,  # Makrele (geräuchert)
+    1.13,  # Sardinen (geräuchert)
+    1.12,  # Scholle (geräuchert)
+    1.10,  # Seelachs (geräuchert)
+    1.13,  # Thunfisch (geräuchert)
+    1.14,  # Aal (geräuchert)
+    1.12,  # Forelle (geräuchert)
+    1.11,  # Karpfen (geräuchert)
+    1.12,  # Wels (geräuchert)
+    1.10,  # Zander (geräuchert)
+    1.08,  # Garnelen
+    1.09,  # Krabben
+    1.10,  # Hummer
+    1.12,  # Languste
+    1.06,  # Miesmuscheln
+    1.07,  # Jakobsmuscheln
+    1.05,  # Austern
+    1.07,  # Tintenfisch
+    1.08,  # Oktopus
+    1.08,  # Kalmare
+    1.10,  # Seeigel
+    1.09,  # Seegurken
+    1.06,  # Venusmuscheln
+    1.07,  # Herzmuscheln
+    1.05,  # Schnecken
+    1.08,  # Seespinne
+    1.10,  # Taschenkrebse
+    1.12,  # Königskrabbe
+    1.11,  # Kaisergranat
+    1.07,  # Sepia
+    1.04,  # Wolfsbarsch
+    1.08,  # Sardelle
+    1.06,  # Bonito
+    1.05,  # Glattbutt
+    1.04,  # Schwarzbarsch
+    1.03,  # Flussbarsch
+    1.02,  # Schleie
+    1.02,  # Hornhecht
+    1.04,  # Seezunge
+    1.03,  # Rotflossen-Salmler
+    1.06,  # Makaira (Speerfisch)
+    1.04,  # Trevally (Goldmakrele)
+    1.06,  # Schwertfisch
+    1.05,  # Gelbschwanzmakrele
+    1.03,  # Seehecht
+    1.02,  # Graskarpfen
+    1.02,  # Karpfen (Wild)
+    1.07,  # Süßwasserkrebs
+    1.08,  # Langustenschwanz
+    1.03,  # Meeräsche
+    1.04,  # Lippfisch
+    1.06,  # Steinbeißer
+    1.03,  # Wolfshering
+    1.10,  # Seehasenrogen
+    1.15,  # Glasaal
+    1.06,  # Zackenbarsch
+]
+
 
 nutritionFisch_facts = [
     (184, 18.0, 0.0, 11.0),   # Aal
@@ -1322,7 +1719,7 @@ foodFisch_tags = [
     (99, [11, 25, 33])         # Zackenbarsch
 ]
 
-setDatabase(tags,foodsFisch,nutritionFisch_facts,foodFisch_tags)
+setDatabase(tags,foodsFisch,nutritionFisch_facts,foodFisch_tags,dichten_fisch)
 
 
 foodsMilchprodukte = [
@@ -1427,6 +1824,110 @@ foodsMilchprodukte = [
     ("Milchkaramell", "Milchprodukt", "Karamell auf Milchbasis, ideal als Süßigkeit."),
     ("Milchprotein (Casein)", "Milchprodukt", "Milchprotein, ideal für Proteinshakes.")
 ]
+
+dichten_milchprodukte = [
+    1.03,  # Vollmilch
+    1.03,  # Magermilch
+    1.03,  # Halbfettmilch
+    1.03,  # H-Milch
+    1.03,  # Laktosefreie Milch
+    1.02,  # Buttermilch
+    1.10,  # Kondensmilch
+    1.08,  # Kaffeesahne
+    1.00,  # Sahne
+    0.95,  # Schlagsahne
+    1.03,  # Sauerrahm
+    1.05,  # Crème fraîche
+    1.03,  # Saure Sahne
+    1.04,  # Schmand
+    1.10,  # Mascarpone
+    1.03,  # Ricotta
+    1.10,  # Frischkäse
+    1.12,  # Doppelrahmfrischkäse
+    1.02,  # Hüttenkäse (Cottage Cheese)
+    1.03,  # Quark
+    1.04,  # Speisequark (Magerstufe)
+    1.05,  # Speisequark (Halbfettstufe)
+    1.05,  # Skyr
+    1.03,  # Kefir
+    1.03,  # Joghurt (Natur)
+    1.10,  # Joghurt (Griechisch)
+    1.03,  # Joghurt (Laktosefrei)
+    1.02,  # Trinkjoghurt
+    1.03,  # Fruchtjoghurt
+    1.03,  # Ayran
+    1.02,  # Molke
+    1.03,  # Dickmilch
+    1.05,  # Käsescheiben
+    1.10,  # Gouda
+    1.09,  # Edamer
+    1.08,  # Emmentaler
+    1.08,  # Butterkäse
+    1.12,  # Bergkäse
+    1.09,  # Camembert
+    1.10,  # Brie
+    1.12,  # Blauschimmelkäse
+    1.11,  # Gorgonzola
+    1.12,  # Roquefort
+    1.10,  # Feta
+    1.08,  # Ziegenkäse
+    1.09,  # Hirtenkäse
+    1.02,  # Mozzarella
+    1.00,  # Burrata
+    1.25,  # Parmesan
+    1.20,  # Pecorino
+    1.12,  # Halloumi
+    1.11,  # Provolone
+    1.10,  # Raclette-Käse
+    1.12,  # Appenzeller
+    1.11,  # Tilsiter
+    1.15,  # Limburger
+    1.00,  # Harzer Käse
+    1.00,  # Handkäse
+    0.92,  # Butter
+    0.92,  # Süßrahmbutter
+    0.92,  # Sauerrahmbutter
+    0.92,  # Gesalzene Butter
+    0.85,  # Butterschmalz
+    0.85,  # Ghee
+    0.55,  # Milchpulver
+    0.55,  # Vollmilchpulver
+    0.55,  # Magermilchpulver
+    0.55,  # Joghurtpulver
+    0.55,  # Molkenpulver
+    0.55,  # Sahnepulver
+    1.10,  # Käsefondue-Mischung
+    1.05,  # Rahmspinat (Milchbasis)
+    0.95,  # Milchspeiseeis
+    0.90,  # Softeis
+    0.92,  # Frozen Joghurt
+    1.04,  # Karamellmilch
+    1.04,  # Vanillemilch
+    1.04,  # Schokoladenmilch
+    1.04,  # Erdbeermilch
+    1.05,  # Käsecreme
+    1.03,  # Streichkäse
+    1.05,  # Käserinde (essbar)
+    1.03,  # Quarkcreme
+    1.03,  # Zaziki
+    1.03,  # Lassi
+    1.10,  # Rahmkäse
+    1.03,  # Fromage blanc
+    1.05,  # Petit Suisse
+    1.35,  # Crème double
+    1.00,  # Milchreis
+    1.10,  # Kondensmilch (gezuckert)
+    1.03,  # Ricotta salata
+    1.03,  # Labneh
+    1.03,  # Queso fresco
+    1.04,  # Paneer
+    1.20,  # Clotted Cream
+    1.20,  # Devonshire Cream
+    1.03,  # Crème Bavaroise
+    1.10,  # Milchkaramell
+    1.03,  # Milchprotein (Casein)
+]
+
 
 nutritionMilchprodukte_facts = [
     (64, 3.4, 4.8, 3.6),   # Vollmilch
@@ -1635,7 +2136,7 @@ foodMilchprodukte_tags = [
     (99, [11, 25, 34])    # Milchprotein (Casein)
 ]
 
-setDatabase(tags,foodsMilchprodukte,nutritionMilchprodukte_facts,foodMilchprodukte_tags)
+setDatabase(tags,foodsMilchprodukte,nutritionMilchprodukte_facts,foodMilchprodukte_tags,dichten_milchprodukte)
 
 
 foodsGetreide_Hülsenfrüchte = [
@@ -1731,6 +2232,101 @@ foodsGetreide_Hülsenfrüchte = [
     ("Sonnenblumenkerne", "Samen", "Sonnenblumenkerne, ideal als Topping für Salate und Brote."),
     ("Chiasamen", "Samen", "Chiasamen, reich an Omega-3-Fettsäuren, ideal für Puddings."),
     ("Leinsamen", "Samen", "Leinsamen, reich an Ballaststoffen, ideal für Müsli und Brot."),
+]
+
+dichten_getreide_huelsenfruechte = [
+    0.72,  # Mais
+    0.85,  # Reis
+    0.72,  # Quinoa
+    0.75,  # Amaranth
+    0.80,  # Kamut
+    0.80,  # Emmer
+    0.78,  # Teff
+    0.76,  # Sorghum
+    0.85,  # Wildreis
+    0.75,  # Grünkern
+    0.83,  # Bulgur
+    0.72,  # Couscous
+    0.72,  # Polenta
+    0.80,  # Gerstengraupen
+    0.79,  # Weizengrieß
+    0.78,  # Dinkelgrieß
+    0.50,  # Haferflocken
+    0.40,  # Weizenkleie
+    0.45,  # Haferkleie
+    0.45,  # Dinkelkleie
+    0.50,  # Reisflocken
+    0.50,  # Hirseflocken
+    0.45,  # Quinoaflocken
+    0.42,  # Amaranthflocken
+    0.50,  # Buchweizenflocken
+    0.80,  # Maismehl
+    0.79,  # Reismehl
+    0.85,  # Weizenmehl
+    0.83,  # Dinkelmehl
+    0.82,  # Roggenmehl
+    0.80,  # Hafermehl
+    0.78,  # Hirsemehl
+    0.76,  # Buchweizenmehl
+    0.75,  # Quinoamehl
+    0.72,  # Amaranthmehl
+    0.60,  # Kichererbsenmehl
+    0.58,  # Sojamehl
+    0.55,  # Linsenmehl
+    0.54,  # Erbsenmehl
+    0.75,  # Kichererbsen
+    0.85,  # Linsen
+    0.70,  # Erbsen
+    0.69,  # Sojabohnen
+    0.75,  # Kidneybohnen
+    0.74,  # Schwarze Bohnen
+    0.72,  # Weiße Bohnen
+    0.73,  # Pintobohnen
+    0.70,  # Limabohnen
+    0.75,  # Mungbohnen
+    0.75,  # Adzukibohnen
+    0.78,  # Favabohnen (Ackerbohnen)
+    0.70,  # Grüne Bohnen
+    0.68,  # Wachsbohnen
+    0.65,  # Zuckerschoten
+    0.78,  # Edamame
+    0.70,  # Lupinen
+    0.55,  # Kichererbsensprossen
+    0.60,  # Linsensprossen
+    0.58,  # Mungbohnensprossen
+    0.60,  # Sojasprossen
+    0.35,  # Alfalfa-Sprossen
+    0.50,  # Bambussprossen
+    0.55,  # Okraschoten
+    0.62,  # Johannisbrot
+    0.45,  # Tempeh
+    0.50,  # Tofu
+    0.65,  # Seitan
+    0.50,  # Texturiertes Soja
+    1.03,  # Sojamilch
+    1.02,  # Reismilch
+    1.04,  # Hafermilch
+    1.02,  # Mandeldrink
+    1.02,  # Dinkeldrink
+    1.02,  # Hanfdrink
+    1.03,  # Kokosdrink
+    1.03,  # Quinoadrink
+    1.03,  # Amaranthdrink
+    1.02,  # Buchweizendrink
+    0.90,  # Erdnüsse
+    0.95,  # Cashewnüsse
+    0.90,  # Mandeln
+    0.92,  # Haselnüsse
+    0.85,  # Walnüsse
+    0.90,  # Pistazien
+    0.91,  # Macadamianüsse
+    0.89,  # Paranüsse
+    0.88,  # Pekannüsse
+    0.86,  # Kastanien
+    0.95,  # Kürbiskerne
+    0.94,  # Sonnenblumenkerne
+    0.92,  # Chiasamen
+    0.90,  # Leinsamen
 ]
 
 
@@ -1926,7 +2522,7 @@ foodGetreideHülsenfrüchte_tags = [
 ]
 
 
-setDatabase(tags,foodsGetreide_Hülsenfrüchte,nutritionGetreideHülsenfrüchte_facts,foodGetreideHülsenfrüchte_tags)
+setDatabase(tags,foodsGetreide_Hülsenfrüchte,nutritionGetreideHülsenfrüchte_facts,foodGetreideHülsenfrüchte_tags,dichten_getreide_huelsenfruechte)
 
 foodsGewürzeKräuter = [
     ("Anis", "Gewürz", "Aromatisches Gewürz, ideal für Backwaren und Tee."),
@@ -2102,8 +2698,531 @@ foodsGewürzeKräuter = [
     ("Estragonpaste", "Paste", "Würzige Paste, ideal für Fisch- und Geflügelgerichte."),
     ("Majoranpaste", "Paste", "Würzige Paste, ideal für Kartoffelgerichte und Eintöpfe."),
 ]
+dichten_gewuerze_kraeuter = [
+    0.45,  # Anis
+    0.20,  # Basilikum (frisch)
+    0.25,  # Bärlauch
+    0.40,  # Bohnenkraut
+    0.35,  # Chili (frisch)
+    0.55,  # Currypulver
+    0.15,  # Dill (frisch)
+    0.20,  # Estragon
+    0.55,  # Fenchel (Samen)
+    0.65,  # Gewürznelken
+    0.70,  # Ingwer (frisch)
+    0.35,  # Kardamom (Samen)
+    0.20,  # Koriander (frisch)
+    0.55,  # Kreuzkümmel
+    0.50,  # Kümmel
+    0.20,  # Lavendel
+    0.25,  # Liebstöckel
+    0.30,  # Lorbeer
+    0.18,  # Majoran (frisch)
+    0.70,  # Muskatnuss
+    0.20,  # Oregano (frisch)
+    0.50,  # Paprikapulver
+    0.15,  # Petersilie (frisch)
+    0.65,  # Pfeffer (gemahlen)
+    0.60,  # Piment (gemahlen)
+    0.25,  # Rosmarin (frisch)
+    0.25,  # Salbei (frisch)
+    0.10,  # Schnittlauch
+    0.60,  # Senfkörner
+    0.25,  # Thymian (frisch)
+    0.40,  # Vanille (gemahlen)
+    0.65,  # Wacholderbeeren
+    0.50,  # Zimt (gemahlen)
+    0.15,  # Zitronenmelisse
+    0.25,  # Zitronengras
+    0.55,  # Bockshornklee
+    0.55,  # Cayennepfeffer
+    0.55,  # Chilipulver
+    0.60,  # Currypaste
+    0.15,  # Dillspitzen
+    0.55,  # Fenchelsamen
+    0.60,  # Galgant
+    0.55,  # Garam Masala
+    0.55,  # Grüner Pfeffer
+    0.10,  # Hibiskus
+    0.20,  # Kaffirlimettenblätter
+    0.55,  # Kardamomsamen
+    0.65,  # Kurkuma (gemahlen)
+    0.30,  # Lorbeerblätter
+    0.70,  # Macis (Muskatblüte)
+    0.20,  # Majoranblätter
+    0.65,  # Mohnsamen
+    0.65,  # Nelken
+    0.20,  # Oreganoblätter
+    0.55,  # Paprikaflocken
+    0.20,  # Pfefferminzblätter
+    0.35,  # Rosa Pfeffer
+    0.10,  # Safran
+    0.20,  # Salbeiblätter
+    0.65,  # Schwarzkümmel
+    0.65,  # Sternanis
+    0.55,  # Sumach
+    0.60,  # Tandoori Masala
+    0.70,  # Tonkabohne
+    0.25,  # Vanilleschoten
+    0.65,  # Weißer Pfeffer
+    0.50,  # Zitronenpfeffer
+    0.50,  # Zitronenschale
+    0.20,  # Zitronenthymian
+    0.55,  # Ajowan
+    0.60,  # Amchur (Mango-Pulver)
+    0.20,  # Basilikumblätter
+    0.55,  # Bockshornkleesamen
+    0.55,  # Chiliflocken
+    0.40,  # Chilischoten
+    0.55,  # Cumin
+    0.20,  # Currykraut
+    0.55,  # Dillsamen
+    0.20,  # Estragonblätter
+    0.70,  # Fenchelknolle
+    0.70,  # Galangalwurzel
+    0.55,  # Garam-Masala-Pulver
+    0.55,  # Grüner Kardamom
+    0.10,  # Hibiskusblüten
+    0.60,  # Ingwerpulver
+    0.10,  # Kaffirlimette
+    0.55,  # Kardamomkapseln
+    0.20,  # Korianderblätter
+    0.55,  # Koriandersamen
+    0.55,  # Kreuzkümmelsamen
+    0.50,  # Kümmelsamen
+    0.10,  # Lavendelblüten
+    0.30,  # Lorbeerblatt
+    0.55,  # Majoranpulver
+    0.65,  # Mohn
+    0.70,  # Muskat
+    0.65,  # Nelkenpulver
+    0.55,  # Oreganopulver
+    0.60,  # Paprikapaste
+    0.15,  # Pfefferminze
+    0.65,  # Pfefferkörner
+    0.60,  # Pimentkörner
+    0.55,  # Rosenpaprika
+    0.25,  # Rosmarinblätter
+    0.10,  # Safranfäden
+    1.00,  # Salz
+    0.65,  # Schwarzer Pfeffer
+    0.55,  # Senfsaat
+    0.60,  # Szechuanpfeffer
+    0.25,  # Thymianblätter
+    0.20,  # Vanilleextrakt
+    0.55,  # Wacholder
+    0.60,  # Zimtpulver
+    0.20,  # Zitronenbasilikum
+    0.10,  # Zitronenverbene
+    0.50,  # Zitronenzeste
+    0.55,  # Zwiebelpulver
+0.2,    # Basilikum, getrocknet
+    0.1,    # Dill, getrocknet
+    0.2,    # Petersilie, getrocknet
+    0.1,    # Schnittlauch, getrocknet
+    0.2,    # Thymian, getrocknet
+    0.2,    # Oregano, getrocknet
+    0.2,    # Rosmarin, getrocknet
+    0.4,    # Salbei, getrocknet
+    0.1,    # Minze, getrocknet
+    0.2,    # Koriander, getrocknet
+    0.3,    # Bohnenkraut, getrocknet
+    0.2,    # Estragon, getrocknet
+    0.2,    # Majoran, getrocknet
+    0.1,    # Zitronenmelisse, getrocknet
+    0.2,    # Basilikum, frisch
+    0.1,    # Dill, frisch
+    0.2,    # Petersilie, frisch
+    0.1,    # Schnittlauch, frisch
+    0.2,    # Thymian, frisch
+    0.2,    # Oregano, frisch
+    0.2,    # Rosmarin, frisch
+    0.4,    # Salbei, frisch
+    0.1,    # Minze, frisch
+    0.2,    # Koriander, frisch
+    0.3,    # Bohnenkraut, frisch
+    0.2,    # Estragon, frisch
+    0.2,    # Majoran, frisch
+    0.1,    # Zitronenmelisse, frisch
+    0.9,    # Basilikumöl
+    0.9,    # Dillöl
+    0.9,    # Petersilienöl
+    0.9,    # Schnittlauchöl
+    0.9,    # Thymianöl
+    0.9,    # Oreganoöl
+    0.9,    # Rosmarinöl
+    0.9,    # Salbeiöl
+    0.9,    # Minzöl
+    0.9,    # Korianderöl
+    0.9,    # Bohnenkrautöl
+    0.9,    # Estragonöl
+    0.9,    # Majoranöl
+    0.9,    # Zitronenmelissenöl
+    0.8,    # Basilikumpaste
+    0.8,    # Dillpaste
+    0.8,    # Petersilienpaste
+    0.8,    # Schnittlauchpaste
+    0.8,    # Thymianpaste
+    0.8,    # Oreganopaste
+    0.8,    # Rosmarinpaste
+    0.8,    # Salbeipaste
+    0.8,    # Minzpaste
+    0.8,    # Korianderpaste
+    0.8,    # Bohnenkrautpaste
+    0.8,    # Estragonpaste
+    0.8,    # Majoranpaste
+]
+food_tagsGewürze = [
+    (0, [6, 18]),  # Anis
+    (1, [6, 20]),  # Basilikum
+    (2, [6, 20]),  # Bärlauch
+    (3, [6, 18]),  # Bohnenkraut
+    (4, [6, 17]),  # Chili
+    (5, [6, 18, 20]),  # Currypulver
+    (6, [6, 20]),  # Dill
+    (7, [6, 20]),  # Estragon
+    (8, [6, 18]),  # Fenchel
+    (9, [6, 18]),  # Gewürznelken
+    (10, [6, 18]),  # Ingwer
+    (11, [6, 18]),  # Kardamom
+    (12, [6, 20]),  # Koriander
+    (13, [6, 18]),  # Kreuzkümmel
+    (14, [6, 18]),  # Kümmel
+    (15, [6, 20]),  # Lavendel
+    (16, [6, 20]),  # Liebstöckel
+    (17, [6, 18]),  # Lorbeer
+    (18, [6, 20]),  # Majoran
+    (19, [6, 18]),  # Muskatnuss
+    (20, [6, 20]),  # Oregano
+    (21, [6, 18]),  # Paprikapulver
+    (22, [6, 20]),  # Petersilie
+    (23, [6, 18]),  # Pfeffer
+    (24, [6, 18]),  # Piment
+    (25, [6, 20]),  # Rosmarin
+    (26, [6, 20]),  # Salbei
+    (27, [6, 20]),  # Schnittlauch
+    (28, [6, 18]),  # Senfkörner
+    (29, [6, 20]),  # Thymian
+    (30, [6, 18]),  # Vanille
+    (31, [6, 18]),  # Wacholderbeeren
+    (32, [6, 18]),  # Zimt
+    (33, [6, 20]),  # Zitronenmelisse
+    (34, [6, 20]),  # Zitronengras
+    (35, [6, 18]),  # Bockshornklee
+    (36, [6, 17]),  # Cayennepfeffer
+    (37, [6, 17]),  # Chilipulver
+    (38, [6, 18, 20]),  # Currypaste
+    (39, [6, 20]),  # Dillspitzen
+    (40, [6, 18]),  # Fenchelsamen
+    (41, [6, 18]),  # Galgant
+    (42, [6, 18, 20]),  # Garam Masala
+    (43, [6, 18]),  # Grüner Pfeffer
+    (44, [6, 20]),  # Hibiskus
+    (45, [6, 20]),  # Kaffirlimettenblätter
+    (46, [6, 18]),  # Kardamomsamen
+    (47, [6, 18]),  # Kurkuma
+    (48, [6, 18]),  # Lorbeerblätter
+    (49, [6, 18]),  # Macis (Muskatblüte)
+    (50, [6, 20]),  # Majoranblätter
+    (51, [6, 18]),  # Mohnsamen
+    (52, [6, 18]),  # Nelken
+    (53, [6, 20]),  # Oreganoblätter
+    (54, [6, 18]),  # Paprikaflocken
+    (55, [6, 20]),  # Pfefferminzblätter
+    (56, [6, 18]),  # Rosa Pfeffer
+    (57, [6, 18]),  # Safran
+    (58, [6, 20]),  # Salbeiblätter
+    (59, [6, 18]),  # Schwarzkümmel
+    (60, [6, 18]),  # Sternanis
+    (61, [6, 18]),  # Sumach
+    (62, [6, 18, 20]),  # Tandoori Masala
+    (63, [6, 18]),  # Tonkabohne
+    (64, [6, 18]),  # Vanilleschoten
+    (65, [6, 18]),  # Weißer Pfeffer
+    (66, [6, 18, 20]),  # Zitronenpfeffer
+    (67, [6, 18, 20]),  # Zitronenschale
+    (68, [6, 20]),  # Zitronenthymian
+    (69, [6, 18]),  # Ajowan
+    (70, [6, 18]),  # Amchur (Mango-Pulver)
+    (71, [6, 20]),  # Basilikumblätter
+    (72, [6, 18]),  # Bockshornkleesamen
+    (73, [6, 17]),  # Chiliflocken
+    (74, [6, 17]),  # Chilischoten
+    (75, [6, 18]),  # Cumin
+    (76, [6, 20]),  # Currykraut
+    (77, [6, 18]),  # Dillsamen
+    (78, [6, 20]),  # Estragonblätter
+    (79, [6, 18, 20]),  # Fenchelknolle
+    (80, [6, 18]),  # Galangalwurzel
+    (81, [6, 18, 20]),  # Garam-Masala-Pulver
+    (82, [6, 18]),  # Grüner Kardamom
+    (83, [6, 20]),  # Hibiskusblüten
+    (84, [6, 18]),  # Ingwerpulver
+    (85, [6, 20]),  # Kaffirlimette
+    (86, [6, 18]),  # Kardamomkapseln
+    (87, [6, 20]),  # Korianderblätter
+    (88, [6, 18]),  # Koriandersamen
+    (89, [6, 18]),  # Kreuzkümmelsamen
+    (90, [6, 18]),  # Kümmelsamen
+    (91, [6, 20]),  # Lavendelblüten
+    (92, [6, 18]),  # Lorbeerblatt
+    (93, [6, 20]),  # Majoranpulver
+    (94, [6, 18]),  # Mohn
+    (95, [6, 18]),  # Muskat
+    (96, [6, 18]),  # Nelkenpulver
+    (97, [6, 20]),  # Oreganopulver
+    (98, [6, 18]),  # Paprikapaste
+    (99, [6, 20]),  # Pfefferminze
+    (100, [6, 18]),  # Pfefferkörner
+    (101, [6, 18]),  # Pimentkörner
+    (102, [6, 18]),  # Rosenpaprika
+    (103, [6, 20]),  # Rosmarinblätter
+    (104, [6, 18]),  # Safranfäden
+    (105, [6, 18]),  # Salz
+    (106, [6, 18]),  # Schwarzer Pfeffer
+    (107, [6, 18]),  # Senfsaat
+    (108, [6, 18]),  # Szechuanpfeffer
+    (109, [6, 20]),  # Thymianblätter
+    (110, [6, 18]),  # Vanilleextrakt
+    (111, [6, 18]),  # Wacholder
+    (112, [6, 18]),  # Zimtpulver
+    (113, [6, 20]),  # Zitronenbasilikum
+    (114, [6, 20]),  # Zitronenverbene
+    (115, [6, 18]),  # Zitronenzeste
+    (116, [6, 18]),  # Zwiebelpulver
+    (117, [6, 20]),  # Basilikum, getrocknet
+    (118, [6, 20]),  # Dill, getrocknet
+    (119, [6, 20]),  # Petersilie, getrocknet
+    (120, [6, 20]),  # Schnittlauch, getrock
+        (121, [6, 20]),  # Thymian, getrocknet
+    (122, [6, 20]),  # Oregano, getrocknet
+    (123, [6, 20]),  # Rosmarin, getrocknet
+    (124, [6, 20]),  # Salbei, getrocknet
+    (125, [6, 20]),  # Minze, getrocknet
+    (126, [6, 20]),  # Koriander, getrocknet
+    (127, [6, 20]),  # Bohnenkraut, getrocknet
+    (128, [6, 20]),  # Estragon, getrocknet
+    (129, [6, 20]),  # Majoran, getrocknet
+    (130, [6, 20]),  # Zitronenmelisse, getrocknet
+    (131, [6, 20]),  # Basilikum, frisch
+    (132, [6, 20]),  # Dill, frisch
+    (133, [6, 20]),  # Petersilie, frisch
+    (134, [6, 20]),  # Schnittlauch, frisch
+    (135, [6, 20]),  # Thymian, frisch
+    (136, [6, 20]),  # Oregano, frisch
+    (137, [6, 20]),  # Rosmarin, frisch
+    (138, [6, 20]),  # Salbei, frisch
+    (139, [6, 20]),  # Minze, frisch
+    (140, [6, 20]),  # Koriander, frisch
+    (141, [6, 20]),  # Bohnenkraut, frisch
+    (142, [6, 20]),  # Estragon, frisch
+    (143, [6, 20]),  # Majoran, frisch
+    (144, [6, 20]),  # Zitronenmelisse, frisch
+    (145, [6, 18, 20]),  # Basilikumöl
+    (146, [6, 18, 20]),  # Dillöl
+    (147, [6, 18, 20]),  # Petersilienöl
+    (148, [6, 18, 20]),  # Schnittlauchöl
+    (149, [6, 18, 20]),  # Thymianöl
+    (150, [6, 18, 20]),  # Oreganoöl
+    (151, [6, 18, 20]),  # Rosmarinöl
+    (152, [6, 18, 20]),  # Salbeiöl
+    (153, [6, 18, 20]),  # Minzöl
+    (154, [6, 18, 20]),  # Korianderöl
+    (155, [6, 18, 20]),  # Bohnenkrautöl
+    (156, [6, 18, 20]),  # Estragonöl
+    (157, [6, 18, 20]),  # Majoranöl
+    (158, [6, 18, 20]),  # Zitronenmelissenöl
+    (159, [6, 18, 20]),  # Basilikumpaste
+    (160, [6, 18, 20]),  # Dillpaste
+    (161, [6, 18, 20]),  # Petersilienpaste
+    (162, [6, 18, 20]),  # Schnittlauchpaste
+    (163, [6, 18, 20]),  # Thymianpaste
+    (164, [6, 18, 20]),  # Oreganopaste
+    (165, [6, 18, 20]),  # Rosmarinpaste
+    (166, [6, 18, 20]),  # Salbeipaste
+    (167, [6, 18, 20]),  # Minzpaste
+    (168, [6, 18, 20]),  # Korianderpaste
+    (169, [6, 18, 20]),  # Bohnenkrautpaste
+    (170, [6, 18, 20]),  # Estragonpaste
+    (171, [6, 18, 20]),  # Majoranpaste
+]
 
-setDatabase([],foodsGewürzeKräuter,[],[])
+nutrition_factsGewürze = [
+    (337, 4.0, 50.0, 15.0),   # Anis
+    (23, 3.2, 1.3, 0.6),     # Basilikum
+    (42, 4.3, 8.0, 0.5),     # Bärlauch
+    (31, 3.7, 5.2, 1.1),     # Bohnenkraut
+    (282, 12.0, 49.0, 15.0), # Chili
+    (325, 12.0, 58.0, 9.5),  # Currypulver
+    (43, 3.5, 7.0, 0.5),     # Dill
+    (50, 2.2, 7.4, 1.0),     # Estragon
+    (31, 1.2, 7.3, 0.3),     # Fenchel
+    (274, 6.0, 65.0, 4.0),   # Gewürznelken
+    (80, 1.8, 18.0, 0.7),    # Ingwer
+    (311, 10.8, 68.5, 6.5),  # Kardamom
+    (22, 2.1, 1.8, 0.5),     # Koriander
+    (375, 17.8, 44.0, 22.3), # Kreuzkümmel
+    (375, 20.0, 50.0, 15.0), # Kümmel
+    (49, 1.8, 9.5, 1.2),     # Lavendel
+    (41, 4.2, 5.5, 0.7),     # Liebstöckel
+    (313, 6.0, 73.0, 8.0),   # Lorbeer
+    (271, 9.0, 70.0, 7.5),   # Majoran
+    (525, 7.0, 28.0, 36.0),  # Muskatnuss
+    (306, 9.9, 68.9, 10.3),  # Oregano
+    (282, 14.0, 40.0, 13.0), # Paprikapulver
+    (36, 3.7, 6.3, 0.9),     # Petersilie
+    (305, 11.0, 53.0, 8.0),  # Pfeffer
+    (263, 6.1, 72.0, 4.5),   # Piment
+    (131, 3.0, 20.0, 5.0),   # Rosmarin
+    (59, 1.6, 12.0, 1.0),    # Salbei
+    (30, 3.2, 3.5, 0.7),     # Schnittlauch
+    (469, 26.1, 29.0, 36.7), # Senfkörner
+    (101, 5.6, 21.0, 1.2),   # Thymian
+    (288, 0.1, 12.7, 0.0),   # Vanille
+    (321, 5.0, 82.0, 1.0),   # Wacholderbeeren
+    (247, 4.0, 80.0, 0.7),   # Zimt
+    (40, 2.2, 8.0, 0.6),     # Zitronenmelisse
+    (31, 1.3, 7.0, 0.2),     # Zitronengras
+    (323, 23.0, 58.0, 6.4),   # Bockshornklee
+    (318, 12.0, 56.0, 17.0),  # Cayennepfeffer
+    (282, 14.0, 40.0, 13.0),  # Chilipulver
+    (94, 2.0, 17.0, 2.5),     # Currypaste
+    (43, 3.5, 7.0, 0.5),      # Dillspitzen
+    (345, 15.0, 52.0, 14.6),  # Fenchelsamen
+    (71, 1.0, 16.0, 0.4),     # Galgant
+    (367, 14.5, 58.0, 16.5),  # Garam Masala
+    (321, 11.0, 67.0, 10.0),  # Grüner Pfeffer
+    (37, 0.0, 7.0, 0.3),      # Hibiskus
+    (20, 0.3, 4.0, 0.0),      # Kaffirlimettenblätter
+    (311, 10.8, 68.5, 6.5),   # Kardamomsamen
+    (354, 8.0, 65.0, 10.0),   # Kurkuma
+    (313, 6.0, 73.0, 8.0),    # Lorbeerblätter
+    (475, 17.4, 57.0, 19.2),  # Macis (Muskatblüte)
+    (271, 9.0, 70.0, 7.5),    # Majoranblätter
+    (525, 7.0, 28.0, 36.0),   # Mohnsamen
+    (357, 6.0, 65.0, 3.5),    # Nelken
+    (306, 9.9, 68.9, 10.3),   # Oreganoblätter
+    (300, 14.0, 42.0, 13.0),  # Paprikaflocken
+    (32, 3.0, 8.0, 0.6),      # Pfefferminzblätter
+    (293, 10.0, 64.0, 6.0),   # Rosa Pfeffer
+    (310, 11.4, 65.0, 6.5),   # Safran
+    (59, 1.6, 12.0, 1.0),     # Salbeiblätter
+    (375, 21.0, 45.0, 21.0),  # Schwarzkümmel
+    (337, 10.0, 52.0, 15.0),  # Sternanis
+    (330, 8.0, 59.0, 12.0),   # Sumach
+    (350, 13.0, 55.0, 15.0),  # Tandoori Masala
+    (306, 8.0, 68.0, 7.0),    # Tonkabohne
+    (288, 0.1, 12.7, 0.0),    # Vanilleschoten
+    (305, 11.0, 53.0, 8.0),   # Weißer Pfeffer
+    (17, 0.5, 4.0, 0.1),      # Zitronenpfeffer
+    (47, 0.3, 12.0, 0.2),     # Zitronenschale
+    (30, 3.0, 7.0, 0.4),      # Zitronenthymian
+    (320, 12.0, 55.0, 13.0),  # Ajowan
+    (302, 9.0, 65.0, 8.0),    # Amchur (Mango-Pulver)
+    (23, 3.2, 1.3, 0.6),      # Basilikumblätter
+    (323, 23.0, 58.0, 6.4),   # Bockshornkleesamen
+    (318, 12.0, 56.0, 17.0),  # Chiliflocken
+    (282, 14.0, 40.0, 13.0),  # Chilischoten
+    (375, 17.8, 44.0, 22.3),  # Cumin
+    (41, 4.0, 7.0, 0.5),      # Currykraut
+    (43, 3.5, 7.0, 0.5),      # Dillsamen
+    (50, 2.2, 7.4, 1.0),      # Estragonblätter
+    (31, 1.2, 7.3, 0.3),      # Fenchelknolle
+    (71, 1.0, 16.0, 0.4),     # Galangalwurzel
+    (367, 14.5, 58.0, 16.5),  # Garam-Masala-Pulver
+    (311, 10.8, 68.5, 6.5),   # Grüner Kardamom
+    (37, 0.0, 7.0, 0.3),      # Hibiskusblüten
+    (80, 1.8, 18.0, 0.7),     # Ingwerpulver
+    (20, 0.3, 4.0, 0.0),      # Kaffirlimette
+    (311, 10.8, 68.5, 6.5),   # Kardamomkapseln
+    (22, 2.1, 1.8, 0.5),      # Korianderblätter
+    (311, 10.8, 68.5, 6.5),   # Koriandersamen
+    (375, 17.8, 44.0, 22.3),  # Kreuzkümmelsamen
+    (375, 20.0, 50.0, 15.0),  # Kümmelsamen
+    (49, 1.8, 9.5, 1.2),      # Lavendelblüten
+    (313, 6.0, 73.0, 8.0),    # Lorbeerblatt
+    (271, 9.0, 70.0, 7.5),    # Majoranpulver
+    (525, 7.0, 28.0, 36.0),   # Mohn
+    (525, 7.0, 28.0, 36.0),   # Muskat
+    (357, 6.0, 65.0, 3.5),    # Nelkenpulver
+    (306, 9.9, 68.9, 10.3),   # Oreganopulver
+    (300, 14.0, 42.0, 13.0),  # Paprikapaste
+    (32, 3.0, 8.0, 0.6),      # Pfefferminze
+    (305, 11.0, 53.0, 8.0),   # Pfefferkörner
+    (263, 6.1, 72.0, 4.5),    # Pimentkörner
+    (282, 14.0, 40.0, 13.0),  # Rosenpaprika
+    (131, 3.0, 20.0, 5.0),    # Rosmarinblätter
+    (310, 11.4, 65.0, 6.5),   # Safranfäden
+    (59, 1.6, 12.0, 1.0),     # Salz
+    (305, 11.0, 53.0, 8.0),   # Schwarzer Pfeffer
+    (469, 26.1, 29.0, 36.7),  # Senfsaat
+    (375, 17.8, 44.0, 22.3),  # Szechuanpfeffer
+    (101, 5.6, 21.0, 1.2),    # Thymianblätter
+    (288, 0.1, 12.7, 0.0),    # Vanilleextrakt
+    (321, 5.0, 82.0, 1.0),    # Wacholder
+    (247, 4.0, 80.0, 0.7),    # Zimtpulver
+    (113, 3.0, 20.0, 5.0),    # Zitronenbasilikum
+    (47, 2.1, 8.0, 0.5),      # Zitronenverbene
+    (47, 0.3, 12.0, 0.2),     # Zitronenzeste
+    (35, 2.5, 7.0, 0.3),      # Zwiebelpulver
+    (288, 11.0, 53.0, 1.2),    # Basilikum, getrocknet
+    (305, 10.0, 60.0, 1.5),    # Dill, getrocknet
+    (276, 10.0, 55.0, 1.4),    # Petersilie, getrocknet
+    (295, 11.0, 57.0, 1.6),    # Schnittlauch, getrocknet
+    (276, 9.5, 55.0, 1.3),     # Thymian, getrocknet
+    (292, 10.0, 58.0, 1.4),    # Oregano, getrocknet
+    (294, 10.0, 59.0, 1.5),    # Rosmarin, getrocknet
+    (260, 8.5, 50.0, 1.2),     # Salbei, getrocknet
+    (279, 9.5, 54.0, 1.3),     # Minze, getrocknet
+    (270, 10.0, 55.0, 1.3),    # Koriander, getrocknet
+    (287, 9.8, 56.0, 1.4),     # Bohnenkraut, getrocknet
+    (268, 8.8, 52.0, 1.2),     # Estragon, getrocknet
+    (290, 9.5, 57.0, 1.3),     # Majoran, getrocknet
+    (278, 9.0, 54.0, 1.3),     # Zitronenmelisse, getrocknet
+    (22, 2.0, 3.5, 0.2),       # Basilikum, frisch
+    (23, 2.0, 3.7, 0.2),       # Dill, frisch
+    (24, 2.1, 4.0, 0.3),       # Petersilie, frisch
+    (22, 1.9, 3.5, 0.2),       # Schnittlauch, frisch
+    (25, 2.3, 4.5, 0.3),       # Thymian, frisch
+    (24, 2.1, 4.2, 0.3),       # Oregano, frisch
+    (23, 2.0, 3.8, 0.2),       # Rosmarin, frisch
+    (22, 1.9, 3.5, 0.2),       # Salbei, frisch
+    (23, 2.0, 3.6, 0.2),       # Minze, frisch
+    (24, 2.1, 4.0, 0.2),       # Koriander, frisch
+    (22, 1.8, 3.4, 0.2),       # Bohnenkraut, frisch
+    (23, 2.0, 3.7, 0.2),       # Estragon, frisch
+    (24, 2.1, 4.0, 0.3),       # Majoran, frisch
+    (23, 2.0, 3.6, 0.2),       # Zitronenmelisse, frisch
+    (80, 1.0, 8.0, 7.0),       # Basilikumöl
+    (81, 1.0, 7.0, 8.0),       # Dillöl
+    (78, 1.0, 6.5, 8.5),       # Petersilienöl
+    (82, 1.0, 7.0, 8.0),       # Schnittlauchöl
+    (83, 1.0, 7.5, 8.0),       # Thymianöl
+    (79, 1.0, 6.8, 8.2),       # Oreganoöl
+    (81, 1.0, 7.2, 8.5),       # Rosmarinöl
+    (84, 1.0, 7.8, 8.5),       # Salbeiöl
+    (80, 1.0, 7.0, 8.0),       # Minzöl
+    (85, 1.0, 8.0, 8.5),       # Korianderöl
+    (79, 1.0, 6.9, 8.3),       # Bohnenkrautöl
+    (78, 1.0, 6.8, 8.2),       # Estragonöl
+    (82, 1.0, 7.5, 8.3),       # Majoranöl
+    (83, 1.0, 7.0, 8.2),       # Zitronenmelissenöl
+    (82, 1.0, 7.5, 8.2),       # Basilikumpaste
+    (83, 1.0, 7.0, 8.1),       # Dillpaste
+    (81, 1.0, 6.8, 8.0),       # Petersilienpaste
+    (83, 1.0, 7.2, 8.2),       # Schnittlauchpaste
+    (84, 1.0, 7.8, 8.4),       # Thymianpaste
+    (79, 1.0, 6.9, 8.0),       # Oreganopaste
+    (81, 1.0, 7.0, 8.1),       # Rosmarinpaste
+    (80, 1.0, 7.5, 8.3),       # Salbeipaste
+    (83, 1.0, 7.2, 8.5),       # Minzpaste
+    (79, 1.0, 6.7, 8.2),       # Korianderpaste
+    (78, 1.0, 6.5, 8.0),       # Bohnenkrautpaste
+    (80, 1.0, 6.8, 8.1),       # Estragonpaste
+    (83, 1.0, 7.0, 8.2),       # Majoranpaste
+]
+
+setDatabase(tags,foodsGewürzeKräuter,nutrition_factsGewürze,food_tagsGewürze,dichten_gewuerze_kraeuter)
 
 
 foodsÖleFette = [
@@ -2208,6 +3327,110 @@ foodsÖleFette = [
     ("Arganöl, kaltgepresst", "Öl", "Nussiges, hochwertiges Öl, ideal für Salate."),
     ("Arganöl, raffiniert", "Öl", "Mildes Öl, ideal für Dressings."),
 ]
+
+dichten_oele_fette = [
+    0.91,  # Olivenöl
+    0.92,  # Rapsöl
+    0.92,  # Sonnenblumenöl
+    0.92,  # Kokosöl
+    0.91,  # Leinöl
+    0.92,  # Sesamöl
+    0.92,  # Erdnussöl
+    0.92,  # Distelöl
+    0.91,  # Traubenkernöl
+    0.91,  # Walnussöl
+    0.91,  # Avocadoöl
+    0.91,  # Mandelöl
+    0.91,  # Kürbiskernöl
+    0.92,  # Sojaöl
+    0.92,  # Maiskeimöl
+    0.92,  # Palmöl
+    0.92,  # Palmkernöl
+    0.92,  # Reiskeimöl
+    0.91,  # Haselnussöl
+    0.91,  # Macadamianussöl
+    0.91,  # Arganöl
+    0.91,  # Hanföl
+    0.91,  # Chiaöl
+    0.91,  # Aprikosenkernöl
+    0.91,  # Pistazienöl
+    0.92,  # Pflanzenöl, raffiniert
+    0.91,  # Pflanzenöl, kaltgepresst
+    0.90,  # Butterschmalz (Ghee)
+    0.92,  # Schweineschmalz
+    0.92,  # Gänseschmalz
+    0.92,  # Rindertalg
+    0.92,  # Entenschmalz
+    0.92,  # Lammfett
+    0.92,  # Fischöl
+    0.93,  # Lebertran
+    0.91,  # Kakaobutter
+    0.91,  # Sheabutter
+    0.92,  # Kokosfett
+    0.92,  # Margarine, ungesalzen
+    0.92,  # Margarine, gesalzen
+    0.80,  # Halbfettmargarine
+    0.92,  # Pflanzenmargarine
+    0.70,  # Diätmargarine
+    0.91,  # Butter, ungesalzen
+    0.92,  # Butter, gesalzen
+    0.91,  # Süßrahmbutter
+    0.91,  # Mildgesäuerte Butter
+    0.91,  # Kräuterbutter
+    0.91,  # Knoblauchbutter
+    0.91,  # Trüffelbutter
+    0.91,  # Laktosefreie Butter
+    0.92,  # Buttermischung mit Rapsöl
+    0.80,  # Streichfett, 70% Fett
+    0.70,  # Streichfett, 60% Fett
+    0.50,  # Streichfett, 40% Fett
+    0.40,  # Streichfett, 20% Fett
+    0.92,  # Bratfett, pflanzlich
+    0.92,  # Bratfett, tierisch
+    0.92,  # Frittierfett
+    0.92,  # Backfett
+    0.92,  # Kokosnussöl, nativ
+    0.92,  # Kokosnussöl, raffiniert
+    0.91,  # Olivenöl, extra vergine
+    0.91,  # Olivenöl, nativ
+    0.92,  # Rapsöl, kaltgepresst
+    0.92,  # Rapsöl, raffiniert
+    0.91,  # Sonnenblumenöl, kaltgepresst
+    0.92,  # Sonnenblumenöl, raffiniert
+    0.92,  # Sesamöl, geröstet
+    0.91,  # Sesamöl, ungeröstet
+    0.92,  # Erdnussöl, kaltgepresst
+    0.92,  # Erdnussöl, raffiniert
+    0.91,  # Distelöl, kaltgepresst
+    0.92,  # Distelöl, raffiniert
+    0.91,  # Traubenkernöl, kaltgepresst
+    0.92,  # Traubenkernöl, raffiniert
+    0.91,  # Walnussöl, kaltgepresst
+    0.92,  # Walnussöl, raffiniert
+    0.91,  # Avocadoöl, kaltgepresst
+    0.92,  # Avocadoöl, raffiniert
+    0.91,  # Mandelöl, kaltgepresst
+    0.92,  # Mandelöl, raffiniert
+    0.91,  # Kürbiskernöl, kaltgepresst
+    0.92,  # Kürbiskernöl, raffiniert
+    0.91,  # Sojaöl, kaltgepresst
+    0.92,  # Sojaöl, raffiniert
+    0.91,  # Maiskeimöl, kaltgepresst
+    0.92,  # Maiskeimöl, raffiniert
+    0.92,  # Palmöl, ungehärtet
+    0.92,  # Palmöl, gehärtet
+    0.92,  # Palmkernöl, ungehärtet
+    0.92,  # Palmkernöl, gehärtet
+    0.91,  # Reiskeimöl, kaltgepresst
+    0.92,  # Reiskeimöl, raffiniert
+    0.91,  # Haselnussöl, kaltgepresst
+    0.92,  # Haselnussöl, raffiniert
+    0.91,  # Macadamianussöl, kaltgepresst
+    0.92,  # Macadamianussöl, raffiniert
+    0.91,  # Arganöl, kaltgepresst
+    0.92,  # Arganöl, raffiniert
+]
+
 
 nutritionÖleFette_facts = [
     (884, 0.0, 0.0, 100.0),  # Olivenöl
@@ -2415,7 +3638,7 @@ foodÖleFette_tags = [
     (99, [6, 17]),  # Arganöl, raffiniert
 ]
 
-setDatabase(tags, foodsÖleFette, nutritionÖleFette_facts, foodÖleFette_tags)
+setDatabase(tags, foodsÖleFette, nutritionÖleFette_facts, foodÖleFette_tags, dichten_oele_fette)
 
 
 foodsNüsse = [
@@ -2522,6 +3745,8 @@ foodsNüsse = [
 ]
 
 
+
+
 nutritionNüsse_facts = [
     (673, 13.7, 13.1, 68.4),  # Pinienkerne
     (573, 17.0, 23.5, 49.7),  # Sesamsamen
@@ -2624,6 +3849,110 @@ nutritionNüsse_facts = [
     (716, 7.8, 13.0, 78.5),   # Macadamianussbutter
     (619, 18.3, 26.0, 55.3),  # Sonnenblumenkernbutter
 ]
+
+dichte_Nüsse = [
+    0.61,  # Pinienkerne
+    0.49,  # Sesamsamen
+    0.56,  # Mohnsamen
+    0.50,  # Hanfsamen
+    0.76,  # Macadamianüsse
+    0.68,  # Paranüsse
+    0.69,  # Pekannüsse
+    0.75,  # Kastanien (Edelkastanien)
+    None,  # Ginkgo-Nüsse
+    None,  # Lotosblumensamen
+    None,  # Baumwollsamen
+    None,  # Brotnussbaum-Samen
+    None,  # Saflor (Färberdistel) Samen
+    None,  # Pinyon-Kiefersamen
+    None,  # Schwarznüsse (Schwarze Walnüsse)
+    None,  # Erdmandeln (Tigernüsse)
+    None,  # Wassermelonenkerne
+    None,  # Basilikumsamen
+    0.56,  # Mohnsamen, blau
+    0.56,  # Mohnsamen, weiß
+    0.53,  # Chiasamen, schwarz
+    0.53,  # Chiasamen, weiß
+    0.49,  # Sesamsamen, schwarz
+    0.49,  # Sesamsamen, weiß
+    0.54,  # Kürbiskerne, grün
+    0.54,  # Kürbiskerne, weiß
+    0.52,  # Sonnenblumenkerne, geschält
+    0.52,  # Sonnenblumenkerne, ungeschält
+    0.54,  # Leinsamen, braun
+    0.54,  # Leinsamen, golden
+    0.50,  # Hanfsamen, geschält
+    0.50,  # Hanfsamen, ungeschält
+    0.59,  # Erdnüsse, blanchiert
+    0.59,  # Erdnüsse, geröstet
+    0.59,  # Erdnüsse, ungesalzen
+    0.59,  # Erdnüsse, gesalzen
+    0.60,  # Cashewnüsse, roh
+    0.60,  # Cashewnüsse, geröstet
+    0.60,  # Cashewnüsse, gesalzen
+    0.58,  # Mandeln, roh
+    0.58,  # Mandeln, geröstet
+    0.58,  # Mandeln, gesalzen
+    0.64,  # Haselnüsse, roh
+    0.64,  # Haselnüsse, geröstet
+    0.64,  # Haselnüsse, blanchiert
+    0.59,  # Walnüsse, roh
+    0.59,  # Walnüsse, geröstet
+    0.62,  # Pistazien, roh
+    0.62,  # Pistazien, geröstet
+    0.62,  # Pistazien, gesalzen
+    0.76,  # Macadamianüsse, roh
+    0.76,  # Macadamianüsse, geröstet
+    0.68,  # Paranüsse, roh
+    0.68,  # Paranüsse, geröstet
+    0.69,  # Pekannüsse, roh
+    0.69,  # Pekannüsse, geröstet
+    0.75,  # Kastanien, roh
+    0.75,  # Kastanien, geröstet
+    None,  # Ginkgo-Nüsse, roh
+    None,  # Ginkgo-Nüsse, gekocht
+    None,  # Lotosblumensamen, roh
+    None,  # Lotosblumensamen, getrocknet
+    None,  # Baumwollsamen, roh
+    None,  # Baumwollsamen, geröstet
+    None,  # Brotnussbaum-Samen, roh
+    None,  # Brotnussbaum-Samen, getrocknet
+    None,  # Saflor-Samen, roh
+    None,  # Saflor-Samen, getrocknet
+    None,  # Pinyon-Kiefersamen, roh
+    None,  # Pinyon-Kiefersamen, geröstet
+    None,  # Schwarznüsse, roh
+    None,  # Schwarznüsse, getrocknet
+    None,  # Erdmandeln, roh
+    None,  # Erdmandeln, getrocknet
+    None,  # Wassermelonenkerne, roh
+    None,  # Wassermelonenkerne, geröstet
+    None,  # Basilikumsamen, roh
+    None,  # Basilikumsamen, getrocknet
+    0.56,  # Mohnsamen, blau, roh
+    0.56,  # Mohnsamen, weiß, roh
+    0.53,  # Chiasamen, schwarz, roh
+    0.53,  # Chiasamen, weiß, roh
+    0.49,  # Sesamsamen, schwarz, roh
+    0.49,  # Sesamsamen, weiß, roh
+    0.54,  # Kürbiskerne, grün, roh
+    0.54,  # Kürbiskerne, weiß, roh
+    0.52,  # Sonnenblumenkerne, geschält, roh
+    0.52,  # Sonnenblumenkerne, ungeschält, roh
+    0.54,  # Leinsamen, braun, roh
+    0.54,  # Leinsamen, golden, roh
+    0.50,  # Hanfsamen, geschält, roh
+    0.50,  # Hanfsamen, ungeschält, roh
+    None,  # Erdnussbutter
+    None,  # Mandelbutter
+    None,  # Cashewbutter
+    None,  # Haselnusscreme
+    None,  # Tahini (Sesampaste)
+    None,  # Pistazienpaste
+    None,  # Macadamianussbutter
+    None,  # Sonnenblumenkernbutter
+]
+
 
 foodNüsse_tags = [
     (0, [6, 19]),  # Pinienkerne
@@ -2728,7 +4057,7 @@ foodNüsse_tags = [
     (99, [6, 19]),  # Sonnenblumenkernbutter
 ]
 
-setDatabase(tags,foodsNüsse,nutritionNüsse_facts,foodNüsse_tags)
+setDatabase(tags,foodsNüsse,nutritionNüsse_facts,foodNüsse_tags,dichte_Nüsse)
 
 foodsBackzutaten = [
     ("Backpulver", "Backzutat", "Ein chemisches Triebmittel, das Teige auflockert und ihnen Volumen verleiht."),
@@ -2777,6 +4106,55 @@ foodsBackzutaten = [
     ("Stevia", "Süßungsmittel", "Pflanzlicher Süßstoff ohne Kalorien."),
     ("Erythrit", "Süßungsmittel", "Zuckeralkohol als kalorienarmer Zuckerersatz."),
 ]
+
+dichte_Backzutaten = [
+    None,  # Backpulver
+    None,  # Natron (Speisesoda)
+    None,  # Hefe
+    None,  # Hirschhornsalz
+    None,  # Pottasche
+    None,  # Vanillezucker
+    None,  # Zitronenschale (abgeriebene)
+    None,  # Orangenschale (abgeriebene)
+    0.64,  # Kakaopulver
+    None,  # Schokoladenstückchen
+    1.00,  # Kuvertüre
+    None,  # Puddingpulver
+    0.60,  # Speisestärke
+    None,  # Gelatine
+    0.40,  # Agar-Agar
+    None,  # Pektin
+    None,  # Tortenguss
+    1.25,  # Marzipan
+    1.28,  # Fondant
+    None,  # Zitronat
+    None,  # Orangeat
+    0.85,  # Rosinen
+    0.85,  # Sultaninen
+    None,  # Korinten
+    None,  # Cranberries (getrocknet)
+    0.72,  # Datteln (getrocknet)
+    0.75,  # Feigen (getrocknet)
+    0.72,  # Aprikosen (getrocknet)
+    None,  # Backoblaten
+    None,  # Mohnfüllung
+    None,  # Nussfüllung
+    None,  # Zuckerstreusel
+    None,  # Schokostreusel
+    None,  # Perlzucker
+    0.60,  # Kokosraspeln
+    0.65,  # Mandelblättchen
+    0.70,  # Gehackte Nüsse
+    0.85,  # Kandiszucker
+    1.42,  # Honig
+    1.33,  # Ahornsirup
+    1.35,  # Agavendicksaft
+    1.30,  # Reissirup
+    0.40,  # Kokosblütenzucker
+    None,  # Stevia
+    1.49,  # Erythrit
+]
+
 nutritionBackzutaten_facts = [
     (288, 0.0, 71.0, 0.5),   # Backpulver
     (0, 0.0, 0.0, 0.0),      # Natron (Speisesoda)
@@ -2872,3 +4250,5 @@ foodBackzutaten_tags = [
     (43, [6, 20]),  # Stevia
     (44, [6, 20]),  # Erythrit
 ]
+
+setDatabase(tags,foodsBackzutaten,nutritionBackzutaten_facts,foodBackzutaten_tags,dichte_Backzutaten)
