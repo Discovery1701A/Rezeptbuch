@@ -504,9 +504,16 @@ struct RecipeTagsView: View {
 
 struct RecipeIngredientsView: View {
     @State var ingredients: [FoodItemStruct] // Zutaten als @State
+    @State var orignIngredients: [FoodItemStruct]
     @State private var selectedIngredient: FoodItemStruct? = nil // Direkte Referenz zur bearbeiteten Zutat
     @State private var editedQuantity: String = "" // Temporär bearbeitete Menge
     @State private var selectedUnit: Unit = .gram // Temporär bearbeitete Einheit
+    
+    init(ingredients: [FoodItemStruct]) {
+        self.ingredients = ingredients
+        self.orignIngredients = ingredients
+       
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
@@ -550,6 +557,9 @@ struct RecipeIngredientsView: View {
                 ),
                 editedQuantity: $editedQuantity,
                 selectedUnit: $selectedUnit,
+                onSave: { newQuantity in
+                    adjustOtherIngredients(for: ingredient, newQuantity: newQuantity)
+                },
                 onClose: {
                     selectedIngredient = nil // Popup schließen
                 }
@@ -564,13 +574,43 @@ struct RecipeIngredientsView: View {
         editedQuantity = String(ingredient.quantity)
         selectedUnit = ingredient.unit
     }
+
+    private func adjustOtherIngredients(for ingredient: FoodItemStruct, newQuantity: Double) {
+        guard let index = ingredients.firstIndex(where: { $0.id == ingredient.id }) else { return }
+        
+        let oldQuantity = orignIngredients[index].quantity
+        let adjustmentFactor = newQuantity / oldQuantity
+
+        // Passe die Mengen der anderen Zutaten an
+        for i in ingredients.indices where i != index  {
+            ingredients[i].quantity = adjustmentFactor * orignIngredients[i].quantity
+        }
+    }
 }
 
 struct EditIngredientPopup: View {
     @Binding var ingredient: FoodItemStruct
     @Binding var editedQuantity: String
     @Binding var selectedUnit: Unit
+    @State private var temporaryUnit: Unit // Temporäre Einheit für Berechnungen
     var onClose: () -> Void // Callback zum Schließen des Popups
+    var onSave: (Double) -> Void // Callback zum Speichern und Anpassen der anderen Zutaten
+    
+    init(
+        ingredient: Binding<FoodItemStruct>,
+        editedQuantity: Binding<String>,
+        selectedUnit: Binding<Unit>,
+        onSave: @escaping (Double) -> Void,
+        onClose: @escaping () -> Void
+        
+    ) {
+        self._ingredient = ingredient
+        self._editedQuantity = editedQuantity
+        self._selectedUnit = selectedUnit
+        self.onClose = onClose
+        self.onSave = onSave
+        self._temporaryUnit = State(initialValue: selectedUnit.wrappedValue)
+    }
 
     var body: some View {
         VStack(spacing: 20) {
@@ -609,13 +649,13 @@ struct EditIngredientPopup: View {
                     if newUnit != .piece && ingredient.unit != .piece {
                         if let newQuantity = Unit.convert(
                             value: Double(editedQuantity) ?? 0,
-                            from: ingredient.unit,
+                            from: temporaryUnit,
                             to: newUnit,
                             density: ingredient.food.density ?? 1.0 // Standarddichte
                         ) {
                             editedQuantity = String(newQuantity)
                         }
-                        ingredient.unit = newUnit
+                        temporaryUnit = newUnit
                     }
                 }
             }
@@ -627,16 +667,28 @@ struct EditIngredientPopup: View {
                     onClose() // Schließt das Popup
                 }
                 .padding()
-                
                 Button("Speichern") {
-                    // Änderungen speichern
-                    if let newQuantity = Double(editedQuantity) {
-                        ingredient.quantity = newQuantity
-                        ingredient.unit = selectedUnit
+                    // Konvertiere die eingegebene Menge von `editedQuantity` in die ursprüngliche Einheit der Zutat
+                    if let newQuantityInOriginalUnit = Unit.convert(
+                        value: Double(editedQuantity) ?? 0, // Eingegebene Menge (in der temporären Einheit)
+                        from: selectedUnit,                // Temporäre Einheit
+                        to: ingredient.unit,               // Ziel: Ursprüngliche Einheit der Zutat
+                        density: ingredient.food.density ?? 1.0 // Dichte verwenden
+                    ) {
+                        print("Vorherige Menge: \(ingredient.quantity)")
+                        print("vvvvvvvv", Double(editedQuantity)! )
+                        ingredient.quantity =  Double(editedQuantity)! // Speichere die umgerechnete Menge
+                        print("Neue Menge: \(ingredient.quantity)")
+                        ingredient.unit = selectedUnit                 // Speichere die temporäre Einheit
+                        onSave(newQuantityInOriginalUnit)              // Passe andere Zutaten an
+                    } else {
+                        print("Fehler bei der Umrechnung von Mengen.")
                     }
                     onClose() // Schließt das Popup
                 }
                 .padding()
+
+
             }
         }
         .padding()
