@@ -139,7 +139,7 @@ struct RecipebookStruct: Hashable, Identifiable {
 
 
 // Food item used in a recipe, including quantity and unit
-struct FoodItemStruct: Hashable, Equatable {
+struct FoodItemStruct: Hashable, Equatable, Identifiable {
     var food: FoodStruct
     var unit: Unit
     var quantity: Double

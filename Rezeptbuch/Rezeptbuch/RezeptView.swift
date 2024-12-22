@@ -502,17 +502,11 @@ struct RecipeTagsView: View {
     }
 }
 
-import SwiftUI
-
 struct RecipeIngredientsView: View {
-    @State var ingredients: [FoodItemStruct] // Ingredients als @State, da wir Änderungen verfolgen müssen
-    @State private var showingPickerIndex: Int? // Index des aktuellen Pickers, der angezeigt wird
-    @State private var unitSelection: [Unit] // Separate Unit-Auswahl
-
-      init(ingredients: [FoodItemStruct]) {
-          self._ingredients = State(initialValue: ingredients)
-          self._unitSelection = State(initialValue: ingredients.map { $0.unit }) // Initialisierung
-      }
+    @State var ingredients: [FoodItemStruct] // Zutaten als @State
+    @State private var selectedIngredient: FoodItemStruct? = nil // Direkte Referenz zur bearbeiteten Zutat
+    @State private var editedQuantity: String = "" // Temporär bearbeitete Menge
+    @State private var selectedUnit: Unit = .gram // Temporär bearbeitete Einheit
     
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
@@ -530,48 +524,126 @@ struct RecipeIngredientsView: View {
                             Text("\(ingredients[index].quantity.rounded(toPlaces: 2).formatted(toPlaces: 2))")
                                 .font(.subheadline)
                             
-                            // Einheit mit LongPressGesture
                             Text(ingredients[index].unit.rawValue)
                                 .font(.subheadline)
                                 .onLongPressGesture {
-                                    showingPickerIndex = index // Picker anzeigen
+                                    preparePopup(for: index)
                                 }
                         }
                         .padding(.bottom, 5)
-                    }
-                    
-                    // Picker nur anzeigen, wenn der Index übereinstimmt
-                    if showingPickerIndex == index, ingredients[index].food.density != nil {
-                        Picker("Einheit", selection: $unitSelection[index]) {
-                            ForEach(Unit.allCases, id: \.self) { unit in
-                                Text(unit.rawValue).tag(unit)
-                            }
-                        }
-                        .pickerStyle(WheelPickerStyle())
-                        .frame(maxWidth: 120)
-                        .onChange(of: unitSelection[index]) { newUnit in
-                            // Umrechnung der Menge beim Ändern der Einheit
-                            if let newQuantity = Unit.convert(
-                                value: ingredients[index].quantity,
-                                from: ingredients[index].unit,
-                                to: newUnit,
-                                density: ingredients[index].food.density ?? 0
-                            ) {
-                                print("fjvndfovnfovnfoivno",newQuantity)
-                                ingredients[index].quantity = newQuantity
-                                ingredients[index].unit = newUnit
-                            }
-                            showingPickerIndex = nil // Picker ausblenden
-                        }
                     }
                 }
                 .padding()
             }
         }
         .padding()
+        .sheet(item: $selectedIngredient) { ingredient in
+            EditIngredientPopup(
+                ingredient: Binding(
+                    get: { ingredient },
+                    set: { updatedIngredient in
+                        // Aktualisiere die Zutat im Array
+                        if let index = ingredients.firstIndex(where: { $0.id == updatedIngredient.id }) {
+                            ingredients[index] = updatedIngredient
+                        }
+                    }
+                ),
+                editedQuantity: $editedQuantity,
+                selectedUnit: $selectedUnit,
+                onClose: {
+                    selectedIngredient = nil // Popup schließen
+                }
+            )
+        }
+    }
+
+    private func preparePopup(for index: Int) {
+        // Popup-Daten vorbereiten
+        let ingredient = ingredients[index]
+        selectedIngredient = ingredient // Wähle die Zutat direkt aus
+        editedQuantity = String(ingredient.quantity)
+        selectedUnit = ingredient.unit
     }
 }
 
+struct EditIngredientPopup: View {
+    @Binding var ingredient: FoodItemStruct
+    @Binding var editedQuantity: String
+    @Binding var selectedUnit: Unit
+    var onClose: () -> Void // Callback zum Schließen des Popups
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Menge bearbeiten")
+                .font(.headline)
+            
+            Text(ingredient.food.name)
+                .font(.title2)
+            
+            if ingredient.food.density == nil || ingredient.food.density ?? 0 <= 0 {
+                Text("Einheit kann nicht geändert werden, da keine Dichte vorhanden ist.")
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+            }
+            if ingredient.unit == .piece {
+                Text("Einheit kann nicht geändert werden, da es sich um eine Stückanzahl handelt.")
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+            }
+            
+            HStack {
+                TextField("Menge", text: $editedQuantity)
+                    .keyboardType(.decimalPad)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(width: 100)
+                
+                Picker("Einheit", selection: $selectedUnit) {
+                    ForEach(Unit.allCases.filter { $0 != .piece || $0 == selectedUnit }, id: \.self) { unit in
+                        Text(unit.rawValue).tag(unit)
+                    }
+                }
+                .pickerStyle(WheelPickerStyle())
+                .disabled(ingredient.food.density == nil || ingredient.food.density ?? 0 <= 0 || ingredient.unit == .piece) // Deaktiviert den Picker
+                .onChange(of: selectedUnit) { newUnit in
+                    // Umrechnung der Menge beim Ändern der Einheit
+                    if newUnit != .piece && ingredient.unit != .piece {
+                        if let newQuantity = Unit.convert(
+                            value: Double(editedQuantity) ?? 0,
+                            from: ingredient.unit,
+                            to: newUnit,
+                            density: ingredient.food.density ?? 1.0 // Standarddichte
+                        ) {
+                            editedQuantity = String(newQuantity)
+                        }
+                        ingredient.unit = newUnit
+                    }
+                }
+            }
+            .padding()
+            
+            HStack {
+                Button("Abbrechen") {
+                    // Popup schließen ohne Änderungen
+                    onClose() // Schließt das Popup
+                }
+                .padding()
+                
+                Button("Speichern") {
+                    // Änderungen speichern
+                    if let newQuantity = Double(editedQuantity) {
+                        ingredient.quantity = newQuantity
+                        ingredient.unit = selectedUnit
+                    }
+                    onClose() // Schließt das Popup
+                }
+                .padding()
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(10)
+    }
+}
 
 
 struct RecipeInstructionsView: View {
@@ -625,6 +697,7 @@ struct NutritionSummary {
     var totalProtein: Double = 0.0
     var totalCarbohydrates: Double = 0.0
     var totalFat: Double = 0.0
+    var missingStings:[String] = []
 
     mutating func calculate(from items: [FoodItemStruct]) {
         totalCalories = 0
@@ -633,13 +706,26 @@ struct NutritionSummary {
         totalFat = 0.0
        
         for item in items {
-           
-            if let nutrition = item.food.nutritionFacts {
-                print(nutrition)
-                totalCalories += Int(Double(nutrition.calories ?? 0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100)
-                totalProtein += (nutrition.protein ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
-                totalCarbohydrates += (nutrition.carbohydrates ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
-                totalFat += (nutrition.fat ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
+            if item.food.density == nil || item.food.density ?? 0 <= 0 {
+                missingStings.append("\(item.food.name) hat keine Dichte")
+            }
+            if item.food.nutritionFacts == nil || item.food.nutritionFacts?.calories == nil || item.food.nutritionFacts?.calories ?? 0 <= 0  || item.food.nutritionFacts?.protein == nil || item.food.nutritionFacts?.protein ?? 0 <= 0 || item.food.nutritionFacts?.carbohydrates == nil || item.food.nutritionFacts?.carbohydrates ?? 0 <= 0 || item.food.nutritionFacts?.fat == nil || item.food.nutritionFacts?.fat ?? 0 <= 0 {
+                missingStings.append("\(item.food.name) hat fehlende Nährwerte")
+                
+            }
+            
+            if item.unit == .piece{
+                missingStings.append("\(item.food.name) hat eine Stückmenge daher ist die Berechnung nicht vollständing")
+            } else {
+                
+                if let nutrition = item.food.nutritionFacts {
+                    print(nutrition)
+                    totalCalories += Int(Double(nutrition.calories ?? 0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100)
+                    totalProtein += (nutrition.protein ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
+                    totalCarbohydrates += (nutrition.carbohydrates ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
+                    
+                    totalFat += (nutrition.fat ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
+                }
             }
         }
     
@@ -654,7 +740,9 @@ struct NutritionSummaryView: View {
             Text("Nährwerte")
                 .font(.headline)
                 .padding()
-
+            if summary.missingStings.count > 0 {
+                Text("Es wurden bei der Berechnung nicht alle Zutaten berücksichtigt.")
+            }
             HStack {
                 NutritionBar(value: summary.totalCalories, label: "Kalorien", color: .red)
                 NutritionBar(value: Int(summary.totalProtein), label: "Protein", color: .blue)

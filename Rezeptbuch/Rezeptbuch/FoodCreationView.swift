@@ -17,6 +17,7 @@ struct FoodCreationView: View {
     @State private var protein = ""
     @State private var carbohydrates = ""
     @State private var fat = ""
+    @State private var fooddensity: String = ""
     @State private var allTags: [TagStruct]
     @State private var selectedTags: Set<UUID>
     var existingFood: FoodStruct? = nil
@@ -33,6 +34,7 @@ struct FoodCreationView: View {
             _foodName = State(initialValue: existingFood.name)
             _foodCategory = State(initialValue: existingFood.category ?? "")
             _foodInfo = State(initialValue: existingFood.info ?? "")
+            _fooddensity = State(initialValue: "\(existingFood.density ?? 0)")
             _calories = State(initialValue: "\(existingFood.nutritionFacts?.calories ?? 0)")
             _protein = State(initialValue: "\(existingFood.nutritionFacts?.protein ?? 0.0)")
             _carbohydrates = State(initialValue: "\(existingFood.nutritionFacts?.carbohydrates ?? 0.0)")
@@ -76,6 +78,7 @@ struct FoodCreationView: View {
                 TextField("Lebensmittelname", text: $foodName)
                 TextField("Kategorie", text: $foodCategory)
                 TextField("Info", text: $foodInfo)
+                TextField( "Dichte (g/cm^3)", text: $fooddensity)
             }
             Section(header: Text("Tags")){
                 TagsSectionView( allTags: $allTags, selectedTags: $selectedTags)
@@ -123,6 +126,7 @@ struct FoodCreationView: View {
 
         let info = foodInfo.isEmpty ? nil : foodInfo
         let category = foodCategory.isEmpty ? nil : foodCategory
+        let density = fooddensity.isEmpty ? nil : Double(fooddensity)
         let caloriesValue = calories.isEmpty ? nil : Int(calories)
         let proteinValue = protein.isEmpty ? nil : Double(protein)
         let carbohydratesValue = carbohydrates.isEmpty ? nil : Double(carbohydrates)
@@ -143,6 +147,7 @@ struct FoodCreationView: View {
                 id: existingFood.id,
                 name: foodName,
                 category: category,
+                density: density,
                 info: info,
                 nutritionFacts: nutritionFacts,
                 tags: tags
@@ -154,6 +159,7 @@ struct FoodCreationView: View {
                 id: UUID(),
                 name: foodName,
                 category: category,
+                density: density,
                 info: info,
                 nutritionFacts: nutritionFacts,
                 tags: tags
