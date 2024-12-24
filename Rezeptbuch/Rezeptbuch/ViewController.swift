@@ -161,7 +161,7 @@ struct FoodItemStruct: Hashable, Equatable, Identifiable {
     }
 }
 
-enum Unit: String, CaseIterable {
+enum Unit: String, CaseIterable, Hashable {
     case gram = "g"
     case kilogram = "kg"
     case milliliter = "ml"

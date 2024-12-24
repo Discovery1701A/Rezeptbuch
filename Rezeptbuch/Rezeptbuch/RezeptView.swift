@@ -557,8 +557,13 @@ struct RecipeIngredientsView: View {
                 ),
                 editedQuantity: $editedQuantity,
                 selectedUnit: $selectedUnit,
-                onSave: { newQuantity in
-                    adjustOtherIngredients(for: ingredient, newQuantity: newQuantity)
+                onSave: { newQuantity, newUnit in
+                    if let index = ingredients.firstIndex(where: { $0.id == ingredient.id }) {
+                        ingredients[index].quantity = newQuantity
+                        ingredients[index].unit = newUnit
+                        print("Gespeicherte neue Menge in übergeordneter Ansicht: \(ingredients[index].quantity)")
+                        adjustOtherIngredients(for: ingredient)
+                    }
                 },
                 onClose: {
                     selectedIngredient = nil // Popup schließen
@@ -575,10 +580,11 @@ struct RecipeIngredientsView: View {
         selectedUnit = ingredient.unit
     }
 
-    private func adjustOtherIngredients(for ingredient: FoodItemStruct, newQuantity: Double) {
+    private func adjustOtherIngredients(for ingredient: FoodItemStruct) {
         guard let index = ingredients.firstIndex(where: { $0.id == ingredient.id }) else { return }
         
         let oldQuantity = orignIngredients[index].quantity
+        let newQuantity = Unit.convert(value: ingredients[index].quantity, from: ingredients[index].unit, to: orignIngredients[index].unit, density: ingredients[index].food.density ?? 0) ?? ingredients[index].quantity
         let adjustmentFactor = newQuantity / oldQuantity
 
         // Passe die Mengen der anderen Zutaten an
@@ -594,13 +600,13 @@ struct EditIngredientPopup: View {
     @Binding var selectedUnit: Unit
     @State private var temporaryUnit: Unit // Temporäre Einheit für Berechnungen
     var onClose: () -> Void // Callback zum Schließen des Popups
-    var onSave: (Double) -> Void // Callback zum Speichern und Anpassen der anderen Zutaten
+    var onSave: (Double, Unit) -> Void // Callback zum Speichern und Anpassen der anderen Zutaten
     
     init(
         ingredient: Binding<FoodItemStruct>,
         editedQuantity: Binding<String>,
         selectedUnit: Binding<Unit>,
-        onSave: @escaping (Double) -> Void,
+        onSave: @escaping (Double, Unit) -> Void,
         onClose: @escaping () -> Void
         
     ) {
@@ -668,25 +674,18 @@ struct EditIngredientPopup: View {
                 }
                 .padding()
                 Button("Speichern") {
-                    // Konvertiere die eingegebene Menge von `editedQuantity` in die ursprüngliche Einheit der Zutat
-                    if let newQuantityInOriginalUnit = Unit.convert(
-                        value: Double(editedQuantity) ?? 0, // Eingegebene Menge (in der temporären Einheit)
-                        from: selectedUnit,                // Temporäre Einheit
-                        to: ingredient.unit,               // Ziel: Ursprüngliche Einheit der Zutat
-                        density: ingredient.food.density ?? 1.0 // Dichte verwenden
-                    ) {
-                        print("Vorherige Menge: \(ingredient.quantity)")
-                        print("vvvvvvvv", Double(editedQuantity)! )
-                        ingredient.quantity =  Double(editedQuantity)! // Speichere die umgerechnete Menge
-                        print("Neue Menge: \(ingredient.quantity)")
-                        ingredient.unit = selectedUnit                 // Speichere die temporäre Einheit
-                        onSave(newQuantityInOriginalUnit)              // Passe andere Zutaten an
+                    if let newQuantity = Double(editedQuantity) {
+                        print("Converted Quantity: \(newQuantity)")
+                        onSave(newQuantity, selectedUnit) // Rückgabe an die übergeordnete Ansicht
                     } else {
-                        print("Fehler bei der Umrechnung von Mengen.")
+                        print("Ungültige Eingabe in Edited Quantity: \(editedQuantity)")
                     }
                     onClose() // Schließt das Popup
                 }
+
+
                 .padding()
+
 
 
             }
