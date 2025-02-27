@@ -87,7 +87,7 @@ struct RecipeCreationView: View {
             } else {
                 self._portionValue = State(initialValue: "0.0")
             }
-            _isCake = State(initialValue: recipe.cake != nil)
+            _isCake = State(initialValue: recipe.cake != .notCake || (recipe.cake != nil && recipe.portion == .notPortion) )
             _cakeForm = State(initialValue: recipe.cake?.form ?? .rund)
             _cakeSize = State(initialValue: recipe.cake?.size ?? .round(diameter: 0))
             _info = State(initialValue: recipe.info ?? "")
@@ -359,46 +359,24 @@ struct RecipeCreationView: View {
             let filteredBooks = filteredRecipeBooks.filter { $0.id == bookID }
             bookSav.append(contentsOf: filteredBooks)
         }
-        
-        if let image = recipeImage, let imagePath = saveImageLocally(image: image) {
-            recipe = Recipe(id: id,
-                            title: recipeTitle,
-                            ingredients: ingredients.compactMap { $0 },
-                            instructions: instructions,
-                            image: imagePath, // Pfad zur Bilddatei
-                            portion: isCake ? .notPortion : .Portion(Double(portionValue) ?? 0.0),
-                            cake: isCake ? .cake(form: cakeForm, size: cakeSize) : .notCake,
-                            videoLink: videoLinkSav,
-                            info: infoSav,
-                            tags: tagsSav,
-                            recipeBookIDs: Array(selectedRecipeBookIDs))
-        } else {
-            if isCake {
-                recipe = Recipe(id: id,
-                                title: recipeTitle,
-                                ingredients: ingredients.compactMap { $0 },
-                                instructions: instructions,
-                                image: nil,
-                                portion: .notPortion,
-                                cake: .cake(form: cakeForm, size: cakeSize),
-                                videoLink: videoLinkSav,
-                                info: infoSav,
-                                tags: tagsSav,
-                                recipeBookIDs: Array(selectedRecipeBookIDs))
-            } else {
-                recipe = Recipe(id: id,
-                                title: recipeTitle,
-                                ingredients: ingredients.compactMap { $0 },
-                                instructions: instructions,
-                                image: nil,
-                                portion: .Portion(Double(portionValue) ?? 0.0),
-                                cake: .notCake,
-                                videoLink: videoLinkSav,
-                                info: infoSav,
-                                tags: tagsSav,
-                                recipeBookIDs: Array(selectedRecipeBookIDs))
-            }
+        var imagePath : String? = nil
+        if let image = recipeImage, let Path = saveImageLocally(image: image) {
+            imagePath = Path
+           
         }
+           
+                recipe = Recipe(id: id,
+                                title: recipeTitle,
+                                ingredients: ingredients.compactMap { $0 },
+                                instructions: instructions,
+                                image: imagePath,
+                                portion: portionInfo,
+                                cake:  cakeInfo,
+                                videoLink: videoLinkSav,
+                                info: infoSav,
+                                tags: tagsSav,
+                                recipeBookIDs: Array(selectedRecipeBookIDs))
+         
         
         //        print("ja")
         // Speichern des Rezepts im Datenmanager
