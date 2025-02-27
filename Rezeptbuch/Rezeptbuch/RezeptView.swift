@@ -24,6 +24,9 @@ struct RecipeView: View {
     @State private var diameter : Double
     @State private var lenght : Double
     @State private var width : Double
+    @State private var privDiameter : Double
+    @State private var privLenght : Double
+    @State private var privWidth : Double
     @State private var originDiameter : Double
     @State private var originLenght : Double
     @State private var originWidth : Double
@@ -43,6 +46,9 @@ struct RecipeView: View {
         } else {
             self.portion = 0.0
         }
+        self.privWidth = 0
+        self.privLenght = 0
+        self.privDiameter = 0
         if case let .cake(form: FormValu, size: SizeValue) = recipe.cake {
             self.cakeFormSelection = FormValu
            
@@ -84,6 +90,10 @@ struct RecipeView: View {
             self.originWidth  = 0
          
         }
+        self.privWidth = self.width
+        self.privLenght = self.lenght
+        self.privDiameter = self.diameter
+        
         summary.calculate(from: ingredients)
      
     }
@@ -150,11 +160,23 @@ struct RecipeView: View {
                                             .padding()
                                             .onChange(of: cakeFormSelection) { newValue in
                                                 if newValue == Formen.rund{
-                                                    rectToRound()
-                                                    scaleRoundIngredients()
+                                                   
+                                                    if privLenght != lenght || privWidth != width{
+                                                        rectToRound()
+                                                        privWidth = width
+                                                        privLenght = lenght
+                                                        privDiameter = diameter
+                                                        scaleRoundIngredients()
+                                                    }
                                                 } else if newValue == Formen.eckig{
-                                                    roundToRect()
-                                                    scaleRectIngredients()
+                                                   
+                                                    if privDiameter != diameter{
+                                                        roundToRect()
+                                                        privDiameter = diameter
+                                                        privWidth = width
+                                                        privLenght = lenght
+                                                        scaleRectIngredients()
+                                                    }
                                                 }
                                             }
                                         
