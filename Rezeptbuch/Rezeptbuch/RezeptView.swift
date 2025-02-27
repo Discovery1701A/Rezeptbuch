@@ -169,7 +169,7 @@ struct RecipeView: View {
                     {
                         HStack{
                             portionScaleMinus()
-                            Text(String(Int(portion)))
+                            Text(formatPortion(portion))
                             portionScalePlus()
                         }
                     }
@@ -444,10 +444,13 @@ struct RecipeView: View {
     func portionScalePlus() -> some View {
         Button(action: {
             if portion > 0 {
-                portion = 1 + portion
+                if portion.truncatingRemainder(dividingBy: 1) == 0 {
+                    portion += 1 // Falls ganze Zahl, normal erhöhen
+                } else {
+                    portion = ceil(portion) // Falls Dezimalstelle, aufrunden
+                }
                 scaleIngredients(portion: portion)
             }
-            
         }, label: {
             Image(systemName: "plus.circle.fill")
         })
@@ -457,19 +460,32 @@ struct RecipeView: View {
     func portionScaleMinus() -> some View {
         Button(action: {
             if portion > 1 {
-                portion = portion - 1
+                if portion.truncatingRemainder(dividingBy: 1) == 0 {
+                    portion -= 1 // Falls ganze Zahl, normal verringern
+                } else {
+                    portion = floor(portion) // Falls Dezimalstelle, abrunden
+                }
                 scaleIngredients(portion: portion)
             }
-            
         }, label: {
             Image(systemName: "minus.circle.fill")
         })
     }
-
+    
+    private func formatPortion(_ value: Double) -> String {
+        if value.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(Int(value)) // Ganzzahl ohne Nachkommastellen
+        } else if value * 10 == floor(value * 10) { // Prüfen, ob nur eine Dezimalstelle notwendig ist
+            return String(format: "%.1f", value) // Eine Dezimalstelle
+        } else {
+            return String(format: "%.2f", value) // Zwei Dezimalstellen
+        }
+    }
 
      
      private func scaleIngredients(portion: Double) {
          if case let .Portion(portionValue) = recipe.portion {
+             isFormUpdatingIngredients = true
              ingredients = Model().portionScale(portionOrigin: portionValue, portionNew: portion, foodItems: originIngriedents)
          }
      }
@@ -604,6 +620,7 @@ struct RecipeView: View {
 
         // Neue Portion berechnen
         portion = factor * originalPortion
+        print("poooorrt " ,portion )
     }
 
 
