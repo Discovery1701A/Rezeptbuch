@@ -18,6 +18,7 @@ struct RecipeView: View {
         let eventStore = EKEventStore()
         @State private var portion: Double
     @State private var showingShareSheet = false
+    @State private var isFormUpdatingIngredients = false
         
         // Für den Picker
     @State private var cakeFormSelection : Formen
@@ -30,6 +31,7 @@ struct RecipeView: View {
     @State private var originDiameter : Double
     @State private var originLenght : Double
     @State private var originWidth : Double
+    @State private var ratio : Double
     var summary = NutritionSummary()
     
 
@@ -46,21 +48,30 @@ struct RecipeView: View {
         } else {
             self.portion = 0.0
         }
-        self.privWidth = 0
-        self.privLenght = 0
-        self.privDiameter = 0
+      
         if case let .cake(form: FormValu, size: SizeValue) = recipe.cake {
             self.cakeFormSelection = FormValu
            
-            if case let .rectangular(length: lenght, width: width) = SizeValue {
-                self.lenght = lenght
+            if case let .rectangular(length: length, width: width) = SizeValue {
+                self.lenght = length
                 self.width = width
-                self.diameter = (sqrt((lenght*width) / Double.pi) * 2).rounded(toPlaces: 2)
+                self.diameter = (sqrt((length * width) / Double.pi) * 2).rounded(toPlaces: 2)
 
-                self.originLenght = lenght
+                self.originLenght = length
                 self.originWidth = width
-                self.originDiameter = (sqrt((lenght*width) / Double.pi) * 2).rounded(toPlaces: 2)
-               
+                self.originDiameter = (sqrt((length * width) / Double.pi) * 2).rounded(toPlaces: 2)
+                
+                self.privDiameter = (sqrt((length * width) / Double.pi) * 2).rounded(toPlaces: 2)
+                self.privLenght = length
+                self.privWidth = width
+                
+                // Erst nachdem Länge und Breite gesetzt sind, berechnen wir das Verhältnis
+                if width != 0.0 {
+                    self.ratio = length / width
+                } else {
+                    self.ratio = 1
+                }
+                print("✅ Ratio berechnet: ", self.ratio, "Länge:", self.lenght, "Breite:", self.width)
             }
             else if case let .round(diameter: diameter) = SizeValue {
                 self.diameter = diameter
@@ -69,6 +80,11 @@ struct RecipeView: View {
                 self.originDiameter = diameter
                 self.originLenght = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
                 self.originWidth  = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
+                self.privWidth = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
+                self.privLenght = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
+                self.privDiameter = diameter
+                self.ratio = 1
+                print ("ratio: ", self.ratio , self.lenght, self.width)
                
             } else {
                 self.diameter = 0
@@ -77,6 +93,10 @@ struct RecipeView: View {
                 self.originDiameter = 0
                 self.originLenght = 0
                 self.originWidth  = 0
+                self.privWidth = 0
+                self.privLenght = 0
+                self.privDiameter = 0
+                self.ratio = 1
             }
            
             
@@ -88,11 +108,13 @@ struct RecipeView: View {
             self.originDiameter = 0
             self.originLenght = 0
             self.originWidth  = 0
+            self.privWidth = 0
+            self.privLenght = 0
+            self.privDiameter = 0
+            self.ratio = 1
          
         }
-        self.privWidth = self.width
-        self.privLenght = self.lenght
-        self.privDiameter = self.diameter
+      
         
         summary.calculate(from: ingredients)
      
@@ -166,6 +188,7 @@ struct RecipeView: View {
                                                         privWidth = width
                                                         privLenght = lenght
                                                         privDiameter = diameter
+                                                        ratio = lenght / width
                                                         scaleRoundIngredients()
                                                     }
                                                 } else if newValue == Formen.eckig{
@@ -175,6 +198,7 @@ struct RecipeView: View {
                                                         privDiameter = diameter
                                                         privWidth = width
                                                         privLenght = lenght
+                                                        ratio = lenght / width
                                                         scaleRectIngredients()
                                                     }
                                                 }
@@ -182,7 +206,7 @@ struct RecipeView: View {
                                         
                                             
                         HStack{
-                            if cakeFormSelection == .rund{
+                            if cakeFormSelection == .rund {
                                 Text("Durchmesser (cm):")
                                 TextField("Durchmesser (cm)", text: Binding(
                                     get: { "\(diameter)" },
@@ -192,14 +216,13 @@ struct RecipeView: View {
                                         }
                                     })
                                 )
-#if os(iOS)
                                 .keyboardType(.decimalPad)
-                                #endif
-                                .onChange(of: diameter) { newValue in
-                                    scaleRoundIngredients()}
+                                .onSubmit {
+                                    scaleRoundIngredients() // Erst ausführen, wenn die Eingabe bestätigt wurde
+                                }
                             }
                             
-                            if cakeFormSelection == .eckig{
+                            if cakeFormSelection == .eckig {
                                 Text("Länge (cm):")
                                 TextField("Länge (cm)", text: Binding(
                                     get: { "\(lenght)" },
@@ -209,14 +232,12 @@ struct RecipeView: View {
                                         }
                                     })
                                 )
-                                
-#if os(iOS)
                                 .keyboardType(.decimalPad)
-                                #endif
-                                .onChange(of: width) { newValue in
-                                    scaleRectIngredients()
-                                
-                            }
+                                .onSubmit {
+                                    ratio = lenght / width
+                                    scaleRectIngredients() // Erst nach Bestätigung skalieren
+                                }
+
                                 Text("Breite (cm):")
                                 TextField("Breite (cm)", text: Binding(
                                     get: { "\(width)" },
@@ -226,13 +247,11 @@ struct RecipeView: View {
                                         }
                                     })
                                 )
-#if os(iOS)
                                 .keyboardType(.decimalPad)
-                                #endif
-                                .onChange(of: lenght) { newValue in
-                                    scaleRectIngredients()
-                                
-                            }
+                                .onSubmit {
+                                    ratio = lenght / width
+                                    scaleRectIngredients() // Erst nach Bestätigung skalieren
+                                }
                             }
                             
                             
@@ -244,11 +263,37 @@ struct RecipeView: View {
                            
                                   NutritionSummaryView(summary: summary)
                             
+                           
                             Divider().padding(.horizontal, 16)
-                    RecipeIngredientsView(ingredients: ingredients)
+                            RecipeIngredientsView(ingredients: $ingredients)
                                 .onAppear {
-                                           print("Angezeigte Zutatenin der View: \(ingredients)")
-                                       }
+                                    print("Angezeigte Zutaten in der View: \(ingredients)")
+                                }
+                                .onChange(of: ingredients) { newIngredients in
+                                    DispatchQueue.main.async {
+                                        // Falls die Änderung von der Kuchenform kommt, ignorieren
+                                        guard !isFormUpdatingIngredients else {
+                                            isFormUpdatingIngredients = false // Status zurücksetzen
+                                            return
+                                        }
+                                        
+                                        print("Zutaten haben sich geändert: \(newIngredients)")
+                                        
+                                        // Portion nur aktualisieren, wenn sie relevant ist
+                                        if recipe.portion != .notPortion {
+                                            ingriedentsScalePortion()
+                                        }
+                                        
+                                        // Kuchenform nur anpassen, wenn sie relevant ist
+                                        if recipe.cake != .notCake {
+                                            if cakeFormSelection == .rund {
+                                                ingriedentsScaleDia()
+                                            } else if cakeFormSelection == .eckig {
+                                                ingriedentsScaleWL()
+                                            }
+                                        }
+                                    }
+                                }
                             
                             Divider().padding(.horizontal, 16)
                             RecipeInstructionsView(instructions: recipe.instructions)
@@ -430,18 +475,22 @@ struct RecipeView: View {
      }
     
     private func scaleRoundIngredients() {
-       
-            ingredients = Model().roundScale(diameterOrigin: originDiameter, diameterNew: diameter, foodItems: originIngriedents)
+        isFormUpdatingIngredients = true
+        ingredients = Model().roundScale(diameterOrigin: originDiameter, diameterNew: diameter, foodItems: originIngriedents)
     }
-    private func scaleRectIngredients(){
+
+    private func scaleRectIngredients() {
+        isFormUpdatingIngredients = true
         ingredients = Model().rectScale(lengthOrigin: originLenght, widthOrigin: originWidth, lengthNew: lenght, widthNew: width, foodItems: originIngriedents)
     }
     
     private func rectToRound(){
+        isFormUpdatingIngredients = true
         diameter = Model().rectToRound(length: lenght, width: width).rounded(toPlaces: 2)
     }
     
     private func roundToRect(){
+        isFormUpdatingIngredients = true
         width = Model().roundToRect(diameter: diameter, length: lenght).rounded(toPlaces: 2)
     }
     
@@ -449,7 +498,114 @@ struct RecipeView: View {
         ingredients = Model().itemScale(foodItemsOrigin: originIngriedents, foodItemsNew: ingredients)
     }
     
+    private func resetScale(){
+        ingredients = originIngriedents
+    }
     
+    private func resetAllScale(){
+        ingredients = originIngriedents
+        diameter = originDiameter
+        lenght = originLenght
+        width = originWidth
+    }
+    
+    private func ingriedentsScaleDia() {
+        guard let firstIngredient = ingredients.first,
+              let firstOriginIngredient = originIngriedents.first else { return }
+
+        // Falls die Einheit "Stück" ist, keine Umrechnung durchführen, sondern 1 als Faktor setzen
+        let factor: Double
+        if firstIngredient.unit == .piece {
+            factor = firstIngredient.quantity / firstOriginIngredient.quantity
+        } else {
+            guard let convertedQuantity = Unit.convert(
+                value: firstIngredient.quantity,
+                from: firstIngredient.unit,
+                to: firstOriginIngredient.unit
+            ) else {  print("⚠️ Fehler in ingriedentsScaleDia() - Ungültige Werte")
+                return }
+            
+            factor = firstOriginIngredient.quantity / convertedQuantity
+        }
+        let originalArea = Double.pi * pow(originDiameter / 2, 2)
+
+        let newDiameter = sqrt((originalArea * factor) / Double.pi) * 2
+        if newDiameter.isNaN {
+            print("⚠️ Fehler: Berechneter Durchmesser ist NaN")
+            return
+        }
+
+        diameter = newDiameter
+    }
+
+    private func ingriedentsScaleWL() {
+        guard let firstIngredient = ingredients.first,
+              let firstOriginIngredient = originIngriedents.first else { return }
+
+        // Falls die Einheit "Stück" ist, keine Umrechnung durchführen, sondern 1 als Faktor setzen
+        let factor: Double
+        if firstIngredient.unit == .piece {
+            factor = firstIngredient.quantity / firstOriginIngredient.quantity
+        } else {
+            guard let convertedQuantity = Unit.convert(
+                value: firstIngredient.quantity,
+                from: firstIngredient.unit,
+                to: firstOriginIngredient.unit
+            ) else {  print("⚠️ Fehler in ingriedentsScaleWL() - Ungültige Werte")
+                return }
+            
+            factor = firstOriginIngredient.quantity / convertedQuantity
+        }
+        let originalArea = originLenght * originWidth
+
+        if ratio <= 0 {
+            print("⚠️ Fehler: Ungültiges Seitenverhältnis")
+            return
+        }
+
+        let newWidth = sqrt((originalArea * factor) / ratio)
+        let newLength = ratio * newWidth
+
+        if newWidth.isNaN || newLength.isNaN {
+            print("⚠️ Fehler: Berechnete Länge/Breite ist NaN")
+            return
+        }
+        print("neeeuuuuuue: ", newWidth, newLength)
+        width = newWidth
+        lenght = newLength
+    }
+    
+    private func ingriedentsScalePortion() {
+      
+        guard let firstIngredient = ingredients.first,
+              let firstOriginIngredient = originIngriedents.first else { return }
+
+        // Falls die Einheit "Stück" ist, keine Umrechnung durchführen, sondern 1 als Faktor setzen
+        let factor: Double
+        if firstIngredient.unit == .piece {
+            factor = firstIngredient.quantity / firstOriginIngredient.quantity
+        } else {
+            guard let convertedQuantity = Unit.convert(
+                value: firstIngredient.quantity,
+                from: firstIngredient.unit,
+                to: firstOriginIngredient.unit
+            ) else {  print("⚠️ Fehler in ingriedentsScalePortion() - Ungültige Werte")
+                return }
+            
+            factor = firstOriginIngredient.quantity / convertedQuantity
+        }
+        // Originalportion aus Rezept ermitteln
+        let originalPortion: Double
+        if case let .Portion(portionValue) = recipe.portion {
+            originalPortion = portionValue
+        } else {
+            originalPortion = 1
+        }
+
+        // Neue Portion berechnen
+        portion = factor * originalPortion
+    }
+
 
    }
 
@@ -525,15 +681,15 @@ struct RecipeTagsView: View {
 }
 
 struct RecipeIngredientsView: View {
-    @State var ingredients: [FoodItemStruct] // Zutaten als @State
+    @Binding var ingredients: [FoodItemStruct] // Zutaten als @State
     @State var orignIngredients: [FoodItemStruct]
     @State private var selectedIngredient: FoodItemStruct? = nil // Direkte Referenz zur bearbeiteten Zutat
     @State private var editedQuantity: String = "" // Temporär bearbeitete Menge
     @State private var selectedUnit: Unit = .gram // Temporär bearbeitete Einheit
     
-    init(ingredients: [FoodItemStruct]) {
-        self.ingredients = ingredients
-        self.orignIngredients = ingredients
+    init(ingredients: Binding<[FoodItemStruct]>) {
+        self._ingredients = ingredients
+                self.orignIngredients = ingredients.wrappedValue
        
     }
     
