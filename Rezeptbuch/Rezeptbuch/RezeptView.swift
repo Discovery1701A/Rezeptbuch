@@ -1,41 +1,39 @@
 //
 //  RezeptView.swift
 //  Rezeptbuch
-//https://medium.com/@rohit.jankar/using-swift-a-guide-to-adding-reminders-in-the-ios-reminder-app-with-the-eventkit-api-020b2e6b38bb
+// https://medium.com/@rohit.jankar/using-swift-a-guide-to-adding-reminders-in-the-ios-reminder-app-with-the-eventkit-api-020b2e6b38bb
 //  Created by Anna Rieckmann on 10.03.24.
 //
-import SwiftUI
 import EventKit
+import SwiftUI
 import WebKit
 
 struct RecipeView: View {
     var recipe: Recipe
     var modelView: ViewModel
-        var originIngriedents: [FoodItemStruct]
-        @State private var ingredients: [FoodItemStruct]
-        @State private var shoppingList: [FoodItemStruct] = []
-        @State private var isReminderAdded = false
-        let eventStore = EKEventStore()
-        @State private var portion: Double
+    var originIngriedents: [FoodItemStruct]
+    @State private var ingredients: [FoodItemStruct]
+    @State private var shoppingList: [FoodItemStruct] = []
+    @State private var isReminderAdded = false
+    let eventStore = EKEventStore()
+    @State private var portion: Double
     @State private var showingShareSheet = false
     @State private var isFormUpdatingIngredients = false
         
-        // Für den Picker
-    @State private var cakeFormSelection : Formen
-    @State private var diameter : Double
-    @State private var lenght : Double
-    @State private var width : Double
-    @State private var privDiameter : Double
-    @State private var privLenght : Double
-    @State private var privWidth : Double
-    @State private var originDiameter : Double
-    @State private var originLenght : Double
-    @State private var originWidth : Double
-    @State private var ratio : Double
+    // Für den Picker
+    @State private var cakeFormSelection: Formen
+    @State private var diameter: Double
+    @State private var lenght: Double
+    @State private var width: Double
+    @State private var privDiameter: Double
+    @State private var privLenght: Double
+    @State private var privWidth: Double
+    @State private var originDiameter: Double
+    @State private var originLenght: Double
+    @State private var originWidth: Double
+    @State private var ratio: Double
     var summary = NutritionSummary()
     
-
-        
     init(recipe: Recipe, modelView: ViewModel) {
         self.recipe = recipe
 //        print("ffdfdvfbdfbfdbdfbdfb",recipe)
@@ -71,54 +69,50 @@ struct RecipeView: View {
                 } else {
                     self.ratio = 1
                 }
-                print("✅ Ratio berechnet: ", self.ratio, "Länge:", self.lenght, "Breite:", self.width)
-            }
-            else if case let .round(diameter: diameter) = SizeValue {
+                print("✅ Ratio berechnet: ", ratio, "Länge:", lenght, "Breite:", self.width)
+            } else if case let .round(diameter: diameter) = SizeValue {
                 self.diameter = diameter
-                self.lenght = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
-                self.width  = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
+                self.lenght = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
+                self.width = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
                 self.originDiameter = diameter
-                self.originLenght = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
-                self.originWidth  = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
-                self.privWidth = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
-                self.privLenght = sqrt(pow((diameter/2),2) * Double.pi).rounded(toPlaces: 2)
+                self.originLenght = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
+                self.originWidth = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
+                self.privWidth = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
+                self.privLenght = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
                 self.privDiameter = diameter
                 self.ratio = 1
-                print ("ratio: ", self.ratio , self.lenght, self.width)
+                print("ratio: ", ratio, lenght, width)
                
             } else {
                 self.diameter = 0
                 self.lenght = 0
-                self.width  = 0
+                self.width = 0
                 self.originDiameter = 0
                 self.originLenght = 0
-                self.originWidth  = 0
+                self.originWidth = 0
                 self.privWidth = 0
                 self.privLenght = 0
                 self.privDiameter = 0
                 self.ratio = 1
             }
            
-            
         } else {
             self.cakeFormSelection = .rund
             self.diameter = 0
             self.lenght = 0
-            self.width  = 0
+            self.width = 0
             self.originDiameter = 0
             self.originLenght = 0
-            self.originWidth  = 0
+            self.originWidth = 0
             self.privWidth = 0
             self.privLenght = 0
             self.privDiameter = 0
             self.ratio = 1
-         
         }
       
-        
         summary.calculate(from: ingredients)
-     
     }
+
     func extractYouTubeID(from link: String) -> String? {
         if link.contains("youtube.com") {
             // Extrahiere die ID aus einem normalen YouTube-Link
@@ -135,77 +129,71 @@ struct RecipeView: View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
            
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 20) {
-                           
-                                    ShareSheetView(recipe: recipe)
-                                
-                            
-                        }
-                        NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
-                                                    Text("Bearbeiten")
-                                                        .padding()
-                                                        .foregroundColor(.white)
-                                                        .background(Color.blue)
-                                                        .cornerRadius(10)
-                                                }
-                        VStack(alignment: .center, spacing: 10) {
-                            Text(recipe.title)
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .multilineTextAlignment(.center)
+            ScrollView {
+                VStack(alignment: .center, spacing: 10) {
+                    ZStack {
+                        // Rezept-Titel in der Mitte
+                        Text(recipe.title)
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .center)
 
-                            Divider().padding(.horizontal, 16)
-                            RecipeImageView(imagePath: recipe.image)
-                            if recipe.tags != nil {
-                                if recipe.tags!.count > 0 {
-                                    RecipeTagsView(tags: recipe.tags!)
-                                }
-                            }
-                            Divider().padding(.horizontal, 16)
-                    if recipe.portion != .notPortion && recipe.portion != nil
-                    {
-                        HStack{
+                        // Button rechtsbündig
+                              
+                        ShareSheetView(recipe: recipe)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                    .padding(.horizontal, 16) // Gleicher Abstand links & rechts
+                        
+                    Divider().padding(.horizontal, 16)
+                    RecipeImageView(imagePath: recipe.image)
+                    if recipe.tags != nil {
+                        if recipe.tags!.count > 0 {
+                            RecipeTagsView(tags: recipe.tags!)
+                        }
+                    }
+                    Divider().padding(.horizontal, 16)
+                    if recipe.portion != .notPortion && recipe.portion != nil {
+                        HStack {
                             portionScaleMinus()
                             Text(formatPortion(portion))
                             portionScalePlus()
                         }
                     }
+                         
                     if let cakeInfo = recipe.cake, case .cake = cakeInfo {
-                                            Picker("Kuchenform", selection: $cakeFormSelection) {
-                                                Text("Eckig").tag(Formen.eckig)
-                                                Text("Rund").tag(Formen.rund)
-                                            }
-                                            .pickerStyle(SegmentedPickerStyle())
-                                            .padding()
-                                            .onChange(of: cakeFormSelection) { newValue in
-                                                if newValue == Formen.rund{
-                                                   
-                                                    if privLenght != lenght || privWidth != width{
-                                                        rectToRound()
-                                                        privWidth = width
-                                                        privLenght = lenght
-                                                        privDiameter = diameter
-                                                        ratio = lenght / width
-                                                        scaleRoundIngredients()
-                                                    }
-                                                } else if newValue == Formen.eckig{
-                                                   
-                                                    if privDiameter != diameter{
-                                                        roundToRect()
-                                                        privDiameter = diameter
-                                                        privWidth = width
-                                                        privLenght = lenght
-                                                        ratio = lenght / width
-                                                        scaleRectIngredients()
-                                                    }
-                                                }
-                                            }
+                        Picker("Kuchenform", selection: $cakeFormSelection) {
+                            Text("Eckig").tag(Formen.eckig)
+                            Text("Rund").tag(Formen.rund)
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        .padding()
+                        .onChange(of: cakeFormSelection) { newValue in
+                            if newValue == Formen.rund {
+                                if privLenght != lenght || privWidth != width {
+                                    rectToRound()
+                                    privWidth = width
+                                    privLenght = lenght
+                                    privDiameter = diameter
+                                    ratio = lenght / width
+                                    scaleRoundIngredients()
+                                }
+                            } else if newValue == Formen.eckig {
+                                if privDiameter != diameter {
+                                    roundToRect()
+                                    privDiameter = diameter
+                                    privWidth = width
+                                    privLenght = lenght
+                                    ratio = lenght / width
+                                    scaleRectIngredients()
+                                }
+                            }
+                        }
                                         
-                                            
-                        HStack{
+                        HStack {
                             if cakeFormSelection == .rund {
                                 Text("Durchmesser (cm):")
                                 TextField("Durchmesser (cm)", text: Binding(
@@ -214,12 +202,11 @@ struct RecipeView: View {
                                         if let value = Double($0) {
                                             diameter = value
                                         }
-                                    })
-                                )
-                                .keyboardType(.decimalPad)
-                                .onSubmit {
-                                    scaleRoundIngredients() // Erst ausführen, wenn die Eingabe bestätigt wurde
-                                }
+                                    }))
+                                    .keyboardType(.decimalPad)
+                                    .onSubmit {
+                                        scaleRoundIngredients() // Erst ausführen, wenn die Eingabe bestätigt wurde
+                                    }
                             }
                             
                             if cakeFormSelection == .eckig {
@@ -230,13 +217,12 @@ struct RecipeView: View {
                                         if let value = Double($0) {
                                             lenght = value
                                         }
-                                    })
-                                )
-                                .keyboardType(.decimalPad)
-                                .onSubmit {
-                                    ratio = lenght / width
-                                    scaleRectIngredients() // Erst nach Bestätigung skalieren
-                                }
+                                    }))
+                                    .keyboardType(.decimalPad)
+                                    .onSubmit {
+                                        ratio = lenght / width
+                                        scaleRectIngredients() // Erst nach Bestätigung skalieren
+                                    }
 
                                 Text("Breite (cm):")
                                 TextField("Breite (cm)", text: Binding(
@@ -245,66 +231,68 @@ struct RecipeView: View {
                                         if let value = Double($0) {
                                             width = value
                                         }
-                                    })
-                                )
-                                .keyboardType(.decimalPad)
-                                .onSubmit {
-                                    ratio = lenght / width
-                                    scaleRectIngredients() // Erst nach Bestätigung skalieren
-                                }
+                                    }))
+                                    .keyboardType(.decimalPad)
+                                    .onSubmit {
+                                        ratio = lenght / width
+                                        scaleRectIngredients() // Erst nach Bestätigung skalieren
+                                    }
                             }
-                            
-                            
-                            
                         }
-                                        }
+                    }
+                    VStack {
+                        NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
+                            CardView {
+                                Text("Bearbeiten")
+                            }
+                            .frame(maxWidth: 200) // Begrenzte Breite für die Card, damit sie nicht zu groß wird
+                        }
                         
-                            Divider().padding(.horizontal, 16)
+                        resetScale()
+                    }  .frame(maxWidth: .infinity, alignment: .trailing)
+                    Divider().padding(.horizontal, 16)
                            
-                                  NutritionSummaryView(summary: summary)
+                    NutritionSummaryView(summary: summary)
                             
-                           
-                            Divider().padding(.horizontal, 16)
-                            RecipeIngredientsView(ingredients: $ingredients)
-                                .onAppear {
-                                    print("Angezeigte Zutaten in der View: \(ingredients)")
+                    Divider().padding(.horizontal, 16)
+                    RecipeIngredientsView(ingredients: $ingredients)
+                        .onAppear {
+                            print("Angezeigte Zutaten in der View: \(ingredients)")
+                        }
+                        .onChange(of: ingredients) { newIngredients in
+                            DispatchQueue.main.async {
+                                // Falls die Änderung von der Kuchenform kommt, ignorieren
+                                guard !isFormUpdatingIngredients else {
+                                    isFormUpdatingIngredients = false // Status zurücksetzen
+                                    return
                                 }
-                                .onChange(of: ingredients) { newIngredients in
-                                    DispatchQueue.main.async {
-                                        // Falls die Änderung von der Kuchenform kommt, ignorieren
-                                        guard !isFormUpdatingIngredients else {
-                                            isFormUpdatingIngredients = false // Status zurücksetzen
-                                            return
-                                        }
                                         
-                                        print("Zutaten haben sich geändert: \(newIngredients)")
+                                print("Zutaten haben sich geändert: \(newIngredients)")
                                         
-                                        // Portion nur aktualisieren, wenn sie relevant ist
-                                        if recipe.portion != .notPortion {
-                                            ingriedentsScalePortion()
-                                        }
+                                // Portion nur aktualisieren, wenn sie relevant ist
+                                if recipe.portion != .notPortion {
+                                    ingriedentsScalePortion()
+                                }
                                         
-                                        // Kuchenform nur anpassen, wenn sie relevant ist
-                                        if recipe.cake != .notCake {
-                                            if cakeFormSelection == .rund {
-                                                ingriedentsScaleDia()
-                                            } else if cakeFormSelection == .eckig {
-                                                ingriedentsScaleWL()
-                                            }
-                                        }
+                                // Kuchenform nur anpassen, wenn sie relevant ist
+                                if recipe.cake != .notCake {
+                                    if cakeFormSelection == .rund {
+                                        ingriedentsScaleDia()
+                                    } else if cakeFormSelection == .eckig {
+                                        ingriedentsScaleWL()
                                     }
                                 }
-                            
-                            Divider().padding(.horizontal, 16)
-                            RecipeInstructionsView(instructions: recipe.instructions)
-                            Divider().padding(.horizontal, 16)
-                            if recipe.videoLink != "" && recipe.videoLink != nil{
-                                
-                                
-                                RecipeVideoView(videoLink: recipe.videoLink)
-                                Divider().padding(.horizontal, 16)
                             }
-                            Kochmodus()
+                        }
+                            
+                    Divider().padding(.horizontal, 16)
+                    RecipeInstructionsView(instructions: recipe.instructions)
+                    Divider().padding(.horizontal, 16)
+                    if recipe.videoLink != "" && recipe.videoLink != nil {
+                        RecipeVideoView(videoLink: recipe.videoLink)
+                        Divider().padding(.horizontal, 16)
+                    }
+                    Kochmodus()
                    
                     Button(action: {
                         createShoppingList()
@@ -319,58 +307,52 @@ struct RecipeView: View {
                 .shadow(radius: 5)
             }
         }
-
     }
   
-    
     @ViewBuilder
-    func Kochmodus()-> some View{
+    func Kochmodus() -> some View {
         NavigationLink(destination: CookingModeView(recipe: recipe)) {
-                                    Text("Zum Kochmodus")
-                                        .padding()
-                                        .foregroundColor(.white)
-                                        .background(Color.blue)
-                                        .cornerRadius(10)
-                                }
+            Text("Zum Kochmodus")
+                .padding()
+                .foregroundColor(.white)
+                .background(Color.blue)
+                .cornerRadius(10)
+        }
     }
     
     func createShoppingList() {
-           shoppingList.removeAll()
-           for ingredient in ingredients {
-               if !shoppingList.contains(where: { $0.food == ingredient.food }) {
-                   shoppingList.append(ingredient)
-               } else {
-                   if let existingIndex = shoppingList.firstIndex(where: { $0.food == ingredient.food }) {
-                       shoppingList[existingIndex].quantity += ingredient.quantity
-                   }
-               }
-           }
-       }
+        shoppingList.removeAll()
+        for ingredient in ingredients {
+            if !shoppingList.contains(where: { $0.food == ingredient.food }) {
+                shoppingList.append(ingredient)
+            } else {
+                if let existingIndex = shoppingList.firstIndex(where: { $0.food == ingredient.food }) {
+                    shoppingList[existingIndex].quantity += ingredient.quantity
+                }
+            }
+        }
+    }
        
     func addShoppingListToReminders() {
-       
-        
-        if #available(iOS 17.0, *),   #available(macOS 14.0, *){
-            eventStore.requestFullAccessToReminders() { granted, error in
+        if #available(iOS 17.0, *), #available(macOS 14.0, *) {
+            eventStore.requestFullAccessToReminders { granted, error in
                 if granted && error == nil {
-                   let reminderList = findOrCreateReminderList(eventStore: eventStore, title: "Shopping List")
-                            for item in shoppingList {
-                                findRemindersForItem(item, in: reminderList) { existingReminders in
-                                    if let existingReminders = existingReminders, !existingReminders.isEmpty {
-                                        updateExistingReminders(existingReminders, with: item, in: eventStore)
-                                    } else {
-                                        let reminder = EKReminder(eventStore: eventStore)
-                                        reminder.title = "\(item.quantity) " + item.unit.rawValue + " " + item.food.name
-                                        reminder.calendar = reminderList
+                    let reminderList = findOrCreateReminderList(eventStore: eventStore, title: "Shopping List")
+                    for item in shoppingList {
+                        findRemindersForItem(item, in: reminderList) { existingReminders in
+                            if let existingReminders = existingReminders, !existingReminders.isEmpty {
+                                updateExistingReminders(existingReminders, with: item, in: eventStore)
+                            } else {
+                                let reminder = EKReminder(eventStore: eventStore)
+                                reminder.title = "\(item.quantity) " + item.unit.rawValue + " " + item.food.name
+                                reminder.calendar = reminderList
                                         
-                                        do {
-                                            try eventStore.save(reminder, commit: true)
+                                do {
+                                    try eventStore.save(reminder, commit: true)
 //                                             print(item.food.name)
-                                        } catch {
-                                            print("Error saving reminder: \(error.localizedDescription)")
-                                        }
-                                    
-                                
+                                } catch {
+                                    print("Error saving reminder: \(error.localizedDescription)")
+                                }
                             }
                             
                             print("Shopping list added to Reminders.")
@@ -384,34 +366,32 @@ struct RecipeView: View {
         }
     }
 
-    
     func findOrCreateReminderList(eventStore: EKEventStore, title: String) -> EKCalendar? {
-            let calendars = eventStore.calendars(for: .reminder)
+        let calendars = eventStore.calendars(for: .reminder)
             
-            if let existingList = calendars.first(where: { $0.title == title }) {
-                return existingList
-            } else {
-                let newList = EKCalendar(for: .reminder, eventStore: eventStore)
-                newList.title = title
-                newList.source = eventStore.defaultCalendarForNewReminders()?.source
+        if let existingList = calendars.first(where: { $0.title == title }) {
+            return existingList
+        } else {
+            let newList = EKCalendar(for: .reminder, eventStore: eventStore)
+            newList.title = title
+            newList.source = eventStore.defaultCalendarForNewReminders()?.source
                 
-                do {
-                    try eventStore.saveCalendar(newList, commit: true)
-                    print("New reminder list created: \(title)")
-                    return newList
-                } catch {
-                    print("Error creating reminder list: \(error.localizedDescription)")
-                    return nil
-                }
+            do {
+                try eventStore.saveCalendar(newList, commit: true)
+                print("New reminder list created: \(title)")
+                return newList
+            } catch {
+                print("Error creating reminder list: \(error.localizedDescription)")
+                return nil
             }
         }
+    }
        
     func findRemindersForItem(_ item: FoodItemStruct, in reminderList: EKCalendar?, completion: @escaping ([EKReminder]?) -> Void) {
         guard let reminderList = reminderList else { completion(nil); return }
        
-        if #available(iOS 17.0, *),   #available(macOS 14.0, *){
-            
-            eventStore.requestFullAccessToReminders() { granted, error in
+        if #available(iOS 17.0, *), #available(macOS 14.0, *) {
+            eventStore.requestFullAccessToReminders { granted, _ in
                 if granted {
 //                    print("ja")
                     let predicate = eventStore.predicateForReminders(in: [reminderList])
@@ -428,7 +408,6 @@ struct RecipeView: View {
     }
 
     func updateExistingReminders(_ reminders: [EKReminder], with item: FoodItemStruct, in eventStore: EKEventStore) {
-        
         for reminder in reminders {
             let newTitle = "\(item.quantity + Double(reminder.title.components(separatedBy: " ").first ?? "")!)" + " " + item.unit.rawValue + " " + item.food.name
             reminder.title = newTitle
@@ -440,6 +419,7 @@ struct RecipeView: View {
             }
         }
     }
+
     @ViewBuilder
     func portionScalePlus() -> some View {
         Button(action: {
@@ -472,6 +452,25 @@ struct RecipeView: View {
         })
     }
     
+    @ViewBuilder
+    func resetScale() -> some View {
+        Button(action: {
+            resetAllScale()
+        }, label: {
+            HStack {
+                Image(systemName: "arrow.uturn.backward.circle.fill") // Symbol für "Zurücksetzen"
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                Text("Zurücksetzen")
+            }
+            .padding()
+            .foregroundColor(.white)
+            .background(Color.red)
+            .cornerRadius(10)
+            .shadow(radius: 3)
+        })
+    }
+    
     private func formatPortion(_ value: Double) -> String {
         if value.truncatingRemainder(dividingBy: 1) == 0 {
             return String(Int(value)) // Ganzzahl ohne Nachkommastellen
@@ -482,13 +481,12 @@ struct RecipeView: View {
         }
     }
 
-     
-     private func scaleIngredients(portion: Double) {
-         if case let .Portion(portionValue) = recipe.portion {
-             isFormUpdatingIngredients = true
-             ingredients = Model().portionScale(portionOrigin: portionValue, portionNew: portion, foodItems: originIngriedents)
-         }
-     }
+    private func scaleIngredients(portion: Double) {
+        if case let .Portion(portionValue) = recipe.portion {
+            isFormUpdatingIngredients = true
+            ingredients = Model().portionScale(portionOrigin: portionValue, portionNew: portion, foodItems: originIngriedents)
+        }
+    }
     
     private func scaleRoundIngredients() {
         isFormUpdatingIngredients = true
@@ -500,29 +498,36 @@ struct RecipeView: View {
         ingredients = Model().rectScale(lengthOrigin: originLenght, widthOrigin: originWidth, lengthNew: lenght, widthNew: width, foodItems: originIngriedents)
     }
     
-    private func rectToRound(){
+    private func rectToRound() {
         isFormUpdatingIngredients = true
         diameter = Model().rectToRound(length: lenght, width: width).rounded(toPlaces: 2)
     }
     
-    private func roundToRect(){
+    private func roundToRect() {
         isFormUpdatingIngredients = true
         width = Model().roundToRect(diameter: diameter, length: lenght).rounded(toPlaces: 2)
     }
     
-    private func itemScale(){
+    private func itemScale() {
         ingredients = Model().itemScale(foodItemsOrigin: originIngriedents, foodItemsNew: ingredients)
     }
     
-    private func resetScale(){
+    private func resetScale() {
         ingredients = originIngriedents
     }
     
-    private func resetAllScale(){
+    private func resetAllScale() {
         ingredients = originIngriedents
         diameter = originDiameter
         lenght = originLenght
         width = originWidth
+        let originalPortion: Double
+        if case let .Portion(portionValue) = recipe.portion {
+            originalPortion = portionValue
+        } else {
+            originalPortion = 1
+        }
+        portion = originalPortion
     }
     
     private func ingriedentsScaleDia() {
@@ -538,8 +543,9 @@ struct RecipeView: View {
                 value: firstIngredient.quantity,
                 from: firstIngredient.unit,
                 to: firstOriginIngredient.unit
-            ) else {  print("⚠️ Fehler in ingriedentsScaleDia() - Ungültige Werte")
-                return }
+            ) else { print("⚠️ Fehler in ingriedentsScaleDia() - Ungültige Werte")
+                return
+            }
             
             factor = firstOriginIngredient.quantity / convertedQuantity
         }
@@ -567,8 +573,9 @@ struct RecipeView: View {
                 value: firstIngredient.quantity,
                 from: firstIngredient.unit,
                 to: firstOriginIngredient.unit
-            ) else {  print("⚠️ Fehler in ingriedentsScaleWL() - Ungültige Werte")
-                return }
+            ) else { print("⚠️ Fehler in ingriedentsScaleWL() - Ungültige Werte")
+                return
+            }
             
             factor = firstOriginIngredient.quantity / convertedQuantity
         }
@@ -592,7 +599,6 @@ struct RecipeView: View {
     }
     
     private func ingriedentsScalePortion() {
-      
         guard let firstIngredient = ingredients.first,
               let firstOriginIngredient = originIngriedents.first else { return }
 
@@ -605,8 +611,9 @@ struct RecipeView: View {
                 value: firstIngredient.quantity,
                 from: firstIngredient.unit,
                 to: firstOriginIngredient.unit
-            ) else {  print("⚠️ Fehler in ingriedentsScalePortion() - Ungültige Werte")
-                return }
+            ) else { print("⚠️ Fehler in ingriedentsScalePortion() - Ungültige Werte")
+                return
+            }
             
             factor = firstOriginIngredient.quantity / convertedQuantity
         }
@@ -620,11 +627,29 @@ struct RecipeView: View {
 
         // Neue Portion berechnen
         portion = factor * originalPortion
-        print("poooorrt " ,portion )
+        print("poooorrt ", portion)
+    }
+}
+
+struct CardView<Content: View>: View {
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
     }
 
-
-   }
+    var body: some View {
+        VStack {
+            content
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+        .shadow(radius: 3)
+        .padding(.horizontal)
+    }
+}
 
 struct RecipeImageView: View {
     var imagePath: String?
@@ -639,13 +664,13 @@ struct RecipeImageView: View {
                 .frame(maxWidth: .infinity, maxHeight: 200)
         } else {
             if let imageName = imagePath {
-                                  Image(imageName)
-                                      .resizable()
-                                      .scaledToFit()
-                                      .cornerRadius(10)
-                                      .padding(.top, 10)
-                                      .frame(maxWidth: .infinity, maxHeight: 200)
-            } else{
+                Image(imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .cornerRadius(10)
+                    .padding(.top, 10)
+                    .frame(maxWidth: .infinity, maxHeight: 200)
+            } else {
                 Text("Bild nicht verfügbar")
                     .foregroundColor(.secondary)
                     .padding()
@@ -672,7 +697,6 @@ struct RecipeVideoView: View {
                 
                 .scaledToFit()
                 
-              
                 .frame(maxWidth: .infinity, maxHeight: 300)
         } else {
             if videoLink != nil {
@@ -681,16 +705,16 @@ struct RecipeVideoView: View {
         }
     }
 }
+
 struct RecipeTagsView: View {
     var tags: [TagStruct]
     var body: some View {
         ScrollView(.horizontal) {
-            HStack{
+            HStack {
                 ForEach(tags, id: \.self) { tag in
                     Text(tag.name)
                         .font(.headline)
                         .padding()
-                        
                 }
             }
         }
@@ -706,8 +730,7 @@ struct RecipeIngredientsView: View {
     
     init(ingredients: Binding<[FoodItemStruct]>) {
         self._ingredients = ingredients
-                self.orignIngredients = ingredients.wrappedValue
-       
+        self.orignIngredients = ingredients.wrappedValue
     }
     
     var body: some View {
@@ -783,7 +806,7 @@ struct RecipeIngredientsView: View {
         let adjustmentFactor = newQuantity / oldQuantity
 
         // Passe die Mengen der anderen Zutaten an
-        for i in ingredients.indices where i != index  {
+        for i in ingredients.indices where i != index {
             ingredients[i].quantity = adjustmentFactor * orignIngredients[i].quantity
         }
     }
@@ -878,11 +901,7 @@ struct EditIngredientPopup: View {
                     onClose() // Schließt das Popup
                 }
 
-
                 .padding()
-
-
-
             }
         }
         .padding()
@@ -890,7 +909,6 @@ struct EditIngredientPopup: View {
         .cornerRadius(10)
     }
 }
-
 
 struct RecipeInstructionsView: View {
     var instructions: [String]
@@ -909,9 +927,6 @@ struct RecipeInstructionsView: View {
     }
 }
 
-
-
-
 struct YouTubeView: UIViewRepresentable {
     var videoID: String
     
@@ -925,6 +940,7 @@ struct YouTubeView: UIViewRepresentable {
         uiView.load(URLRequest(url: url))
     }
 }
+
 extension Double {
     func formatted(toPlaces places: Int) -> String {
         let formatter = NumberFormatter()
@@ -935,15 +951,13 @@ extension Double {
     }
 }
 
-
-
 // Struktur zur Zusammenfassung der Nährwerte
 struct NutritionSummary {
     var totalCalories: Int = 0
     var totalProtein: Double = 0.0
     var totalCarbohydrates: Double = 0.0
     var totalFat: Double = 0.0
-    var missingStings:[String] = []
+    var missingStings: [String] = []
 
     mutating func calculate(from items: [FoodItemStruct]) {
         totalCalories = 0
@@ -955,26 +969,23 @@ struct NutritionSummary {
             if item.food.density == nil || item.food.density ?? 0 <= 0 {
                 missingStings.append("\(item.food.name) hat keine Dichte")
             }
-            if item.food.nutritionFacts == nil || item.food.nutritionFacts?.calories == nil || item.food.nutritionFacts?.calories ?? 0 <= 0  || item.food.nutritionFacts?.protein == nil || item.food.nutritionFacts?.protein ?? 0 <= 0 || item.food.nutritionFacts?.carbohydrates == nil || item.food.nutritionFacts?.carbohydrates ?? 0 <= 0 || item.food.nutritionFacts?.fat == nil || item.food.nutritionFacts?.fat ?? 0 <= 0 {
+            if item.food.nutritionFacts == nil || item.food.nutritionFacts?.calories == nil || item.food.nutritionFacts?.calories ?? 0 <= 0 || item.food.nutritionFacts?.protein == nil || item.food.nutritionFacts?.protein ?? 0 <= 0 || item.food.nutritionFacts?.carbohydrates == nil || item.food.nutritionFacts?.carbohydrates ?? 0 <= 0 || item.food.nutritionFacts?.fat == nil || item.food.nutritionFacts?.fat ?? 0 <= 0 {
                 missingStings.append("\(item.food.name) hat fehlende Nährwerte")
-                
             }
             
-            if item.unit == .piece{
+            if item.unit == .piece {
                 missingStings.append("\(item.food.name) hat eine Stückmenge daher ist die Berechnung nicht vollständing")
             } else {
-                
                 if let nutrition = item.food.nutritionFacts {
                     print(nutrition)
-                    totalCalories += Int(Double(nutrition.calories ?? 0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100)
-                    totalProtein += (nutrition.protein ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
-                    totalCarbohydrates += (nutrition.carbohydrates ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
+                    totalCalories += Int(Double(nutrition.calories ?? 0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100)
+                    totalProtein += (nutrition.protein ?? 0.0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
+                    totalCarbohydrates += (nutrition.carbohydrates ?? 0.0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
                     
-                    totalFat += (nutrition.fat ?? 0.0) *  (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
+                    totalFat += (nutrition.fat ?? 0.0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
                 }
             }
         }
-    
     }
 }
 
@@ -1008,16 +1019,13 @@ struct NutritionBar: View {
 
     var body: some View {
         VStack {
-            
-             Text(label)
-                 .font(.caption)
-                 .rotationEffect(.degrees(-45))
-                 .padding(.vertical)
+            Text(label)
+                .font(.caption)
+                .rotationEffect(.degrees(-45))
+                .padding(.vertical)
             Text("\(value)")
                 .font(.caption)
                 .padding(.vertical)
-        
         }
     }
 }
-

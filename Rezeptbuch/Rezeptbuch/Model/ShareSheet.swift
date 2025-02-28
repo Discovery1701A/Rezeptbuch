@@ -29,7 +29,7 @@ struct ShareSheetView: View {
     @State private var errorMessage: String?
 
     var body: some View {
-        Button("Teilen") {
+        Button(action: {
             serializeRecipeToPlist(recipe: recipe) { actualFileURL, customSchemeURL in
                 if let actualFileURL = actualFileURL, FileManager.default.fileExists(atPath: actualFileURL.path) {
                     self.fileURL = actualFileURL
@@ -41,7 +41,13 @@ struct ShareSheetView: View {
                     showingShareSheet = false
                 }
             }
+        }) {
+            Image(systemName: "square.and.arrow.up") // iOS Teilen-Icon
+        
+                .font(.system(size: 24))
+                .foregroundColor(.blue) // Farbe setzen
         }
+        .buttonStyle(PlainButtonStyle()) // Entfernt den Standard-Button-Stil
         .sheet(isPresented: $showingShareSheet) {
             if let customURL = customURL, let actaulURL = fileURL {
                 
