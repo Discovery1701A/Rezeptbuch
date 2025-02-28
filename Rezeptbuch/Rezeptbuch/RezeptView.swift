@@ -129,7 +129,7 @@ struct RecipeView: View {
     }
     
     var body: some View {
-        GeometryReader { _ in
+        GeometryReader { geometry in
            
             ScrollView {
                 VStack(alignment: .center, spacing: 10) {
@@ -156,100 +156,205 @@ struct RecipeView: View {
                         }
                     }
                     Divider().padding(.horizontal, 16)
-                    if recipe.portion != .notPortion && recipe.portion != nil {
-                        HStack {
-                            portionScaleMinus()
-                            Text(formatPortion(portion))
-                            portionScalePlus()
-                        }
-                    }
-                         
-                    if let cakeInfo = recipe.cake, case .cake = cakeInfo {
-                        Picker("Kuchenform", selection: $cakeFormSelection) {
-                            Text("Eckig").tag(Formen.eckig)
-                            Text("Rund").tag(Formen.rund)
-                        }
-                        .pickerStyle(SegmentedPickerStyle())
-                        .padding()
-                        .onChange(of: cakeFormSelection) { newValue in
-                            if newValue == Formen.rund {
-                                if privLenght != lenght || privWidth != width {
-                                    rectToRound()
-                                    privWidth = width
-                                    privLenght = lenght
-                                    privDiameter = diameter
-                                    ratio = lenght / width
-                                    scaleRoundIngredients()
-                                }
-                            } else if newValue == Formen.eckig {
-                                if privDiameter != diameter {
-                                    roundToRect()
-                                    privDiameter = diameter
-                                    privWidth = width
-                                    privLenght = lenght
-                                    ratio = lenght / width
-                                    scaleRectIngredients()
-                                }
-                            }
-                        }
-                                        
-                        HStack {
-                            if cakeFormSelection == .rund {
-                                Text("Durchmesser (cm):")
-                                TextField("Durchmesser (cm)", text: Binding(
-                                    get: { "\(diameter)" },
-                                    set: {
-                                        if let value = Double($0) {
-                                            diameter = value
+                   
+                        VStack {
+                      
+                            // Portionierung
+                            if recipe.portion != .notPortion && recipe.portion != nil {
+                                if geometry.size.width > 600 { // Wenn genug Platz ist (z.B. iPads oder breite Bildschirme)
+                                    ZStack {
+                                   
+                                        VStack(alignment: .center ){
+                                            Text("Portionen:")
+                                            HStack{
+                                                Spacer()
+                                                portionScaleMinus()
+                                                Text(formatPortion(portion))
+                                                portionScalePlus()
+                                                Spacer()
+                                            }
+                                            // Rezept bearbeiten
+                                            VStack {
+                                                NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
+                                                    CardView {
+                                                        Text("Rezept Bearbeiten")
+                                                    }
+                                                    .frame(maxWidth: 200) // Begrenzte Breite für die Card, damit sie nicht zu groß wird
+                                                }
+                                                resetScale() // Reset-Button rutscht unter die Felder
+                                            }
+                                            .frame(maxWidth: .infinity, alignment: .trailing)
                                         }
-                                    }))
-                                    .keyboardType(.decimalPad)
-                                    .onSubmit {
-                                        scaleRoundIngredients() // Erst ausführen, wenn die Eingabe bestätigt wurde
                                     }
+                                } else { // Falls der Platz zu klein ist (z.B. iPhone SE)
+                                    VStack(alignment: .center ) {
+                                        Text("Portionen:")
+                                        HStack(alignment: .center ) {
+                                            
+                                            Spacer()
+                                            portionScaleMinus()
+                                            Text(formatPortion(portion))
+                                            portionScalePlus()
+                                            Spacer()
+                                        }
+                                    }
+                                        // Rezept bearbeiten
+                                        VStack {
+                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
+                                                CardView {
+                                                    Text("Rezept Bearbeiten")
+                                                }
+                                                .frame(maxWidth: 200) // Begrenzte Breite für die Card, damit sie nicht zu groß wird
+                                            }
+                                            resetScale() // Reset-Button rutscht unter die Felder
+                                        }
+                                        
+                                    
+                                }
                             }
                             
-                            if cakeFormSelection == .eckig {
-                                Text("Länge (cm):")
-                                TextField("Länge (cm)", text: Binding(
-                                    get: { "\(lenght)" },
-                                    set: {
-                                        if let value = Double($0) {
-                                            lenght = value
+                            // Kuchenform-Auswahl
+                            if let cakeInfo = recipe.cake, case .cake = cakeInfo {
+                                Picker("Kuchenform", selection: $cakeFormSelection) {
+                                    Text("Eckig").tag(Formen.eckig)
+                                    Text("Rund").tag(Formen.rund)
+                                }
+                                .pickerStyle(SegmentedPickerStyle())
+                                .padding()
+                                .onChange(of: cakeFormSelection) { newValue in
+                                    if newValue == Formen.rund {
+                                        if privLenght != lenght || privWidth != width {
+                                            rectToRound()
+                                            privWidth = width
+                                            privLenght = lenght
+                                            privDiameter = diameter
+                                            ratio = lenght / width
+                                            scaleRoundIngredients()
                                         }
-                                    }))
-                                    .keyboardType(.decimalPad)
-                                    .onSubmit {
-                                        ratio = lenght / width
-                                        scaleRectIngredients() // Erst nach Bestätigung skalieren
+                                    } else if newValue == Formen.eckig {
+                                        if privDiameter != diameter {
+                                            roundToRect()
+                                            privDiameter = diameter
+                                            privWidth = width
+                                            privLenght = lenght
+                                            ratio = lenght / width
+                                            scaleRectIngredients()
+                                        }
                                     }
+                                }
+                                
+                                // Dynamische Anordnung von Länge/Breite/Durchmesser + Buttons
+                                if geometry.size.width > 600 {
+                                    // Mehr Platz: Alles in einer Zeile
+                                    HStack {
+                                        if cakeFormSelection == .rund {
+                                            Text("Durchmesser (cm):")
+                                            TextField("Durchmesser (cm)", text: Binding(
+                                                get: { "\(diameter)" },
+                                                set: { if let value = Double($0) { diameter = value } }
+                                            ))
+                                            .keyboardType(.decimalPad)
+                                            .onSubmit { scaleRoundIngredients() }
+                                        }
 
-                                Text("Breite (cm):")
-                                TextField("Breite (cm)", text: Binding(
-                                    get: { "\(width)" },
-                                    set: {
-                                        if let value = Double($0) {
-                                            width = value
+                                        if cakeFormSelection == .eckig {
+                                            Text("Länge (cm):")
+                                            TextField("Länge (cm)", text: Binding(
+                                                get: { "\(lenght)" },
+                                                set: { if let value = Double($0) { lenght = value } }
+                                            ))
+                                            .keyboardType(.decimalPad)
+                                            .onSubmit {
+                                                ratio = lenght / width
+                                                scaleRectIngredients()
+                                            }
+
+                                            Text("Breite (cm):")
+                                            TextField("Breite (cm)", text: Binding(
+                                                get: { "\(width)" },
+                                                set: { if let value = Double($0) { width = value } }
+                                            ))
+                                            .keyboardType(.decimalPad)
+                                            .onSubmit {
+                                                ratio = lenght / width
+                                                scaleRectIngredients()
+                                            }
                                         }
-                                    }))
-                                    .keyboardType(.decimalPad)
-                                    .onSubmit {
-                                        ratio = lenght / width
-                                        scaleRectIngredients() // Erst nach Bestätigung skalieren
+                                        // Rezept bearbeiten
+                                        VStack {
+                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
+                                                CardView {
+                                                    Text("Rezept Bearbeiten")
+                                                }
+                                                .frame(maxWidth: 200) // Begrenzte Breite für die Card, damit sie nicht zu groß wird
+                                            }
+                                            resetScale() // Reset-Button rutscht unter die Felder
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
                                     }
+                                } else {
+                                    // Weniger Platz: Länge/Breite/Durchmesser oben, Buttons unten
+                                    VStack {
+                                        if cakeFormSelection == .rund {
+                                            HStack {
+                                                Text("Durchmesser (cm):")
+                                                TextField("Durchmesser (cm)", text: Binding(
+                                                    get: { "\(diameter)" },
+                                                    set: { if let value = Double($0) { diameter = value } }
+                                                ))
+                                                .keyboardType(.decimalPad)
+                                                .onSubmit { scaleRoundIngredients() }
+                                            }
+                                        }
+
+                                        if cakeFormSelection == .eckig {
+                                            HStack {
+                                                HStack {
+                                                    Text("Länge (cm):")
+                                                    TextField("Länge (cm)", text: Binding(
+                                                        get: { "\(lenght)" },
+                                                        set: { if let value = Double($0) { lenght = value } }
+                                                    ))
+                                                    .keyboardType(.decimalPad)
+                                                    .onSubmit {
+                                                        ratio = lenght / width
+                                                        scaleRectIngredients()
+                                                    }
+                                                }
+
+                                                HStack {
+                                                    Text("Breite (cm):")
+                                                    TextField("Breite (cm)", text: Binding(
+                                                        get: { "\(width)" },
+                                                        set: { if let value = Double($0) { width = value } }
+                                                    ))
+                                                    .keyboardType(.decimalPad)
+                                                    .onSubmit {
+                                                        ratio = lenght / width
+                                                        scaleRectIngredients()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Rezept bearbeiten
+                                        VStack {
+                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
+                                                CardView {
+                                                    Text("Rezept Bearbeiten")
+                                                }
+                                                .frame(maxWidth: 200) // Begrenzte Breite für die Card, damit sie nicht zu groß wird
+                                            }
+                                            resetScale() // Reset-Button rutscht unter die Felder
+                                        }
+                                       
+                                    }
+                                }
                             }
-                        }
-                    }
-                    VStack {
-                        NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
-                            CardView {
-                                Text("Bearbeiten")
-                            }
-                            .frame(maxWidth: 200) // Begrenzte Breite für die Card, damit sie nicht zu groß wird
-                        }
+                            
+                         
                         
-                        resetScale()
-                    }  .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
                     Divider().padding(.horizontal, 16)
                            
                     NutritionSummaryView(summary: summary)
