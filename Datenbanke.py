@@ -2,7 +2,7 @@ import sqlite3
 import uuid
 
 def setDatabase(tags, foods, nutrition_facts, food_tags, densities):
-    # Verbindung zur SQLite-Datenbank herstellen (erstellt die Datei, falls nicht vorhanden)
+    # Verbindung zur SQLite-Datenbank herstellen
     conn = sqlite3.connect('/Users/annarieckmann/Documents/GitHub/Rezeptbuch/Rezeptbuch.sqlite')
     cursor = conn.cursor()
 
@@ -10,7 +10,7 @@ def setDatabase(tags, foods, nutrition_facts, food_tags, densities):
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Food (
             id TEXT PRIMARY KEY,
-            name TEXT,
+            name TEXT UNIQUE,
             category TEXT,
             info TEXT,
             density REAL
@@ -24,7 +24,7 @@ def setDatabase(tags, foods, nutrition_facts, food_tags, densities):
             protein REAL,
             carbohydrates REAL,
             fat REAL,
-            food_id TEXT,
+            food_id TEXT UNIQUE,
             FOREIGN KEY (food_id) REFERENCES Food(id)
         )
     ''')
@@ -45,44 +45,69 @@ def setDatabase(tags, foods, nutrition_facts, food_tags, densities):
         )
     ''')
 
-    # Tags in die Datenbank einfügen (nur, wenn sie noch nicht existieren)
+    # Tags einfügen, falls sie nicht existieren
     tag_ids = {}
     for tag in tags:
-        # Überprüfen, ob der Tag bereits existiert
         cursor.execute('SELECT id FROM Tag WHERE name = ?', (tag[0],))
         existing_tag = cursor.fetchone()
         
         if existing_tag:
-            # Falls der Tag bereits existiert, verwende die vorhandene ID
             tag_id = existing_tag[0]
         else:
-            # Falls der Tag nicht existiert, füge ihn ein und erstelle eine neue ID
             tag_id = str(uuid.uuid4())
             cursor.execute('INSERT INTO Tag (id, name) VALUES (?, ?)', (tag_id, tag[0]))
-
-        # Speichere die Tag-ID in das Dictionary
+        
         tag_ids[tag[0]] = tag_id
 
     # Lebensmittel und Nährwerte einfügen
-    for i, (food, nutrition) in enumerate(zip(foods, nutrition_facts)):
-        food_id = str(uuid.uuid4())
-        density = densities[i] if densities[i] is not None else None  # Falls keine Dichte verfügbar ist, None verwenden
-        cursor.execute('INSERT INTO Food (id, name, category, info, density) VALUES (?, ?, ?, ?, ?)', 
-                       (food_id, food[0], food[1], food[2], density))
-        cursor.execute('INSERT INTO NutritionFacts (id, calories, protein, carbohydrates, fat, food_id) VALUES (?, ?, ?, ?, ?, ?)',
-                       (str(uuid.uuid4()), nutrition[0], nutrition[1], nutrition[2], nutrition[3], food_id))
+    for i, (food, nutrition, density) in enumerate(zip(foods, nutrition_facts, densities)):
+        cursor.execute('SELECT id, category, info, density FROM Food WHERE name = ?', (food[0],))
+        existing_food = cursor.fetchone()
         
+        if existing_food:
+            food_id, existing_category, existing_info, existing_density = existing_food
+            
+            # Falls sich die Kategorie, Info oder Dichte geändert hat, update und print vorher/nachher
+            if existing_category != food[1] or existing_info != food[2] or existing_density != density:
+                print(f"Update für {food[0]}:")
+                print(f"Vorher: Kategorie={existing_category}, Info={existing_info}, Dichte={existing_density}")
+                print(f"Nachher: Kategorie={food[1]}, Info={food[2]}, Dichte={density}")
+                cursor.execute('UPDATE Food SET category = ?, info = ?, density = ? WHERE id = ?', (food[1], food[2], density, food_id))
+        else:
+            food_id = str(uuid.uuid4())
+            cursor.execute('INSERT INTO Food (id, name, category, info, density) VALUES (?, ?, ?, ?, ?)', (food_id, food[0], food[1], food[2], density))
+        
+        # Nährwerte überprüfen und ggf. aktualisieren
+        cursor.execute('SELECT id, calories, protein, carbohydrates, fat FROM NutritionFacts WHERE food_id = ?', (food_id,))
+        existing_nutrition = cursor.fetchone()
+        
+        if existing_nutrition:
+            nutrition_id, existing_calories, existing_protein, existing_carbs, existing_fat = existing_nutrition
+            if (existing_calories != nutrition[0] or existing_protein != nutrition[1] or 
+                existing_carbs != nutrition[2] or existing_fat != nutrition[3]):
+                print(f"Update Nährwerte für {food[0]}:")
+                print(f"Vorher: Kalorien={existing_calories}, Protein={existing_protein}, Kohlenhydrate={existing_carbs}, Fett={existing_fat}")
+                print(f"Nachher: Kalorien={nutrition[0]}, Protein={nutrition[1]}, Kohlenhydrate={nutrition[2]}, Fett={nutrition[3]}")
+                cursor.execute('''UPDATE NutritionFacts SET calories = ?, protein = ?, carbohydrates = ?, fat = ? WHERE id = ?''',
+                               (nutrition[0], nutrition[1], nutrition[2], nutrition[3], nutrition_id))
+        else:
+            cursor.execute('INSERT INTO NutritionFacts (id, calories, protein, carbohydrates, fat, food_id) VALUES (?, ?, ?, ?, ?, ?)',
+                           (str(uuid.uuid4()), nutrition[0], nutrition[1], nutrition[2], nutrition[3], food_id))
+
         # Tags zuweisen
         for tag_index in food_tags[i][1]:
-            tag_name = tags[tag_index][0]  # Den Tag-Namen aus der ursprünglichen tags-Liste abrufen
-            tag_id = tag_ids[tag_name]  # Die entsprechende Tag-ID aus dem Dictionary abrufen
-            cursor.execute('INSERT INTO FoodTag (foodId, tagId) VALUES (?, ?)', (food_id, tag_id))
+            tag_name = tags[tag_index][0]
+            tag_id = tag_ids[tag_name]
+            cursor.execute('SELECT * FROM FoodTag WHERE foodId = ? AND tagId = ?', (food_id, tag_id))
+            if not cursor.fetchone():
+                cursor.execute('INSERT INTO FoodTag (foodId, tagId) VALUES (?, ?)', (food_id, tag_id))
 
     # Änderungen speichern und Verbindung schließen
     conn.commit()
     conn.close()
+    
+    print("Daten wurden erfolgreich in die Datenbank eingefügt oder aktualisiert.")
 
-    print("Daten wurden erfolgreich in die Datenbank eingefügt.")
 
 
 

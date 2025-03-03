@@ -760,26 +760,47 @@ struct RecipeImageView: View {
     var imagePath: String?
     
     var body: some View {
-        if let path = imagePath, let image = Image.loadImageFromPath(path) {
-            image
-                .resizable()
-                .scaledToFit()
-                .cornerRadius(10)
-                .padding(.top, 10)
-                .frame(maxWidth: .infinity, maxHeight: 200)
-        } else {
-            if let imageName = imagePath {
-                Image(imageName)
+//        Text(imagePath ?? "ccccccc")
+        
+        if let fileName = imagePath {  // fileName ist die Rezept-ID
+            let applicationSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            let fileURL = applicationSupport.appendingPathComponent(fileName)  // ✅ Nur Dateiname verwenden!
+
+            if FileManager.default.fileExists(atPath: fileURL.path),
+               let uiImage = UIImage(contentsOfFile: fileURL.path) {
+                Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFit()
                     .cornerRadius(10)
                     .padding(.top, 10)
                     .frame(maxWidth: .infinity, maxHeight: 200)
+                    .onAppear {
+                        print("Bild geladen: \(fileURL.path)")
+                    }
             } else {
+                if let imageName = imagePath {
+                    Image(imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .cornerRadius(10)
+                        .padding(.top, 10)
+                        .frame(maxWidth: .infinity, maxHeight: 200)
+                } else {
+                    Text("Bild nicht gefunden!")
+                        .foregroundColor(.red)
+                        .padding()
+                        .onAppear {
+                            print("Bild nicht gefunden: \(fileURL.path)")
+                        }
+                }
+               
+            }
+        } else {
+          
                 Text("Bild nicht verfügbar")
                     .foregroundColor(.secondary)
                     .padding()
-            }
+            
         }
     }
 }
