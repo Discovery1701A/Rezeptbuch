@@ -12,18 +12,24 @@ import CoreData
 struct ContentView: View {
     @ObservedObject var modelView: ViewModel
     @State private var recipesChanged = false
+    @State private var selectedTab = 0
+    @State private var selectedRecipe: UUID? = nil  // Rezept, das nach dem Speichern geöffnet werden soll
+
 
     var body: some View {
-        TabView {
-            RecipeListView(modelView: modelView)
+        TabView(selection: $selectedTab) {
+            RecipeListView(modelView: modelView, selectedTab: $selectedTab,UUIDOfSelectedRecipe: $selectedRecipe)
                 .tabItem {
                     Label("Rezepte", systemImage: "list.bullet")
                 }
+                .tag(0)
 
-            RecipeCreationView(modelView: modelView)
+            RecipeCreationView(modelView: modelView, selectedTab: $selectedTab, selectedRecipe: $selectedRecipe)
                 .tabItem {
                     Label("Rezept erstellen", systemImage: "plus.circle")
                 }
+                .tag(1)
+        
 //            FoodCreationView(modelView: modelView)
 //                .tabItem {
 //                    Label("Lebensmittel erstellen", systemImage: "plus.circle")

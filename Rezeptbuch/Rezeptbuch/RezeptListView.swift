@@ -9,6 +9,8 @@ import SwiftUI
 
 struct RecipeListView: View {
     @ObservedObject var modelView: ViewModel
+    @Binding var selectedTab: Int  // Binding für Tab-Wechsel
+    @Binding var UUIDOfSelectedRecipe: UUID?
     @State private var searchText = ""
     @State private var selectedIngredients: [FoodStruct] = []
     @State private var selectedTags: [TagStruct] = []
@@ -37,7 +39,24 @@ struct RecipeListView: View {
 
     var body: some View {
         #if os(iOS)
+     
         NavigationView {
+            if let selectedID = UUIDOfSelectedRecipe,
+               let selectedRecipe = modelView.recipes.first(where: { $0.id == selectedID }) {
+                NavigationLink(
+                    destination: RecipeView(recipe: selectedRecipe, modelView: modelView),
+                    tag: selectedID,
+                    selection: $UUIDOfSelectedRecipe
+                ) {
+                    EmptyView() // Unsichtbarer NavigationLink
+                   
+                }
+                .onAppear {
+                    DispatchQueue.main.async {
+                        UUIDOfSelectedRecipe = nil
+                    }
+                }
+            }
             VStack {
                 HStack {
                     TextField("Rezept suchen", text: $searchText)

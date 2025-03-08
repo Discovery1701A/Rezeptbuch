@@ -19,6 +19,8 @@ struct ValidationError: Identifiable {
 
 struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
+    @Binding var selectedTab: Int // Binding für Tab-Wechsel
+    @Binding var selectedRecipe : UUID?
     @State private var recipe: Recipe
     
     @Environment(\.presentationMode) var presentationMode  // Zugriff auf das PresentationMode Environment
@@ -35,6 +37,7 @@ struct RecipeCreationView: View {
     @State private var size: [String] = ["0.0", "0.0", "0.0"]
     @State private var cakeSize: CakeSize = .round(diameter: 0.0)
     @State private var info: String = ""
+ 
 #if os(macOS)
     @State private var recipeImage: NSImage?
 #else
@@ -50,6 +53,7 @@ struct RecipeCreationView: View {
     
     @State private var videoLink: String = ""
     @State private var id: UUID = .init()
+    @State private var idToOpen: UUID?
     
     @State private var selectedRecipeBookIDs: Set<UUID> = []
     
@@ -71,9 +75,12 @@ struct RecipeCreationView: View {
     @State private var shouldNavigateBack = false // Zustand für die Navigation zurück
     @State private var showingIngredientSearch = false
     
-    init(recipe: Recipe? = nil, modelView: ViewModel) {
+    init(recipe: Recipe? = nil, modelView: ViewModel, selectedTab: Binding<Int> = .constant(0),selectedRecipe: Binding<UUID?> = .constant(nil)) {
         self.modelView = modelView
+       
         self.allTags = modelView.tags
+        self._selectedTab = selectedTab
+        self._selectedRecipe = selectedRecipe
         self.filteredRecipeBooks = modelView.recipeBooks
         
         if let recipe = recipe {
@@ -93,6 +100,7 @@ struct RecipeCreationView: View {
             _info = State(initialValue: recipe.info ?? "")
             _videoLink = State(initialValue: recipe.videoLink ?? "")
             _id = State(initialValue: recipe.id)
+            
             
             _foods = State(initialValue: ingredients.compactMap { $0?.food })
             _quantity = State(initialValue: ingredients.compactMap { ingredient in
@@ -136,6 +144,7 @@ struct RecipeCreationView: View {
             _cakeSize = State(initialValue: .round(diameter: 0))
             _info = State(initialValue: "")
             _videoLink = State(initialValue: "")
+            _idToOpen = State(initialValue: id)
         }
     }
     
@@ -172,6 +181,11 @@ struct RecipeCreationView: View {
                             if validateInputs() {
                                 saveRecipe()
                                 presentationMode.wrappedValue.dismiss()  // Schließt die Ansicht
+                                selectedRecipe = idToOpen
+                                idToOpen = nil
+                                print("dddddddd ", selectedRecipe)
+                                selectedTab = 0
+                          
                             }
                             print(validationError)
                         }
@@ -417,6 +431,7 @@ struct RecipeCreationView: View {
         modelView.updateTags()
         modelView.updateBooks()
         resetFormFields()
+        
         print("durch")
     }
     
