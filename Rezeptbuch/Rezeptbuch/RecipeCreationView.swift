@@ -1011,27 +1011,31 @@ struct IngredientSearchView: View {
                         }
                     }
                     
-                    // Gefilterte Liste der Zutaten
-                                   List(filteredFoods) { food in
-                                       Button(action: {
-                                           selectedFood = food
-                                           dismiss()
-                                       }) {
-                                           VStack(alignment: .leading) {
-                                               Text(food.name)
-                                                   .font(.headline)
-                                               if let category = food.category {
-                                                   Text(category)
-                                                       .font(.subheadline)
-                                                       .foregroundColor(.secondary)
-                                               }
-                                           }
-                                       }
-                                       .onLongPressGesture {
-                                           editingFood = food
-                                           showingEditSheet = true
-                                       }
-                                   }
+                    List(filteredFoods) { food in
+                        Button(action: {
+                            selectedFood = food
+                            dismiss()
+                        }) {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(food.name)
+                                        .font(.headline)
+                                    if let category = food.category {
+                                        Text(category)
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                Spacer() // Füllt die gesamte Fläche aus
+                            }
+                            .padding() // Damit die Klickfläche größer ist
+                            .contentShape(Rectangle()) // Macht den gesamten Bereich klickbar
+                        }
+                        .simultaneousGesture(LongPressGesture().onEnded { _ in
+                            editingFood = food
+                            showingEditSheet = true
+                        })
+                    }
                                    .frame(minHeight: 300) // Optional: Mindesthöhe für die Liste
                                }
                            }
