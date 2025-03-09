@@ -180,53 +180,77 @@ enum Unit: String, CaseIterable, Hashable {
 
    
     static func convert(value: Double, from: Unit, to: Unit, density: Double = 1.0) -> Double? {
-            guard density > 0 else { return nil } // Dichte muss positiv sein
+     
 
-        print("fdvfvf",from)
-            // Schritt 1: Umrechnung in die Basiseinheit
-            let baseValue: Double? = {
-                switch from {
-                case .gram:
-                    return value
-                case .kilogram:
-                    return value * 1000.0
-                case .milliliter:
-                    return value * density
-                case .liter:
-                    return value * 1000.0 * density
-                case .teaspoon:
-                    return value * density * 5.0 // 1 Teelöffel = 5 ml
-                case .tablespoon:
-                    return value * density * 15.0 // 1 Esslöffel = 15 ml
-                case .piece:
-                    return nil // Stück kann nicht in Basiseinheit umgerechnet werden
-                }
-            }()
+        // Basiswerte für direkte Umrechnung zwischen Masseneinheiten und Volumeneinheiten
+        let massUnits: Set<Unit> = [.gram, .kilogram]
+        let volumeUnits: Set<Unit> = [.milliliter, .liter]
 
-            guard let base = baseValue else { return nil }
-
-            // Schritt 2: Umrechnung von der Basiseinheit in die Ziel-Einheit
-//        print("dfivfivnfovifvo", base)
-            return {
-                switch to {
-                case .gram:
-                    return (base)
-                case .kilogram:
-//                    print("kllllll")
-                    return (base / 1000.0)
-                case .milliliter:
-                    return (base / density)
-                case .liter:
-                    return (base / 1000.0 / density)
-                case .teaspoon:
-                    return (base / 5.0 / density)
-                case .tablespoon:
-                    return (base / 15.0 /  density)
-                case .piece:
-                    return nil // Stück kann nicht dichtebasiert umgerechnet werden
-                }
-            }()
+        // Direkte Umrechnung innerhalb der gleichen Einheitengruppe (Masse oder Volumen)
+        if massUnits.contains(from) && massUnits.contains(to) {
+            switch (from, to) {
+            case (.gram, .kilogram):
+                return value / 1000.0
+            case (.kilogram, .gram):
+                return value * 1000.0
+            default:
+                return value
+            }
         }
+
+        if volumeUnits.contains(from) && volumeUnits.contains(to) {
+            switch (from, to) {
+            case (.milliliter, .liter):
+                return value / 1000.0
+            case (.liter, .milliliter):
+                return value * 1000.0
+            default:
+                return value
+            }
+        }
+        guard density > 0 else { return nil } // Dichte muss positiv sein
+        // Schritt 1: Umrechnung in die Basiseinheit (Gramm)
+        let baseValue: Double? = {
+            switch from {
+            case .gram:
+                return value
+            case .kilogram:
+                return value * 1000.0
+            case .milliliter:
+                return value * density
+            case .liter:
+                return value * 1000.0 * density
+            case .teaspoon:
+                return value * density * 5.0 // 1 Teelöffel = 5 ml
+            case .tablespoon:
+                return value * density * 15.0 // 1 Esslöffel = 15 ml
+            case .piece:
+                return nil // Stück kann nicht umgerechnet werden
+            }
+        }()
+
+        guard let base = baseValue else { return nil }
+
+        // Schritt 2: Umrechnung von der Basiseinheit in die Ziel-Einheit
+        return {
+            switch to {
+            case .gram:
+                return base
+            case .kilogram:
+                return base / 1000.0
+            case .milliliter:
+                return base / density
+            case .liter:
+                return base / 1000.0 / density
+            case .teaspoon:
+                return base / 5.0 / density
+            case .tablespoon:
+                return base / 15.0 / density
+            case .piece:
+                return nil // Stück kann nicht dichtebasiert umgerechnet werden
+            }
+        }()
+    }
     }
 
 

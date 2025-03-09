@@ -754,7 +754,7 @@ struct RecipeView: View {
                 return
             }
             
-            factor = firstOriginIngredient.quantity / convertedQuantity
+            factor = convertedQuantity / firstOriginIngredient.quantity 
         }
         let originalArea = Double.pi * pow(originDiameter / 2, 2)
 
@@ -784,7 +784,8 @@ struct RecipeView: View {
                 return
             }
             
-            factor = firstOriginIngredient.quantity / convertedQuantity
+            factor = convertedQuantity / firstOriginIngredient.quantity
+            print ("Faktor: ", factor)
         }
         let originalArea = originLength * originWidth
 
@@ -822,7 +823,7 @@ struct RecipeView: View {
                 return
             }
             
-            factor = firstOriginIngredient.quantity / convertedQuantity
+            factor = convertedQuantity / firstOriginIngredient.quantity
         }
         // Originalportion aus Rezept ermitteln
         let originalPortion: Double
@@ -1040,103 +1041,7 @@ struct RecipeIngredientsView: View {
     }
 }
 
-struct EditIngredientPopup: View {
-    @Binding var ingredient: FoodItemStruct
-    @Binding var editedQuantity: String
-    @Binding var selectedUnit: Unit
-    @State private var temporaryUnit: Unit // Temporäre Einheit für Berechnungen
-    var onClose: () -> Void // Callback zum Schließen des Popups
-    var onSave: (Double, Unit) -> Void // Callback zum Speichern und Anpassen der anderen Zutaten
-    
-    init(
-        ingredient: Binding<FoodItemStruct>,
-        editedQuantity: Binding<String>,
-        selectedUnit: Binding<Unit>,
-        onSave: @escaping (Double, Unit) -> Void,
-        onClose: @escaping () -> Void
-        
-    ) {
-        self._ingredient = ingredient
-        self._editedQuantity = editedQuantity
-        self._selectedUnit = selectedUnit
-        self.onClose = onClose
-        self.onSave = onSave
-        self._temporaryUnit = State(initialValue: selectedUnit.wrappedValue)
-    }
 
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Menge bearbeiten")
-                .font(.headline)
-            
-            Text(ingredient.food.name)
-                .font(.title2)
-            
-            if ingredient.food.density == nil || ingredient.food.density ?? 0 <= 0 {
-                Text("Einheit kann nicht geändert werden, da keine Dichte vorhanden ist.")
-                    .font(.footnote)
-                    .foregroundColor(.gray)
-            }
-            if ingredient.unit == .piece {
-                Text("Einheit kann nicht geändert werden, da es sich um eine Stückanzahl handelt.")
-                    .font(.footnote)
-                    .foregroundColor(.gray)
-            }
-            
-            HStack {
-                TextField("Menge", text: $editedQuantity)
-                    .keyboardType(.decimalPad)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .frame(width: 100)
-                
-                Picker("Einheit", selection: $selectedUnit) {
-                    ForEach(Unit.allCases.filter { $0 != .piece || $0 == selectedUnit }, id: \.self) { unit in
-                        Text(unit.rawValue).tag(unit)
-                    }
-                }
-                .pickerStyle(WheelPickerStyle())
-                .disabled(ingredient.food.density == nil || ingredient.food.density ?? 0 <= 0 || ingredient.unit == .piece) // Deaktiviert den Picker
-                .onChange(of: selectedUnit) { newUnit in
-                    // Umrechnung der Menge beim Ändern der Einheit
-                    if newUnit != .piece && ingredient.unit != .piece {
-                        if let newQuantity = Unit.convert(
-                            value: Double(editedQuantity) ?? 0,
-                            from: temporaryUnit,
-                            to: newUnit,
-                            density: ingredient.food.density ?? 1.0 // Standarddichte
-                        ) {
-                            editedQuantity = String(newQuantity)
-                        }
-                        temporaryUnit = newUnit
-                    }
-                }
-            }
-            .padding()
-            
-            HStack {
-                Button("Abbrechen") {
-                    // Popup schließen ohne Änderungen
-                    onClose() // Schließt das Popup
-                }
-                .padding()
-                Button("Speichern") {
-                    if let newQuantity = Double(editedQuantity) {
-                        print("Converted Quantity: \(newQuantity)")
-                        onSave(newQuantity, selectedUnit) // Rückgabe an die übergeordnete Ansicht
-                    } else {
-                        print("Ungültige Eingabe in Edited Quantity: \(editedQuantity)")
-                    }
-                    onClose() // Schließt das Popup
-                }
-
-                .padding()
-            }
-        }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(10)
-    }
-}
 
 struct RecipeInstructionsView: View {
     var instructions: [String]
