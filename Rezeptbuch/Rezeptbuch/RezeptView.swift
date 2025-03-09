@@ -12,113 +12,119 @@ import WebKit
 
 struct RecipeView: View {
     var recipe: Recipe
-    var modelView: ViewModel
-    var originIngriedents: [FoodItemStruct]
-    @State private var ingredients: [FoodItemStruct]
-    @State private var shoppingList: [FoodItemStruct] = []
-      @State private var isReminderAdded = false
-      @State private var showingReminderSheet = false
-      @State private var availableReminderLists: [EKCalendar] = []
-      @State private var selectedReminderList: EKCalendar?
-      @State private var newListName: String = ""
-      
-      let eventStore = EKEventStore()
-    @State private var portion: Double
-    @State private var showingShareSheet = false
-    @State private var isFormUpdatingIngredients = false
-        
-    // Für den Picker
-    @State private var cakeFormSelection: Formen
-    @State private var diameter: Double
-    @State private var lenght: Double
-    @State private var width: Double
-    @State private var privDiameter: Double
-    @State private var privLenght: Double
-    @State private var privWidth: Double
-    @State private var originDiameter: Double
-    @State private var originLenght: Double
-    @State private var originWidth: Double
-    @State private var ratio: Double
-    var summary = NutritionSummary()
-    
-    init(recipe: Recipe, modelView: ViewModel) {
-        self.recipe = recipe
-//        print("ffdfdvfbdfbfdbdfbdfb",recipe)
-        self.modelView = modelView
-        self.originIngriedents = recipe.ingredients
-        self._ingredients = State(initialValue: originIngriedents)
-       
-        if case let .Portion(portionValue) = recipe.portion {
-            self.portion = portionValue
-        } else {
-            self.portion = 0.0
-        }
-      
-        if case let .cake(form: FormValu, size: SizeValue) = recipe.cake {
-            self.cakeFormSelection = FormValu
-           
-            if case let .rectangular(length: length, width: width) = SizeValue {
-                self.lenght = length
-                self.width = width
-                self.diameter = (sqrt((length * width) / Double.pi) * 2).rounded(toPlaces: 2)
+       var modelView: ViewModel
+       var originIngredients: [FoodItemStruct]
 
-                self.originLenght = length
-                self.originWidth = width
-                self.originDiameter = (sqrt((length * width) / Double.pi) * 2).rounded(toPlaces: 2)
-                
-                self.privDiameter = (sqrt((length * width) / Double.pi) * 2).rounded(toPlaces: 2)
-                self.privLenght = length
-                self.privWidth = width
-                
-                // Erst nachdem Länge und Breite gesetzt sind, berechnen wir das Verhältnis
-                if width != 0.0 {
-                    self.ratio = length / width
-                } else {
-                    self.ratio = 1
-                }
-                print("✅ Ratio berechnet: ", ratio, "Länge:", lenght, "Breite:", self.width)
-            } else if case let .round(diameter: diameter) = SizeValue {
-                self.diameter = diameter
-                self.lenght = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
-                self.width = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
-                self.originDiameter = diameter
-                self.originLenght = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
-                self.originWidth = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
-                self.privWidth = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
-                self.privLenght = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
-                self.privDiameter = diameter
-                self.ratio = 1
-                print("ratio: ", ratio, lenght, width)
-               
+       @State private var ingredients: [FoodItemStruct] = []
+       @State private var portion: Double = 0.0
+       @State private var cakeFormSelection: Formen = .rund
+       @State private var diameter: Double = 0
+       @State private var length: Double = 0
+       @State private var width: Double = 0
+       @State private var privDiameter: Double = 0
+       @State private var privLength: Double = 0
+       @State private var privWidth: Double = 0
+       @State private var originDiameter: Double = 0
+       @State private var originLength: Double = 0
+       @State private var originWidth: Double = 0
+       @State private var ratio: Double = 1
+
+       @State private var shoppingList: [FoodItemStruct] = []
+       @State private var isReminderAdded = false
+       @State private var showingReminderSheet = false
+       @State private var availableReminderLists: [EKCalendar] = []
+       @State private var selectedReminderList: EKCalendar?
+       @State private var newListName: String = ""
+
+       @State private var showingShareSheet = false
+       @State private var isFormUpdatingIngredients = false
+       @State private var refreshID = UUID()  // 🔄 Nutzt `UUID`, um die View zu erzwingen, sich neu zu laden
+
+       let eventStore = EKEventStore()
+       var summary = NutritionSummary()
+
+       init(recipe: Recipe, modelView: ViewModel) {
+           self.recipe = recipe
+           self.modelView = modelView
+           self.originIngredients = recipe.ingredients
+           _ingredients = State(initialValue: recipe.ingredients)
+           loadRecipe(recipe)  // ⏳ Initialisierung direkt aufrufen
+       }
+    
+    private func loadRecipe(_ recipe: Recipe) {
+        DispatchQueue.main.async {
+            self.ingredients = recipe.ingredients
+
+            if case let .Portion(portionValue) = recipe.portion {
+                self.portion = portionValue
             } else {
-                self.diameter = 0
-                self.lenght = 0
-                self.width = 0
-                self.originDiameter = 0
-                self.originLenght = 0
-                self.originWidth = 0
-                self.privWidth = 0
-                self.privLenght = 0
-                self.privDiameter = 0
-                self.ratio = 1
+                self.portion = 0.0
             }
-           
-        } else {
-            self.cakeFormSelection = .rund
-            self.diameter = 0
-            self.lenght = 0
-            self.width = 0
-            self.originDiameter = 0
-            self.originLenght = 0
-            self.originWidth = 0
-            self.privWidth = 0
-            self.privLenght = 0
-            self.privDiameter = 0
-            self.ratio = 1
+
+            if case let .cake(form, size) = recipe.cake {
+                self.cakeFormSelection = form
+
+                switch size {
+                case let .rectangular(length, width):
+                    self.length = length
+                    self.width = width
+                    self.diameter = (sqrt((length * width) / Double.pi) * 2).rounded(toPlaces: 2)
+
+                    self.originLength = length
+                    self.originWidth = width
+                    self.originDiameter = self.diameter
+
+                    self.privDiameter = self.diameter
+                    self.privLength = length
+                    self.privWidth = width
+
+                    self.ratio = width != 0.0 ? length / width : 1
+
+                case let .round(diameter):
+                    self.diameter = diameter
+                    self.length = sqrt(pow(diameter / 2, 2) * Double.pi).rounded(toPlaces: 2)
+                    self.width = self.length
+
+                    self.originDiameter = diameter
+                    self.originLength = self.length
+                    self.originWidth = self.width
+
+                    self.privDiameter = diameter
+                    self.privLength = self.length
+                    self.privWidth = self.width
+
+                    self.ratio = 1
+
+                default:
+                    self.resetCakeValues()
+                }
+            } else {
+                self.resetCakeValues()
+            }
+          
         }
-      
-        summary.calculate(from: ingredients)
+        print("updddattttttteeeeeee")
     }
+
+       /// Setzt Kuchenform-Werte auf Standardwerte zurück
+       private func resetCakeValues() {
+           cakeFormSelection = .rund
+           diameter = 0
+           length = 0
+           width = 0
+           originDiameter = 0
+           originLength = 0
+           originWidth = 0
+           privDiameter = 0
+           privLength = 0
+           privWidth = 0
+           ratio = 1
+       }
+    
+    
+
+
+    
 
     func extractYouTubeID(from link: String) -> String? {
         if link.contains("youtube.com") {
@@ -182,7 +188,11 @@ struct RecipeView: View {
                                             }
                                             // Rezept bearbeiten
                                             VStack {
-                                                NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
+                                                NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView, onSave: {
+                                                    refreshID = UUID()
+                                                    loadRecipe(recipe)
+                                                    // 🔄 Aktualisiert die ID → SwiftUI lädt die View neu
+                                                })) {
                                                     CardView {
                                                         Text("Rezept Bearbeiten")
                                                     }
@@ -207,7 +217,10 @@ struct RecipeView: View {
                                     }
                                         // Rezept bearbeiten
                                         VStack {
-                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
+                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView, onSave: {
+                                                refreshID = UUID()  // 🔄 Aktualisiert die ID → SwiftUI lädt die View neu
+                                                loadRecipe(recipe)
+                                            }))  {
                                                 CardView {
                                                     Text("Rezept Bearbeiten")
                                                 }
@@ -230,12 +243,12 @@ struct RecipeView: View {
                                 .padding()
                                 .onChange(of: cakeFormSelection) { newValue in
                                     if newValue == Formen.rund {
-                                        if privLenght != lenght || privWidth != width {
+                                        if privLength != length || privWidth != width {
                                             rectToRound()
                                             privWidth = width
-                                            privLenght = lenght
+                                            privLength = length
                                             privDiameter = diameter
-                                            ratio = lenght / width
+                                            ratio = length / width
                                             scaleRoundIngredients()
                                         }
                                     } else if newValue == Formen.eckig {
@@ -243,8 +256,8 @@ struct RecipeView: View {
                                             roundToRect()
                                             privDiameter = diameter
                                             privWidth = width
-                                            privLenght = lenght
-                                            ratio = lenght / width
+                                            privLength = length
+                                            ratio = length / width
                                             scaleRectIngredients()
                                         }
                                     }
@@ -267,12 +280,12 @@ struct RecipeView: View {
                                         if cakeFormSelection == .eckig {
                                             Text("Länge (cm):")
                                             TextField("Länge (cm)", text: Binding(
-                                                get: { "\(lenght)" },
-                                                set: { if let value = Double($0) { lenght = value } }
+                                                get: { "\(length)" },
+                                                set: { if let value = Double($0) { length = value } }
                                             ))
                                             .keyboardType(.decimalPad)
                                             .onSubmit {
-                                                ratio = lenght / width
+                                                ratio = length / width
                                                 scaleRectIngredients()
                                             }
 
@@ -283,13 +296,16 @@ struct RecipeView: View {
                                             ))
                                             .keyboardType(.decimalPad)
                                             .onSubmit {
-                                                ratio = lenght / width
+                                                ratio = length / width
                                                 scaleRectIngredients()
                                             }
                                         }
                                         // Rezept bearbeiten
                                         VStack {
-                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
+                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView, onSave: {
+                                                refreshID = UUID()  // 🔄 Aktualisiert die ID → SwiftUI lädt die View neu
+                                                loadRecipe(recipe)
+                                            }))  {
                                                 CardView {
                                                     Text("Rezept Bearbeiten")
                                                 }
@@ -319,12 +335,12 @@ struct RecipeView: View {
                                                 HStack {
                                                     Text("Länge (cm):")
                                                     TextField("Länge (cm)", text: Binding(
-                                                        get: { "\(lenght)" },
-                                                        set: { if let value = Double($0) { lenght = value } }
+                                                        get: { "\(length)" },
+                                                        set: { if let value = Double($0) { length = value } }
                                                     ))
                                                     .keyboardType(.decimalPad)
                                                     .onSubmit {
-                                                        ratio = lenght / width
+                                                        ratio = length / width
                                                         scaleRectIngredients()
                                                     }
                                                 }
@@ -337,7 +353,7 @@ struct RecipeView: View {
                                                     ))
                                                     .keyboardType(.decimalPad)
                                                     .onSubmit {
-                                                        ratio = lenght / width
+                                                        ratio = length / width
                                                         scaleRectIngredients()
                                                     }
                                                 }
@@ -346,7 +362,10 @@ struct RecipeView: View {
                                         
                                         // Rezept bearbeiten
                                         VStack {
-                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView)) {
+                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView, onSave: {
+                                                refreshID = UUID()  // 🔄 Aktualisiert die ID → SwiftUI lädt die View neu
+                                                loadRecipe(recipe)
+                                            }))  {
                                                 CardView {
                                                     Text("Rezept Bearbeiten")
                                                 }
@@ -437,6 +456,17 @@ struct RecipeView: View {
                 .cornerRadius(15)
                 .shadow(radius: 5)
             }
+            .onAppear {
+//                DispatchQueue.main.async {
+                    loadRecipe(recipe)
+//                    summary.calculate(from: ingredients)
+//                }
+            }
+            .id(refreshID)
+            .onChange(of: recipe) { newValue in
+                loadRecipe(newValue)
+                print("fhiuvbiruhfiewuvhweiruvhweiuveiwuvnweiuvnuewinewveuiwvnewuvnweivnewviuwenveiwunvewivneuw")
+            }
         }
     }
   
@@ -450,6 +480,7 @@ struct RecipeView: View {
                 .cornerRadius(10)
         }
     }
+    
     func createShoppingList() {
            shoppingList.removeAll()
            for ingredient in ingredients {
@@ -515,24 +546,87 @@ struct RecipeView: View {
            }
        }
 
-       func updateExistingReminders(_ reminders: [EKReminder], with item: FoodItemStruct) {
-           for reminder in reminders {
-               if let existingQuantityString = reminder.title.components(separatedBy: " ").first,
-                  let existingQuantity = Double(existingQuantityString) {
-                   let newQuantity = existingQuantity + item.quantity
-                   let newTitle = "\(newQuantity) \(item.unit.rawValue) \(item.food.name)"
-                   reminder.title = newTitle
-                   
-                   do {
-                       try eventStore.save(reminder, commit: true)
-                       print("Reminder updated: \(newTitle)")
-                   } catch {
-                       print("Error updating reminder: \(error.localizedDescription)")
-                   }
-               }
-           }
-       }
+    func updateExistingReminders(_ reminders: [EKReminder], with item: FoodItemStruct) {
+        var shouldCreateNewReminder = true  // Standardmäßig annehmen, dass eine neue Erinnerung nötig ist
+        let targetUnit = item.unit
+        let targetQuantity = item.quantity
 
+        for reminder in reminders {
+            // Falls es eine offene Erinnerung gibt, aktualisieren wir diese statt eine neue zu erstellen
+            if !reminder.isCompleted {
+                shouldCreateNewReminder = false  // Es gibt bereits eine noch nicht erledigte Erinnerung, also keine neue nötig
+                
+                // Versuche, die vorhandene Menge aus der Erinnerung zu extrahieren
+                let reminderParts = reminder.title.components(separatedBy: " ")
+                guard reminderParts.count >= 3,  // Mindestens: "100 g Zucker"
+                      let existingQuantity = Double(reminderParts[0]),
+                      let existingUnit = Unit.fromString(reminderParts[1]) else {
+                    print("⚠️ Fehler beim Lesen der offenen Erinnerung: \(reminder.title).")
+                    continue
+                }
+
+                // Wenn sich die Einheit geändert hat und nicht 'Stück' ist, umrechnen
+                if existingUnit != targetUnit && existingUnit != .piece && targetUnit != .piece {
+                    if let convertedQuantity = Unit.convert(value: existingQuantity, from: existingUnit, to: targetUnit, density: item.food.density ?? 1.0) {
+                        let newQuantity = convertedQuantity + targetQuantity
+                        let newTitle = "\(newQuantity) \(targetUnit.rawValue) \(item.food.name)"
+                        reminder.title = newTitle
+                        print("🔄 Erinnerung aktualisiert mit umgerechneter Einheit: \(newTitle)")
+                    } else {
+                        print("⚠️ Konnte Einheit nicht umrechnen: \(existingUnit) -> \(targetUnit).")
+                        shouldCreateNewReminder = true
+                        continue
+                    }
+                }
+                // Falls die Einheit identisch ist, einfach zusammenrechnen
+                else if existingUnit == targetUnit {
+                    let newQuantity = existingQuantity + targetQuantity
+                    let newTitle = "\(newQuantity) \(targetUnit.rawValue) \(item.food.name)"
+                    reminder.title = newTitle
+                    print("✅ Erinnerung aktualisiert: \(newTitle)")
+                }
+                // Falls eine Mischung aus "Stück" und anderen Einheiten vorliegt, neue Erinnerung erstellen
+                else {
+                    print("⚠️ Stückzahlen können nicht umgerechnet werden. Neue Erinnerung wird erstellt.")
+                    shouldCreateNewReminder = true
+                    continue
+                }
+
+                // Aktualisierte Erinnerung speichern
+                do {
+                    try eventStore.save(reminder, commit: true)
+                    print("✅ Erinnerung gespeichert: \(reminder.title)")
+                } catch {
+                    print("❌ Fehler beim Speichern der aktualisierten Erinnerung: \(error.localizedDescription)")
+                }
+            }
+        }
+
+        // Falls keine offene Erinnerung existierte, neue erstellen
+        if shouldCreateNewReminder {
+            createNewReminder(for: item)
+        }
+    }
+
+    /// Erstellt eine neue Erinnerung, falls keine offene existiert
+    func createNewReminder(for item: FoodItemStruct) {
+        guard let reminderList = selectedReminderList else {
+            print("⚠️ Keine gültige Liste ausgewählt, neue Erinnerung konnte nicht erstellt werden.")
+            return
+        }
+
+        let reminder = EKReminder(eventStore: eventStore)
+        reminder.title = "\(item.quantity) \(item.unit.rawValue) \(item.food.name)"
+        reminder.calendar = reminderList
+
+        do {
+            try eventStore.save(reminder, commit: true)
+            print("✅ Neue Erinnerung erstellt: \(reminder.title)")
+        } catch {
+            print("❌ Fehler beim Speichern der neuen Erinnerung: \(error.localizedDescription)")
+        }
+    }
+    
     @ViewBuilder
     func portionScalePlus() -> some View {
         Button(action: {
@@ -597,42 +691,42 @@ struct RecipeView: View {
     private func scaleIngredients(portion: Double) {
         if case let .Portion(portionValue) = recipe.portion {
             isFormUpdatingIngredients = true
-            ingredients = Model().portionScale(portionOrigin: portionValue, portionNew: portion, foodItems: originIngriedents)
+            ingredients = Model().portionScale(portionOrigin: portionValue, portionNew: portion, foodItems: originIngredients)
         }
     }
     
     private func scaleRoundIngredients() {
         isFormUpdatingIngredients = true
-        ingredients = Model().roundScale(diameterOrigin: originDiameter, diameterNew: diameter, foodItems: originIngriedents)
+        ingredients = Model().roundScale(diameterOrigin: originDiameter, diameterNew: diameter, foodItems: originIngredients)
     }
 
     private func scaleRectIngredients() {
         isFormUpdatingIngredients = true
-        ingredients = Model().rectScale(lengthOrigin: originLenght, widthOrigin: originWidth, lengthNew: lenght, widthNew: width, foodItems: originIngriedents)
+        ingredients = Model().rectScale(lengthOrigin: originLength, widthOrigin: originWidth, lengthNew: length, widthNew: width, foodItems: originIngredients)
     }
     
     private func rectToRound() {
         isFormUpdatingIngredients = true
-        diameter = Model().rectToRound(length: lenght, width: width).rounded(toPlaces: 2)
+        diameter = Model().rectToRound(length: length, width: width).rounded(toPlaces: 2)
     }
     
     private func roundToRect() {
         isFormUpdatingIngredients = true
-        width = Model().roundToRect(diameter: diameter, length: lenght).rounded(toPlaces: 2)
+        width = Model().roundToRect(diameter: diameter, length: length).rounded(toPlaces: 2)
     }
     
     private func itemScale() {
-        ingredients = Model().itemScale(foodItemsOrigin: originIngriedents, foodItemsNew: ingredients)
+        ingredients = Model().itemScale(foodItemsOrigin: originIngredients, foodItemsNew: ingredients)
     }
     
     private func resetScale() {
-        ingredients = originIngriedents
+        ingredients = originIngredients
     }
     
     private func resetAllScale() {
-        ingredients = originIngriedents
+        ingredients = originIngredients
         diameter = originDiameter
-        lenght = originLenght
+        length = originLength
         width = originWidth
         let originalPortion: Double
         if case let .Portion(portionValue) = recipe.portion {
@@ -645,7 +739,7 @@ struct RecipeView: View {
     
     private func ingriedentsScaleDia() {
         guard let firstIngredient = ingredients.first,
-              let firstOriginIngredient = originIngriedents.first else { return }
+              let firstOriginIngredient = originIngredients.first else { return }
 
         // Falls die Einheit "Stück" ist, keine Umrechnung durchführen, sondern 1 als Faktor setzen
         let factor: Double
@@ -675,7 +769,7 @@ struct RecipeView: View {
 
     private func ingriedentsScaleWL() {
         guard let firstIngredient = ingredients.first,
-              let firstOriginIngredient = originIngriedents.first else { return }
+              let firstOriginIngredient = originIngredients.first else { return }
 
         // Falls die Einheit "Stück" ist, keine Umrechnung durchführen, sondern 1 als Faktor setzen
         let factor: Double
@@ -692,7 +786,7 @@ struct RecipeView: View {
             
             factor = firstOriginIngredient.quantity / convertedQuantity
         }
-        let originalArea = originLenght * originWidth
+        let originalArea = originLength * originWidth
 
         if ratio <= 0 {
             print("⚠️ Fehler: Ungültiges Seitenverhältnis")
@@ -708,12 +802,12 @@ struct RecipeView: View {
         }
         print("neeeuuuuuue: ", newWidth, newLength)
         width = newWidth
-        lenght = newLength
+        length = newLength
     }
     
     private func ingriedentsScalePortion() {
         guard let firstIngredient = ingredients.first,
-              let firstOriginIngredient = originIngriedents.first else { return }
+              let firstOriginIngredient = originIngredients.first else { return }
 
         // Falls die Einheit "Stück" ist, keine Umrechnung durchführen, sondern 1 als Faktor setzen
         let factor: Double
@@ -740,7 +834,7 @@ struct RecipeView: View {
 
         // Neue Portion berechnen
         portion = factor * originalPortion
-        print("poooorrt ", portion)
+//        print("poooorrt ", portion)
     }
 }
 
@@ -1085,209 +1179,3 @@ extension Double {
     }
 }
 
-// Struktur zur Zusammenfassung der Nährwerte
-struct NutritionSummary {
-    var totalCalories: Int = 0
-    var totalProtein: Double = 0.0
-    var totalCarbohydrates: Double = 0.0
-    var totalFat: Double = 0.0
-    var missingStings: [String] = []
-
-    mutating func calculate(from items: [FoodItemStruct]) {
-        totalCalories = 0
-        totalProtein = 0.0
-        totalCarbohydrates = 0.0
-        totalFat = 0.0
-       
-        for item in items {
-            if item.food.density == nil || item.food.density ?? 0 <= 0 {
-                missingStings.append("\(item.food.name) hat keine Dichte")
-            }
-            if item.food.nutritionFacts == nil || item.food.nutritionFacts?.calories == nil || item.food.nutritionFacts?.calories ?? 0 <= 0 || item.food.nutritionFacts?.protein == nil || item.food.nutritionFacts?.protein ?? 0 <= 0 || item.food.nutritionFacts?.carbohydrates == nil || item.food.nutritionFacts?.carbohydrates ?? 0 <= 0 || item.food.nutritionFacts?.fat == nil || item.food.nutritionFacts?.fat ?? 0 <= 0 {
-                missingStings.append("\(item.food.name) hat fehlende Nährwerte")
-            }
-            
-            if item.unit == .piece {
-                missingStings.append("\(item.food.name) hat eine Stückmenge daher ist die Berechnung nicht vollständing")
-            } else {
-                if let nutrition = item.food.nutritionFacts {
-                    print(nutrition)
-                    totalCalories += Int(Double(nutrition.calories ?? 0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100)
-                    totalProtein += (nutrition.protein ?? 0.0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
-                    totalCarbohydrates += (nutrition.carbohydrates ?? 0.0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
-                    
-                    totalFat += (nutrition.fat ?? 0.0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
-                }
-            }
-        }
-    }
-}
-
-struct NutritionSummaryView: View {
-    let summary: NutritionSummary
-
-    var body: some View {
-        VStack {
-            Text("Nährwerte")
-                .font(.headline)
-                .padding()
-            if summary.missingStings.count > 0 {
-                Text("Es wurden bei der Berechnung nicht alle Zutaten berücksichtigt.")
-            }
-            HStack {
-                NutritionBar(value: summary.totalCalories, label: "Kalorien", color: .red)
-                NutritionBar(value: Int(summary.totalProtein), label: "Protein", color: .blue)
-                NutritionBar(value: Int(summary.totalCarbohydrates), label: "Kohlenhydrate", color: .green)
-                NutritionBar(value: Int(summary.totalFat), label: "Fett", color: .yellow)
-            }
-            .padding()
-        }
-    }
-}
-
-// Hilfskomponente für Balkendiagramme
-struct NutritionBar: View {
-    var value: Int
-    var label: String
-    var color: Color
-
-    var body: some View {
-        VStack {
-            Text(label)
-                .font(.caption)
-                .rotationEffect(.degrees(-45))
-                .padding(.vertical)
-            Text("\(value)")
-                .font(.caption)
-                .padding(.vertical)
-        }
-    }
-}
-
-
-struct ReminderListSelectionView: View {
-  
-    @Binding var availableLists: [EKCalendar] // 🔄 Jetzt als Binding, damit die Änderungen im Haupt-View übernommen werden
-    @Binding var selectedList: EKCalendar?
-    @Binding var newListName: String
-    let eventStore : EKEventStore
-    var onConfirm: () -> Void
-    var fetchReminderLists: () -> Void  // 🔄 Funktion wird übergeben, um die Listen zu aktualisieren
-    @Environment(\.presentationMode) var presentationMode
-       @State private var showOpenRemindersAlert = false  // 🔄 State für Alert-Steuerung
-       
-       var body: some View {
-           NavigationView {
-               VStack {
-                   Text("Einkaufsliste auswählen")
-                       .font(.headline)
-                       .padding()
-
-                   Picker("Liste auswählen", selection: $selectedList) {
-                       ForEach(availableLists, id: \.self) { list in
-                           Text(list.title).tag(list as EKCalendar?)
-                       }
-                   }
-                   .pickerStyle(WheelPickerStyle())
-
-                   TextField("Neue Liste erstellen", text: $newListName)
-                       .textFieldStyle(RoundedBorderTextFieldStyle())
-                       .padding()
-                   
-                   Button("Neue Liste hinzufügen") {
-                       createNewReminderList()
-                   }
-                   .padding()
-                   .disabled(newListName.isEmpty)
-
-                   Spacer()
-
-                   Button("Bestätigen") {
-//                       onConfirm()
-                       showOpenRemindersAlert = true // 🔄 Nach Bestätigung soll Alert erscheinen
-                   }
-                   .padding()
-                   .background(Color.green)
-                   .foregroundColor(.white)
-                   .cornerRadius(10)
-               }
-               .padding()
-               .alert(isPresented: $showOpenRemindersAlert) {
-                   Alert(
-                       title: Text("Erinnerungen öffnen?"),
-                       message: Text("Möchtest du die Erinnerungen-App jetzt öffnen?"),
-                       primaryButton: .default(Text("Ja")) {
-                           openRemindersApp()
-                           presentationMode.wrappedValue.dismiss()
-                           onConfirm()
-                       },
-                       secondaryButton: .cancel {
-                           presentationMode.wrappedValue.dismiss()
-                           onConfirm()
-                       }
-                   )
-               }
-           }
-       }
-       
-       func createNewReminderList() {
-           let newList = EKCalendar(for: .reminder, eventStore: eventStore)
-           newList.title = newListName
-           
-           if let defaultSource = eventStore.sources.first(where: { $0.sourceType == .calDAV }) {
-               newList.source = defaultSource
-           } else if let localSource = eventStore.sources.first(where: { $0.sourceType == .local }) {
-               newList.source = localSource
-           } else {
-               print("⚠️ Keine gültige Quelle für den neuen Kalender gefunden!")
-               return
-           }
-           
-           do {
-               try eventStore.saveCalendar(newList, commit: true)
-               DispatchQueue.main.async {
-                   self.selectedList = newList
-                   self.fetchReminderLists()
-               }
-               print("✅ Neue Liste erstellt: \(newListName)")
-           } catch {
-               print("❌ Fehler beim Erstellen der Liste: \(error.localizedDescription)")
-           }
-       }
-
-    func openRemindersApp() {
-        guard let selectedList = selectedList else {
-            print("⚠️ Keine Liste ausgewählt!")
-            return
-        }
-
-        // Versuche, die Liste direkt zu öffnen
-        let calendarID = selectedList.calendarIdentifier
-        let remindersURL = "x-apple-reminderkit://list/\(calendarID)"
-        
-        if let url = URL(string: remindersURL) {
-            UIApplication.shared.open(url, options: [:]) { success in
-                if success {
-                    print("✅ Erinnerungen-App mit Liste \(selectedList.title) geöffnet")
-                } else {
-                    print("⚠️ Konnte spezifische Liste nicht öffnen, versuche allgemeine Erinnerungen-App")
-                    openRemindersFallback()
-                }
-            }
-        } else {
-            print("⚠️ Ungültige URL für Erinnerungen-Liste, öffne stattdessen Erinnerungen-App")
-            openRemindersFallback()
-        }
-    }
-
-    /// Falls die spezifische Liste nicht geöffnet werden kann, öffne einfach die Erinnerungen-App
-    func openRemindersFallback() {
-        if let url = URL(string: "x-apple-reminderkit://") {
-            UIApplication.shared.open(url, options: [:]) { success in
-                if !success {
-                    print("❌ Konnte Erinnerungen-App nicht öffnen!")
-                }
-            }
-        }
-    }
-   }

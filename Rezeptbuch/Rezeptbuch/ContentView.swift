@@ -24,7 +24,7 @@ struct ContentView: View {
                 }
                 .tag(0)
 
-            RecipeCreationView(modelView: modelView, selectedTab: $selectedTab, selectedRecipe: $selectedRecipe)
+            RecipeCreationView(modelView: modelView, selectedTab: $selectedTab, selectedRecipe: $selectedRecipe, onSave: {})
                 .tabItem {
                     Label("Rezept erstellen", systemImage: "plus.circle")
                 }

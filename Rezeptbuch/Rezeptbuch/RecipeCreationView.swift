@@ -20,10 +20,12 @@ struct ValidationError: Identifiable {
 struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
     @Binding var selectedTab: Int // Binding für Tab-Wechsel
-    @Binding var selectedRecipe : UUID?
+    @Binding var selectedRecipe: UUID?
     @State private var recipe: Recipe
+    var onSave: () -> Void // 🔄 Callback, um `RecipeView` zu aktualisieren
+        
     
-    @Environment(\.presentationMode) var presentationMode  // Zugriff auf das PresentationMode Environment
+    @Environment(\.presentationMode) var presentationMode // Zugriff auf das PresentationMode Environment
 
     @State private var recipeTitle = ""
     @State private var ingredients: [FoodItemStruct?] = []
@@ -75,9 +77,9 @@ struct RecipeCreationView: View {
     @State private var shouldNavigateBack = false // Zustand für die Navigation zurück
     @State private var showingIngredientSearch = false
     
-    init(recipe: Recipe? = nil, modelView: ViewModel, selectedTab: Binding<Int> = .constant(0),selectedRecipe: Binding<UUID?> = .constant(nil)) {
+    init(recipe: Recipe? = nil, modelView: ViewModel, selectedTab: Binding<Int> = .constant(0), selectedRecipe: Binding<UUID?> = .constant(nil), onSave: @escaping () -> Void) {
         self.modelView = modelView
-       
+        self.onSave = onSave
         self.allTags = modelView.tags
         self._selectedTab = selectedTab
         self._selectedRecipe = selectedRecipe
@@ -94,13 +96,12 @@ struct RecipeCreationView: View {
             } else {
                 self._portionValue = State(initialValue: "0.0")
             }
-            _isCake = State(initialValue: recipe.cake != .notCake || (recipe.cake != nil && recipe.portion == .notPortion) )
+            _isCake = State(initialValue: recipe.cake != .notCake || (recipe.cake != nil && recipe.portion == .notPortion))
             _cakeForm = State(initialValue: recipe.cake?.form ?? .rund)
             _cakeSize = State(initialValue: recipe.cake?.size ?? .round(diameter: 0))
             _info = State(initialValue: recipe.info ?? "")
             _videoLink = State(initialValue: recipe.videoLink ?? "")
             _id = State(initialValue: recipe.id)
-            
             
             _foods = State(initialValue: ingredients.compactMap { $0?.food })
             _quantity = State(initialValue: ingredients.compactMap { ingredient in
@@ -158,7 +159,7 @@ struct RecipeCreationView: View {
                     Button("Speichern") {
                         if validateInputs() {
                             saveRecipe()
-                            presentationMode.wrappedValue.dismiss()  // Schließt die Ansicht
+                            presentationMode.wrappedValue.dismiss() // Schließt die Ansicht
                         }
                     }
                     .disabled((editMode == .inactive || recipeTitle.isEmpty) && validationError != nil)
@@ -180,12 +181,12 @@ struct RecipeCreationView: View {
                         Button("Speichern") {
                             if validateInputs() {
                                 saveRecipe()
-                                presentationMode.wrappedValue.dismiss()  // Schließt die Ansicht
+                                presentationMode.wrappedValue.dismiss() // Schließt die Ansicht
                                 selectedRecipe = idToOpen
                                 idToOpen = nil
-                                print("dddddddd ", selectedRecipe)
+//                                print("dddddddd ", selectedRecipe)
                                 selectedTab = 0
-                          
+                                onSave() // 🔄 Löst das Neuladen in `RecipeView` aus
                             }
                             print(validationError)
                         }
@@ -202,52 +203,51 @@ struct RecipeCreationView: View {
 
     private func resetFormFields() {
         recipeTitle = ""
-       ingredients = []
+        ingredients = []
         foods = []
         instructions = []
         quantity = []
         selectedUnit = []
         portionValue = ""
         isCake = false
-       cakeForm = .rund
-       size = ["0.0", "0.0", "0.0"]
+        cakeForm = .rund
+        size = ["0.0", "0.0", "0.0"]
         cakeSize = .round(diameter: 0.0)
-      info = ""
-    #if os(macOS)
-         recipeImage = nil
-    #else
-     recipeImage = nil
+        info = ""
+#if os(macOS)
+        recipeImage = nil
+#else
+        recipeImage = nil
         sourceType = .photoLibrary // Neue State Variable
-    #endif
+#endif
         showingImagePicker = false
-  isTargeted = false
-       validationError = nil
+        isTargeted = false
+        validationError = nil
         
-    showingCameraPicker = false
-     showingPermissionAlert = false
+        showingCameraPicker = false
+        showingPermissionAlert = false
         
         videoLink = ""
-       id = UUID()
+        id = UUID()
         
         selectedRecipeBookIDs = []
         
-       showingNewRecipeBookDialog = false
+        showingNewRecipeBookDialog = false
         //    @State private var selectedRecipeBookID: UUID?
-       newRecipeBookName = ""
+        newRecipeBookName = ""
         newRecipeBookDummyID = UUID()
-       recipeBookSearchText = ""
+        recipeBookSearchText = ""
         filteredRecipeBooks = modelView.recipeBooks
         
-       selectedTags = []
+        selectedTags = []
         allTags = modelView.tags
-      newTagName = ""
-      showingAddTagField = false
+        newTagName = ""
+        showingAddTagField = false
         
         tagSearchText = ""
-       filteredTags = []
-   newRecipe = true
-       shouldNavigateBack = false // Zustand für die Navigation zurück
-    
+        filteredTags = []
+        newRecipe = true
+        shouldNavigateBack = false // Zustand für die Navigation zurück
     }
     
     private func validateInputs() -> Bool {
@@ -312,14 +312,14 @@ struct RecipeCreationView: View {
             }
         }
 
-        let fileName = "\(id).jpeg"  // Rezept-ID als Dateiname
+        let fileName = "\(id).jpeg" // Rezept-ID als Dateiname
         let fileURL = applicationSupport.appendingPathComponent(fileName)
 
         do {
             try data.write(to: fileURL)
             UserDefaults.standard.set(fileName, forKey: "savedImageName") // ❗ Nur den Dateinamen speichern!
             print("Bild gespeichert unter: \(fileURL.path)")
-            return fileName  // Nur den Dateinamen zurückgeben, nicht den ganzen Pfad
+            return fileName // Nur den Dateinamen zurückgeben, nicht den ganzen Pfad
         } catch {
             print("Fehler beim Speichern des Bildes: \(error)")
             return nil
@@ -369,7 +369,7 @@ struct RecipeCreationView: View {
                 ingredients[i] = FoodItemStruct(food: foods[i],
                                                 unit: selectedUnit[i],
                                                 quantity: Double(quantity[i])!,
-                                                id : UUID())
+                                                id: UUID())
             }
         }
         
@@ -389,25 +389,23 @@ struct RecipeCreationView: View {
             let filteredBooks = filteredRecipeBooks.filter { $0.id == bookID }
             bookSav.append(contentsOf: filteredBooks)
         }
-        var imagePath : String? = nil
+        var imagePath: String? = nil
         if let image = recipeImage, let Path = saveImageLocally(image: image) {
             imagePath = Path
-           
         }
            
-                recipe = Recipe(id: id,
-                                title: recipeTitle,
-                                ingredients: ingredients.compactMap { $0 },
-                                instructions: instructions,
-                                image: imagePath,
-                                portion: portionInfo,
-                                cake:  cakeInfo,
-                                videoLink: videoLinkSav,
-                                info: infoSav,
-                                tags: tagsSav,
-                                recipeBookIDs: Array(selectedRecipeBookIDs))
+        recipe = Recipe(id: id,
+                        title: recipeTitle,
+                        ingredients: ingredients.compactMap { $0 },
+                        instructions: instructions,
+                        image: imagePath,
+                        portion: portionInfo,
+                        cake: cakeInfo,
+                        videoLink: videoLinkSav,
+                        info: infoSav,
+                        tags: tagsSav,
+                        recipeBookIDs: Array(selectedRecipeBookIDs))
          
-        
         //        print("ja")
         // Speichern des Rezepts im Datenmanager
         
@@ -450,8 +448,6 @@ struct RecipeCreationView: View {
         guard let inputImage = recipeImage else { return }
         // Additional processing of the loaded image, if needed
     }
-    
-    
     
     var recipeBookPicker: some View {
         VStack {
@@ -512,9 +508,6 @@ struct RecipeCreationView: View {
         .padding()
     }
     
-    
-    
-    
     var imagePickerSection: some View {
         VStack {
             Text("Bild auswählen")
@@ -522,14 +515,14 @@ struct RecipeCreationView: View {
                 .padding()
 
             HStack {
-                #if os(macOS)
+#if os(macOS)
                 // Verwenden von Text und Image anstelle eines Buttons für macOS
                 Text("Bild auswählen")
                     .foregroundColor(.blue)
                     .onTapGesture {
                         openFilePicker()
                     }
-                #else
+#else
                 // Kamera-Label als Tap-Geste für iOS
                 Label("Kamera", systemImage: "camera")
                     .foregroundColor(.blue)
@@ -542,7 +535,8 @@ struct RecipeCreationView: View {
                         Alert(
                             title: Text("Zugriff verweigert"),
                             message: Text("Bitte erlaube den Zugriff auf die Kamera in den Einstellungen deines Geräts."),
-                            dismissButton: .default(Text("OK")))
+                            dismissButton: .default(Text("OK"))
+                        )
                     }
                     .sheet(isPresented: $showingCameraPicker) {
                         ImagePicker(image: $recipeImage, sourceType: .camera)
@@ -560,59 +554,56 @@ struct RecipeCreationView: View {
                     .sheet(isPresented: $showingImagePicker, onDismiss: loadImage) {
                         ImagePicker(image: $recipeImage, sourceType: self.sourceType)
                     }
-                #endif
+#endif
             }
             .padding()
 
-            #if os(iOS)
-            .onDrop(of: ["public.image"], isTargeted: $isTargeted) { providers, _ in
-                providers.first?.loadObject(ofClass: UIImage.self, completionHandler: { image, _ in
-                    DispatchQueue.main.async {
-                        if let image = image as? UIImage {
-                            self.recipeImage = image
-                        }
-                    }
-                })
-                return true
-            }
-            #else
-            .onDrop(of: ["public.file-url"], isTargeted: $isTargeted) { providers -> Bool in
-                providers.first?.loadDataRepresentation(forTypeIdentifier: "public.file-url", completionHandler: { data, _ in
-                    if let data = data, let path = String(data: data, encoding: .utf8), let url = URL(string: path) {
+#if os(iOS)
+                .onDrop(of: ["public.image"], isTargeted: $isTargeted) { providers, _ in
+                    providers.first?.loadObject(ofClass: UIImage.self, completionHandler: { image, _ in
                         DispatchQueue.main.async {
-                            if let image = NSImage(contentsOf: url) {
+                            if let image = image as? UIImage {
                                 self.recipeImage = image
                             }
                         }
-                    }
-                })
-                return true
-            }
-            #endif
+                    })
+                    return true
+                }
+#else
+                .onDrop(of: ["public.file-url"], isTargeted: $isTargeted) { providers -> Bool in
+                    providers.first?.loadDataRepresentation(forTypeIdentifier: "public.file-url", completionHandler: { data, _ in
+                        if let data = data, let path = String(data: data, encoding: .utf8), let url = URL(string: path) {
+                            DispatchQueue.main.async {
+                                if let image = NSImage(contentsOf: url) {
+                                    self.recipeImage = image
+                                }
+                            }
+                        }
+                    })
+                    return true
+                }
+#endif
 #if os(iOS)
-           if let image = recipeImage {
-               Image(uiImage: image)
-                   .resizable()
-                   .aspectRatio(contentMode: .fit)
-                   .frame(height: 200)
-           } else {
-               Text("Kein Bild ausgewählt")
-           }
-           #else
-           if let image = recipeImage {
-               Image(nsImage: image)
-                   .resizable()
-                   .aspectRatio(contentMode: .fit)
-                   .frame(height: 200)
-           } else {
-               Text("Kein Bild ausgewählt")
-           }
-           #endif
-       
+            if let image = recipeImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 200)
+            } else {
+                Text("Kein Bild ausgewählt")
+            }
+#else
+            if let image = recipeImage {
+                Image(nsImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 200)
+            } else {
+                Text("Kein Bild ausgewählt")
+            }
+#endif
         }
-        
     }
-
 
     // Diese Funktion schließt alle anderen Picker, außer dem aktuell ausgewählten
     private func closeOtherPicker(except picker: String) {
@@ -632,12 +623,10 @@ struct RecipeCreationView: View {
         }
     }
 
-    
-    
     private func checkCameraPermissions() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            self.showingCameraPicker = true
+            showingCameraPicker = true
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
@@ -654,10 +643,6 @@ struct RecipeCreationView: View {
             break
         }
     }
-    
-    
-    
-    
     
     var tagsSection: some View {
         Section(header: Text("Tags")) {
@@ -797,7 +782,6 @@ struct RecipeCreationView: View {
         }
     }
     
-    
     var ingriginsSection: some View {
         Section(header: Text("Zutaten")) {
             List {
@@ -843,7 +827,6 @@ struct RecipeCreationView: View {
         }
     }
 
-    
     var insructionSection: some View {
         Section(header: Text("Anleitung")) {
             List {
@@ -869,28 +852,29 @@ struct RecipeCreationView: View {
     }
     
     var content: some View {
-           Form {
-               allgemeines
+        Form {
+            allgemeines
                
-               infoSection
+            infoSection
                
-               youTubeSection
+            youTubeSection
                
-               bookSction
+            bookSction
                
-               tagsSection
+            tagsSection
                
-               imagePickerSection
+            imagePickerSection
                
-               ingriginsSection
+            ingriginsSection
 
-               insructionSection
-           }
-           .onAppear {
-               self.editMode = .active
-           }
-       }
-   }
+            insructionSection
+        }
+        .onAppear {
+            self.editMode = .active
+        }
+    }
+}
+
 struct OptionsListView: View {
     let options: [String]
     @Binding var selectedOption: String?
@@ -917,11 +901,9 @@ struct IngredientSearchView: View {
     @State private var editingFood: FoodStruct? // Die Zutat, die bearbeitet wird
     @State private var showingEditSheet = false // Zeigt die Bearbeitungsansicht
 
-
-    
     @State var allFoods: [FoodStruct]
 
-    var modelView : ViewModel
+    var modelView: ViewModel
     var categories: [String] {
         Array(Set(allFoods.compactMap { $0.category })).sorted()
     }
@@ -929,19 +911,21 @@ struct IngredientSearchView: View {
     var tagsString: [String] {
         Array(Set(allFoods.compactMap { $0.tags }.flatMap { $0.map { $0.name } })).sorted()
     }
+
     @Environment(\.dismiss) var dismiss
     
-    func updateFoods (){
-        self.allFoods = modelView.foods // Jetzt ist die Zuweisung erlaubt
+    func updateFoods() {
+        allFoods = modelView.foods // Jetzt ist die Zuweisung erlaubt
     }
     
     var filteredFoods: [FoodStruct] {
         allFoods.filter { food in
             (searchText.isEmpty || food.name.lowercased().contains(searchText.lowercased())) &&
-            (selectedCategory == nil || food.category == selectedCategory) &&
-            (selectedTag == nil || food.tags?.contains(where: { $0.name == selectedTag }) == true)
+                (selectedCategory == nil || food.category == selectedCategory) &&
+                (selectedTag == nil || food.tags?.contains(where: { $0.name == selectedTag }) == true)
         }
     }
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -951,8 +935,6 @@ struct IngredientSearchView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding()
              
-
-
                     // Kategorie-Filter mit ScrollView
                     Section(header: Text("Kategorien")) {
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -1036,50 +1018,49 @@ struct IngredientSearchView: View {
                             showingEditSheet = true
                         })
                     }
-                                   .frame(minHeight: 300) // Optional: Mindesthöhe für die Liste
-                               }
-                           }
-                           .navigationTitle("Zutaten suchen")
-                           .navigationBarItems(
-                               leading: Button("Abbrechen", action: {
-                                   dismiss()
-                               }),
-                               trailing: Button(action: {
-                                   showingFoodCreation = true
-                               }) {
-                                   HStack {
-                                       Image(systemName: "plus.circle")
-                                       Text("Neue Zutat")
-                                   }
-                               }
-                           )
-                           .sheet(isPresented: $showingFoodCreation) {
-                               FoodCreationView(
-                                   modelView: modelView,
-                                   onSave: {
-                                       showingFoodCreation = false
-                                       modelView.updateFood()
-                                       updateFoods()
-                                   }
-                               )
-                           }
-                           .sheet(isPresented: $showingEditSheet) {
-                               if let foodToEdit = editingFood {
-                                   FoodCreationView(
-                                       modelView: modelView,
-                                       existingFood: foodToEdit,
-                                       onSave: {
-                                           showingEditSheet = false
-                                           modelView.updateFood()
-                                           updateFoods()
-                                       }
-                                   )
-                               }
-                           }
-                       }
-                   }
+                    .frame(minHeight: 300) // Optional: Mindesthöhe für die Liste
+                }
+            }
+            .navigationTitle("Zutaten suchen")
+            .navigationBarItems(
+                leading: Button("Abbrechen", action: {
+                    dismiss()
+                }),
+                trailing: Button(action: {
+                    showingFoodCreation = true
+                }) {
+                    HStack {
+                        Image(systemName: "plus.circle")
+                        Text("Neue Zutat")
+                    }
+                }
+            )
+            .sheet(isPresented: $showingFoodCreation) {
+                FoodCreationView(
+                    modelView: modelView,
+                    onSave: {
+                        showingFoodCreation = false
+                        modelView.updateFood()
+                        updateFoods()
+                    }
+                )
+            }
+            .sheet(isPresented: $showingEditSheet) {
+                if let foodToEdit = editingFood {
+                    FoodCreationView(
+                        modelView: modelView,
+                        existingFood: foodToEdit,
+                        onSave: {
+                            showingEditSheet = false
+                            modelView.updateFood()
+                            updateFoods()
+                        }
+                    )
+                }
+            }
+        }
+    }
 }
-
 
 struct IngredientRow: View {
     let index: Int
@@ -1100,7 +1081,7 @@ struct IngredientRow: View {
             Button(action: {
                 showingIngredientSearch = true
             }) {
-                Text(food.name == "" ?  "Zutat auswählen": food.name )
+                Text(food.name == "" ? "Zutat auswählen" : food.name)
 
                     .foregroundColor(.blue)
             }
@@ -1127,9 +1108,6 @@ struct IngredientRow: View {
                 }
                 .padding()
             }
-
-          
         }
     }
 }
-

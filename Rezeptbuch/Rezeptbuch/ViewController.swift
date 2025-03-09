@@ -310,10 +310,10 @@ extension CakeInfo {
                 (stringValue as NSString).substring(with: match.range)
             }
             let components = [forme[0], size[0]]
-            print("conni ich dich auch")
+//            print("conni ich dich auch")
             print(components)
             if components.count == 2 {
-                print("John Nein")
+//                print("John Nein")
                 let formString = String(components[0].trimmingCharacters(in: .whitespaces))
                 let sizeString = String(components[1].trimmingCharacters(in: .whitespaces))
                 print(formString)
@@ -325,7 +325,7 @@ extension CakeInfo {
                     if sizeComponents.count == 2 {
                         let lengthString = String(sizeComponents[0].trimmingCharacters(in: .whitespaces))
                         let widthString = String(sizeComponents[1].trimmingCharacters(in: .whitespaces))
-                        print("Jakey baby")
+//                        print("Jakey baby")
                         print(sizeComponents)
                         if let length = Double(lengthString), let width = Double(widthString) {
                             return .cake(form: form, size: .rectangular(length: length, width: width))

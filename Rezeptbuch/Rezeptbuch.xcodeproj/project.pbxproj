@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -89,6 +89,10 @@
 		58C765F62B9F185B001E6068 /* RezeptListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RezeptListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		584C1FC72D7D9F6C0039F91E /* RecipeView */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = RecipeView; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		588251CA2B99E106009370CF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -133,6 +137,7 @@
 				588222A52D05BC9E0011FFFE /* TagsSectionView.swift */,
 				58C765F42B9F0415001E6068 /* ViewModel.swift */,
 				58C765F02B9E2566001E6068 /* RezeptView.swift */,
+				584C1FC72D7D9F6C0039F91E /* RecipeView */,
 				58C765F62B9F185B001E6068 /* RezeptListView.swift */,
 				58AF206F2BA1B41500298B4A /* RecipeCreationView.swift */,
 				586AC7942BD9460E0060B08D /* textFieldArlert.swift */,
@@ -192,6 +197,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				584C1FC72D7D9F6C0039F91E /* RecipeView */,
 			);
 			name = Rezeptbuch;
 			productName = Rezeptbuch;

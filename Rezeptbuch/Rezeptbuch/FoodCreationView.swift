@@ -75,42 +75,70 @@ struct FoodCreationView: View {
     var content: some View {
         Form {
             Section(header: Text("Allgemeine Informationen")) {
-                TextField("Lebensmittelname", text: $foodName)
-                TextField("Kategorie", text: $foodCategory)
-                TextField("Info", text: $foodInfo)
-                TextField( "Dichte (g/cm^3)", text: $fooddensity)
+                HStack {
+                    Text("Lebensmittelname:")
+                    TextField("Name eingeben", text: $foodName)
+                }
+                HStack {
+                    Text("Kategorie:")
+                    TextField("Kategorie eingeben", text: $foodCategory)
+                }
+                HStack {
+                    Text("Info:")
+                    TextField("Zusätzliche Infos", text: $foodInfo)
+                }
+                HStack {
+                    Text("Dichte (g/cm³):")
+                    TextField("Dichte (g/cm³)", text: $fooddensity)
+                        .keyboardType(.decimalPad)
+                }
             }
-            Section(header: Text("Tags")){
-                TagsSectionView( allTags: $allTags, selectedTags: $selectedTags)
+            
+            Section(header: Text("Tags")) {
+                TagsSectionView(allTags: $allTags, selectedTags: $selectedTags)
             }
+            
+            Section(header: Text("Nährwertangaben pro 100g")) {
 #if os(macOS)
-            Section(header: Text("Nährwertangaben auf 100g")) {
-                TextField("Kalorien", text: $calories)
-                  
-                TextField("Protein (g)", text: $protein)
-                  
-                TextField("Kohlenhydrate (g)", text: $carbohydrates)
-            
-                TextField("Fett (g)", text: $fat)
-                  
-            }
+                HStack {
+                    Text("Kalorien:")
+                    TextField("Kalorien", text: $calories)
+                }
+                HStack {
+                    Text("Protein (g):")
+                    TextField("Protein (g)", text: $protein)
+                }
+                HStack {
+                    Text("Kohlenhydrate (g):")
+                    TextField("Kohlenhydrate (g)", text: $carbohydrates)
+                }
+                HStack {
+                    Text("Fett (g):")
+                    TextField("Fett (g)", text: $fat)
+                }
 #else
-            Section(header: Text("Nährwertangaben auf 100g")) {
-                TextField("Kalorien", text: $calories)
-                    .keyboardType(.numberPad)
-                TextField("Protein (g)", text: $protein)
-                    .keyboardType(.decimalPad)
-                TextField("Kohlenhydrate (g)", text: $carbohydrates)
-                    .keyboardType(.decimalPad)
-                TextField("Fett (g)", text: $fat)
-                    .keyboardType(.decimalPad)
-            }
-            
+                HStack {
+                    Text("Kalorien:")
+                    TextField("Kalorien", text: $calories)
+                        .keyboardType(.numberPad)
+                }
+                HStack {
+                    Text("Protein (g):")
+                    TextField("Protein (g)", text: $protein)
+                        .keyboardType(.decimalPad)
+                }
+                HStack {
+                    Text("Kohlenhydrate (g):")
+                    TextField("Kohlenhydrate (g)", text: $carbohydrates)
+                        .keyboardType(.decimalPad)
+                }
+                HStack {
+                    Text("Fett (g):")
+                    TextField("Fett (g)", text: $fat)
+                        .keyboardType(.decimalPad)
+                }
 #endif
-            
-            
-            
-            
+            }
             
             Section {
                 Button("Speichern") {
