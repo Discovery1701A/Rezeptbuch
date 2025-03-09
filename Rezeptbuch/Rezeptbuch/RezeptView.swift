@@ -6,6 +6,8 @@
 //
 import EventKit
 import SwiftUI
+
+import UIKit
 import WebKit
 
 struct RecipeView: View {
@@ -14,8 +16,13 @@ struct RecipeView: View {
     var originIngriedents: [FoodItemStruct]
     @State private var ingredients: [FoodItemStruct]
     @State private var shoppingList: [FoodItemStruct] = []
-    @State private var isReminderAdded = false
-    let eventStore = EKEventStore()
+      @State private var isReminderAdded = false
+      @State private var showingReminderSheet = false
+      @State private var availableReminderLists: [EKCalendar] = []
+      @State private var selectedReminderList: EKCalendar?
+      @State private var newListName: String = ""
+      
+      let eventStore = EKEventStore()
     @State private var portion: Double
     @State private var showingShareSheet = false
     @State private var isFormUpdatingIngredients = false
@@ -398,13 +405,32 @@ struct RecipeView: View {
                         Divider().padding(.horizontal, 16)
                     }
                     Kochmodus()
-                   
+                    
                     Button(action: {
-                        createShoppingList()
-                        addShoppingListToReminders()
-                    }) {
-                        Text("Einkaufsliste erstellen und zu Erinnerungen hinzufügen")
-                    }
+                                        createShoppingList()
+                                        fetchReminderLists()  // Holt die verfügbaren Listen
+                                        showingReminderSheet = true
+                                    }) {
+                                        Text("Einkaufsliste zu Erinnerungen hinzufügen")
+                                            .padding()
+                                            .background(Color.blue)
+                                            .foregroundColor(.white)
+                                            .cornerRadius(10)
+                                    }
+                                    .padding()
+                                }
+                            
+                .sheet(isPresented: $showingReminderSheet) {
+                           ReminderListSelectionView(
+                               availableLists: $availableReminderLists,  // 🔄 Jetzt als Binding
+                               selectedList: $selectedReminderList,
+                               newListName: $newListName,
+                               eventStore: eventStore,
+                               onConfirm: {
+                                   addShoppingListToReminders()
+                               },
+                               fetchReminderLists: fetchReminderLists  // 🔄 Übergeben der Funktion
+                           )
                 }
                 .padding()
                 .background()
@@ -424,106 +450,88 @@ struct RecipeView: View {
                 .cornerRadius(10)
         }
     }
-    
     func createShoppingList() {
-        shoppingList.removeAll()
-        for ingredient in ingredients {
-            if !shoppingList.contains(where: { $0.food == ingredient.food }) {
-                shoppingList.append(ingredient)
-            } else {
-                if let existingIndex = shoppingList.firstIndex(where: { $0.food == ingredient.food }) {
-                    shoppingList[existingIndex].quantity += ingredient.quantity
-                }
-            }
-        }
-    }
-       
-    func addShoppingListToReminders() {
-        if #available(iOS 17.0, *), #available(macOS 14.0, *) {
-            eventStore.requestFullAccessToReminders { granted, error in
-                if granted && error == nil {
-                    let reminderList = findOrCreateReminderList(eventStore: eventStore, title: "Shopping List")
-                    for item in shoppingList {
-                        findRemindersForItem(item, in: reminderList) { existingReminders in
-                            if let existingReminders = existingReminders, !existingReminders.isEmpty {
-                                updateExistingReminders(existingReminders, with: item, in: eventStore)
-                            } else {
-                                let reminder = EKReminder(eventStore: eventStore)
-                                reminder.title = "\(item.quantity) " + item.unit.rawValue + " " + item.food.name
-                                reminder.calendar = reminderList
-                                        
-                                do {
-                                    try eventStore.save(reminder, commit: true)
-//                                             print(item.food.name)
-                                } catch {
-                                    print("Error saving reminder: \(error.localizedDescription)")
-                                }
-                            }
-                            
-                            print("Shopping list added to Reminders.")
-                            isReminderAdded = true
-                        }
-                    }
-                }
-            }
-        } else {
-            // Fallback on earlier versions
-        }
-    }
+           shoppingList.removeAll()
+           for ingredient in ingredients {
+               if let index = shoppingList.firstIndex(where: { $0.food == ingredient.food }) {
+                   shoppingList[index].quantity += ingredient.quantity
+               } else {
+                   shoppingList.append(ingredient)
+               }
+           }
+       }
 
-    func findOrCreateReminderList(eventStore: EKEventStore, title: String) -> EKCalendar? {
-        let calendars = eventStore.calendars(for: .reminder)
-            
-        if let existingList = calendars.first(where: { $0.title == title }) {
-            return existingList
-        } else {
-            let newList = EKCalendar(for: .reminder, eventStore: eventStore)
-            newList.title = title
-            newList.source = eventStore.defaultCalendarForNewReminders()?.source
-                
-            do {
-                try eventStore.saveCalendar(newList, commit: true)
-                print("New reminder list created: \(title)")
-                return newList
-            } catch {
-                print("Error creating reminder list: \(error.localizedDescription)")
-                return nil
-            }
-        }
-    }
-       
-    func findRemindersForItem(_ item: FoodItemStruct, in reminderList: EKCalendar?, completion: @escaping ([EKReminder]?) -> Void) {
-        guard let reminderList = reminderList else { completion(nil); return }
-       
-        if #available(iOS 17.0, *), #available(macOS 14.0, *) {
-            eventStore.requestFullAccessToReminders { granted, _ in
-                if granted {
-//                    print("ja")
-                    let predicate = eventStore.predicateForReminders(in: [reminderList])
-                    eventStore.fetchReminders(matching: predicate) { reminders in
-                        let filteredReminders = reminders?.filter { $0.title?.contains(item.unit.rawValue + " " + item.food.name) ?? false }
-                        completion(filteredReminders)
-                    }
-                } else {
-                    print("Access to reminders denied.")
-                    completion(nil)
-                }
-            }
-        }
-    }
+       func fetchReminderLists() {
+           eventStore.requestFullAccessToReminders { granted, _ in
+               guard granted else { return }
+               
+               let calendars = eventStore.calendars(for: .reminder)
+               DispatchQueue.main.async {
+                   self.availableReminderLists = calendars
+               }
+           }
+       }
 
-    func updateExistingReminders(_ reminders: [EKReminder], with item: FoodItemStruct, in eventStore: EKEventStore) {
-        for reminder in reminders {
-            let newTitle = "\(item.quantity + Double(reminder.title.components(separatedBy: " ").first ?? "")!)" + " " + item.unit.rawValue + " " + item.food.name
-            reminder.title = newTitle
-            do {
-                try eventStore.save(reminder, commit: true)
-                print("Reminder updated: \(newTitle)")
-            } catch {
-                print("Error updating reminder: \(error.localizedDescription)")
-            }
-        }
-    }
+       func addShoppingListToReminders() {
+           guard let reminderList = selectedReminderList else { return }
+
+           for item in shoppingList {
+               findRemindersForItem(item, in: reminderList) { existingReminders in
+                   if let existingReminders = existingReminders, !existingReminders.isEmpty {
+                       updateExistingReminders(existingReminders, with: item)
+                   } else {
+                       let reminder = EKReminder(eventStore: eventStore)
+                       reminder.title = "\(item.quantity) " + item.unit.rawValue + " " + item.food.name
+                       reminder.calendar = reminderList
+                       
+                       do {
+                           try eventStore.save(reminder, commit: true)
+                       } catch {
+                           print("Fehler beim Speichern der Erinnerung: \(error.localizedDescription)")
+                       }
+                   }
+               }
+           }
+
+           isReminderAdded = true
+           showingReminderSheet = false
+           print("Einkaufsliste zur Erinnerungen-App hinzugefügt.")
+       }
+
+       func findRemindersForItem(_ item: FoodItemStruct, in reminderList: EKCalendar?, completion: @escaping ([EKReminder]?) -> Void) {
+           guard let reminderList = reminderList else { completion(nil); return }
+           
+           eventStore.requestFullAccessToReminders { granted, _ in
+               if granted {
+                   let predicate = eventStore.predicateForReminders(in: [reminderList])
+                   eventStore.fetchReminders(matching: predicate) { reminders in
+                       let filteredReminders = reminders?.filter { $0.title?.contains(item.unit.rawValue + " " + item.food.name) ?? false }
+                       completion(filteredReminders)
+                   }
+               } else {
+                   print("Access to reminders denied.")
+                   completion(nil)
+               }
+           }
+       }
+
+       func updateExistingReminders(_ reminders: [EKReminder], with item: FoodItemStruct) {
+           for reminder in reminders {
+               if let existingQuantityString = reminder.title.components(separatedBy: " ").first,
+                  let existingQuantity = Double(existingQuantityString) {
+                   let newQuantity = existingQuantity + item.quantity
+                   let newTitle = "\(newQuantity) \(item.unit.rawValue) \(item.food.name)"
+                   reminder.title = newTitle
+                   
+                   do {
+                       try eventStore.save(reminder, commit: true)
+                       print("Reminder updated: \(newTitle)")
+                   } catch {
+                       print("Error updating reminder: \(error.localizedDescription)")
+                   }
+               }
+           }
+       }
 
     @ViewBuilder
     func portionScalePlus() -> some View {
@@ -1152,6 +1160,84 @@ struct NutritionBar: View {
             Text("\(value)")
                 .font(.caption)
                 .padding(.vertical)
+        }
+    }
+}
+
+
+struct ReminderListSelectionView: View {
+  
+    @Binding var availableLists: [EKCalendar] // 🔄 Jetzt als Binding, damit die Änderungen im Haupt-View übernommen werden
+    @Binding var selectedList: EKCalendar?
+    @Binding var newListName: String
+    let eventStore : EKEventStore
+    var onConfirm: () -> Void
+    var fetchReminderLists: () -> Void  // 🔄 Funktion wird übergeben, um die Listen zu aktualisieren
+
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                Text("Einkaufsliste auswählen")
+                    .font(.headline)
+                    .padding()
+
+                Picker("Liste auswählen", selection: $selectedList) {
+                    ForEach(availableLists, id: \.self) { list in
+                        Text(list.title).tag(list as EKCalendar?)
+                    }
+                }
+                .pickerStyle(WheelPickerStyle())
+
+                TextField("Neue Liste erstellen", text: $newListName)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+                
+                Button("Neue Liste hinzufügen") {
+                    createNewReminderList()
+                }
+                .padding()
+                .disabled(newListName.isEmpty)
+
+                Spacer()
+
+                Button("Bestätigen") {
+                    onConfirm()
+                    presentationMode.wrappedValue.dismiss()
+                }
+                .padding()
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+            .padding()
+        }
+    }
+    
+    func createNewReminderList() {
+        let newList = EKCalendar(for: .reminder, eventStore: eventStore)
+        newList.title = newListName
+        
+        // ✅ Eine gültige Quelle für den Kalender setzen
+        if let defaultSource = eventStore.sources.first(where: { $0.sourceType == .calDAV }) {
+            newList.source = defaultSource
+        } else if let localSource = eventStore.sources.first(where: { $0.sourceType == .local }) {
+            newList.source = localSource
+        } else {
+            print("⚠️ Keine gültige Quelle für den neuen Kalender gefunden!")
+            return
+        }
+        
+        do {
+            try eventStore.saveCalendar(newList, commit: true)
+            DispatchQueue.main.async {
+                self.selectedList = newList
+                self.fetchReminderLists() // 🔄 Ruft jetzt die Funktion aus `RecipeView` auf
+            }
+            print("✅ Neue Liste erstellt: \(newListName)")
+        } catch {
+            print("❌ Fehler beim Erstellen der Liste: \(error.localizedDescription)")
         }
     }
 }
