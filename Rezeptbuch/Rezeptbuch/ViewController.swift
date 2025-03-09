@@ -206,13 +206,13 @@ enum Unit: String, CaseIterable, Hashable {
             guard let base = baseValue else { return nil }
 
             // Schritt 2: Umrechnung von der Basiseinheit in die Ziel-Einheit
-        print("dfivfivnfovifvo", base)
+//        print("dfivfivnfovifvo", base)
             return {
                 switch to {
                 case .gram:
                     return (base)
                 case .kilogram:
-                    print("kllllll")
+//                    print("kllllll")
                     return (base / 1000.0)
                 case .milliliter:
                     return (base / density)
