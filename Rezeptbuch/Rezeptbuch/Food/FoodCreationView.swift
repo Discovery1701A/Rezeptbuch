@@ -201,11 +201,4 @@ struct FoodCreationView: View {
 
 }
     
-//    
-//    struct FoodCreationView_Previews: PreviewProvider {
-//        static var previews: some View {
-//            let modelView = ViewModel()
-//            FoodCreationView(modelView: modelView)
-//        }
-//    }
-//}
+

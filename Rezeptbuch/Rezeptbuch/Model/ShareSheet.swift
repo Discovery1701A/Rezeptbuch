@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import UIKit
+import PDFKit
 
 struct ShareSheet: UIViewControllerRepresentable {
     var activityItems: [Any]
@@ -23,41 +25,56 @@ struct ShareSheet: UIViewControllerRepresentable {
 
 struct ShareSheetView: View {
     var recipe: Recipe
+    @State private var showingActionSheet = false
     @State private var showingShareSheet = false
-    @State private var fileURL: URL?
-    @State private var customURL: URL?
+    @State private var selectedFileURL: URL?
     @State private var errorMessage: String?
 
     var body: some View {
         Button(action: {
-            serializeRecipeToPlist(recipe: recipe) { actualFileURL, customSchemeURL in
-                if let actualFileURL = actualFileURL, FileManager.default.fileExists(atPath: actualFileURL.path) {
-                    self.fileURL = actualFileURL
-                    self.customURL = customSchemeURL
-                    print(customURL, fileURL)
-                    showingShareSheet = true
-                } else {
-                    errorMessage = "Failed to prepare the recipe file for sharing."
-                    showingShareSheet = false
-                }
-            }
+            showingActionSheet = true
         }) {
-            Image(systemName: "square.and.arrow.up") // iOS Teilen-Icon
-        
+            Image(systemName: "square.and.arrow.up") // Teilen-Icon
                 .font(.system(size: 24))
-                .foregroundColor(.blue) // Farbe setzen
+                .foregroundColor(.blue)
         }
-        .buttonStyle(PlainButtonStyle()) // Entfernt den Standard-Button-Stil
+        .buttonStyle(PlainButtonStyle())
+        .actionSheet(isPresented: $showingActionSheet) {
+            ActionSheet(
+                title: Text("Dateiformat wählen"),
+                message: Text("Möchtest du das Rezept als PDF oder Rezeptdatei exportieren?"),
+                buttons: [
+                    .default(Text("Als PDF exportieren")) {
+                        if let pdfURL = generatePDF(for: recipe) {
+                            selectedFileURL = pdfURL
+                            showingShareSheet = true
+                        } else {
+                            errorMessage = "PDF-Erstellung fehlgeschlagen."
+                        }
+                    },
+                    .default(Text("Als Rezeptdatei exportieren")) {
+                        serializeRecipeToPlist(recipe: recipe) { fileURL, _ in
+                            if let fileURL = fileURL {
+                                selectedFileURL = fileURL
+                                showingShareSheet = true
+                            } else {
+                                errorMessage = "Rezeptdatei konnte nicht erstellt werden."
+                            }
+                        }
+                    },
+                    .cancel()
+                ]
+            )
+        }
         .sheet(isPresented: $showingShareSheet) {
-            if let customURL = customURL, let actaulURL = fileURL {
-                
-                ShareSheet(activityItems: [actaulURL])
+            if let fileURL = selectedFileURL {
+                ShareSheet(activityItems: [fileURL])
             } else {
-                Text(errorMessage ?? "Unable to load the file for sharing")
+                Text(errorMessage ?? "Fehler beim Laden der Datei.")
             }
         }
-        .alert(isPresented: Binding<Bool>.constant(fileURL == nil && errorMessage != nil), content: {
-            Alert(title: Text("Error"), message: Text(errorMessage ?? "Unknown error"), dismissButton: .default(Text("OK")))
+        .alert(isPresented: Binding<Bool>.constant(selectedFileURL == nil && errorMessage != nil), content: {
+            Alert(title: Text("Fehler"), message: Text(errorMessage ?? "Unbekannter Fehler"), dismissButton: .default(Text("OK")))
         })
     }
 }
@@ -327,3 +344,113 @@ func deserializePlistToRecipe(plistData: Data) -> Recipe? {
     return nil
 }
 
+func generatePDF(for recipe: Recipe) -> URL? {
+    let fileName = "\(recipe.title).pdf"
+    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    let pdfURL = documentsDirectory.appendingPathComponent(fileName)
+
+    let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 612, height: 792)) // A4-Seite
+    
+    do {
+        try pdfRenderer.writePDF(to: pdfURL, withActions: { context in
+            context.beginPage()
+            
+            let pageWidth: CGFloat = 612
+            let margin: CGFloat = 40
+            var yOffset: CGFloat = 50
+            
+            // Titel des Rezepts (zentriert)
+            let titleStyle = NSMutableParagraphStyle()
+            titleStyle.alignment = .center
+            let titleAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.boldSystemFont(ofSize: 24),
+                .paragraphStyle: titleStyle
+            ]
+            let titleString = NSAttributedString(string: recipe.title, attributes: titleAttributes)
+            titleString.draw(in: CGRect(x: margin, y: yOffset, width: pageWidth - 2 * margin, height: 30))
+            
+            yOffset += 40
+            
+            // Rezept-Bild (falls vorhanden)
+            if let imagePath = recipe.image, let image = UIImage(contentsOfFile: imagePath) {
+                let imageRect = CGRect(x: margin, y: yOffset, width: pageWidth - 2 * margin, height: 150)
+                image.draw(in: imageRect)
+                yOffset += 160
+            }
+
+            // Rezept-Infos (Portionen, Tags, Form)
+            let infoStyle = NSMutableParagraphStyle()
+            infoStyle.alignment = .left
+            let infoAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 16, weight: .medium),
+                .paragraphStyle: infoStyle
+            ]
+            var infoText = ""
+
+            if let portion = recipe.portion, portion != .notPortion {
+                infoText += "Portionen: \(portion.stringValue())\n"
+            }
+
+            if case let .cake(_, size) = recipe.cake, recipe.cake != .notCake {
+                switch size {
+                case .rectangular(let length, let width):
+                    infoText += "Rechteckige Form: \(length) x \(width) cm\n"
+                case .round(let diameter):
+                    infoText += "Runde Form: \(diameter) cm\n"
+                }
+            }
+
+            let tagsText = recipe.tags?.map { $0.name }.joined(separator: ", ") ?? "Keine Tags"
+            infoText += "Tags: \(tagsText)"
+
+            let infoString = NSAttributedString(string: infoText, attributes: infoAttributes)
+            infoString.draw(in: CGRect(x: margin, y: yOffset, width: pageWidth - 2 * margin, height: 70))
+            
+            yOffset += 80
+            
+            // Zutaten
+            let sectionTitleAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.boldSystemFont(ofSize: 18),
+                .paragraphStyle: infoStyle
+            ]
+            let sectionTitle = NSAttributedString(string: "Zutaten:", attributes: sectionTitleAttributes)
+            sectionTitle.draw(at: CGPoint(x: margin, y: yOffset))
+            yOffset += 25
+            
+            let bodyAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 14),
+                .paragraphStyle: NSMutableParagraphStyle()
+            ]
+            
+            for ingredient in recipe.ingredients {
+                let ingredientString = NSAttributedString(
+                    string: "- \(ingredient.food.name) \(ingredient.quantity) \(ingredient.unit.rawValue)",
+                    attributes: bodyAttributes
+                )
+                ingredientString.draw(at: CGPoint(x: margin, y: yOffset))
+                yOffset += 20
+            }
+            
+            yOffset += 20
+
+            // Zubereitung
+            let instructionsTitle = NSAttributedString(string: "Zubereitung:", attributes: sectionTitleAttributes)
+            instructionsTitle.draw(at: CGPoint(x: margin, y: yOffset))
+            yOffset += 25
+            
+            for (index, step) in recipe.instructions.enumerated() {
+                let stepString = NSAttributedString(
+                    string: "\(index + 1). \(step)",
+                    attributes: bodyAttributes
+                )
+                stepString.draw(in: CGRect(x: margin, y: yOffset, width: pageWidth - 2 * margin, height: 50))
+                yOffset += 40
+            }
+        })
+        
+        return pdfURL
+    } catch {
+        print("Error generating PDF: \(error)")
+        return nil
+    }
+}

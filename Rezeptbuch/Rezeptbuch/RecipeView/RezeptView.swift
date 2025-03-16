@@ -12,44 +12,45 @@ import WebKit
 
 struct RecipeView: View {
     var recipe: Recipe
-       var modelView: ViewModel
-       var originIngredients: [FoodItemStruct]
+    var modelView: ViewModel
+    var originIngredients: [FoodItemStruct]
 
-       @State private var ingredients: [FoodItemStruct] = []
-       @State private var portion: Double = 0.0
-       @State private var cakeFormSelection: Formen = .rund
-       @State private var diameter: Double = 0
-       @State private var length: Double = 0
-       @State private var width: Double = 0
-       @State private var privDiameter: Double = 0
-       @State private var privLength: Double = 0
-       @State private var privWidth: Double = 0
-       @State private var originDiameter: Double = 0
-       @State private var originLength: Double = 0
-       @State private var originWidth: Double = 0
-       @State private var ratio: Double = 1
+    @State private var ingredients: [FoodItemStruct] = []
+    @State private var portion: Double = 0.0
+    @State private var cakeFormSelection: Formen = .rund
+    @State private var diameter: Double = 0
+    @State private var length: Double = 0
+    @State private var width: Double = 0
+    @State private var privDiameter: Double = 0
+    @State private var privLength: Double = 0
+    @State private var privWidth: Double = 0
+    @State private var originDiameter: Double = 0
+    @State private var originLength: Double = 0
+    @State private var originWidth: Double = 0
+    @State private var ratio: Double = 1
 
-       @State private var shoppingList: [FoodItemStruct] = []
-       @State private var isReminderAdded = false
-       @State private var showingReminderSheet = false
-       @State private var availableReminderLists: [EKCalendar] = []
-       @State private var selectedReminderList: EKCalendar?
-       @State private var newListName: String = ""
+    @State private var shoppingList: [FoodItemStruct] = []
+    @State private var isReminderAdded = false
+    @State private var showingReminderSheet = false
+    @State private var availableReminderLists: [EKCalendar] = []
+    @State private var selectedReminderList: EKCalendar?
+    @State private var newListName: String = ""
 
-       @State private var showingShareSheet = false
-       @State private var isFormUpdatingIngredients = false
-       @State private var refreshID = UUID()  // 🔄 Nutzt `UUID`, um die View zu erzwingen, sich neu zu laden
+    @State private var showingShareSheet = false
+    @State private var isFormUpdatingIngredients = false
+    @State private var refreshID = UUID() // 🔄 Nutzt `UUID`, um die View zu erzwingen, sich neu zu laden
 
-       let eventStore = EKEventStore()
-       var summary = NutritionSummary()
+    let eventStore = EKEventStore()
+    @State private var summary = NutritionSummary()
 
-       init(recipe: Recipe, modelView: ViewModel) {
-           self.recipe = recipe
-           self.modelView = modelView
-           self.originIngredients = recipe.ingredients
-           _ingredients = State(initialValue: recipe.ingredients)
-           loadRecipe(recipe)  // ⏳ Initialisierung direkt aufrufen
-       }
+    init(recipe: Recipe, modelView: ViewModel) {
+        self.recipe = recipe
+        self.modelView = modelView
+        self.originIngredients = recipe.ingredients
+        _ingredients = State(initialValue: recipe.ingredients)
+        loadRecipe(recipe) // ⏳ Initialisierung direkt aufrufen
+        summary.calculate(from: ingredients)
+    }
     
     private func loadRecipe(_ recipe: Recipe) {
         DispatchQueue.main.async {
@@ -101,31 +102,25 @@ struct RecipeView: View {
             } else {
                 self.resetCakeValues()
             }
-          
         }
-        print("updddattttttteeeeeee")
+//        print("updddattttttteeeeeee")
     }
 
-       /// Setzt Kuchenform-Werte auf Standardwerte zurück
-       private func resetCakeValues() {
-           cakeFormSelection = .rund
-           diameter = 0
-           length = 0
-           width = 0
-           originDiameter = 0
-           originLength = 0
-           originWidth = 0
-           privDiameter = 0
-           privLength = 0
-           privWidth = 0
-           ratio = 1
-       }
+    /// Setzt Kuchenform-Werte auf Standardwerte zurück
+    private func resetCakeValues() {
+        cakeFormSelection = .rund
+        diameter = 0
+        length = 0
+        width = 0
+        originDiameter = 0
+        originLength = 0
+        originWidth = 0
+        privDiameter = 0
+        privLength = 0
+        privWidth = 0
+        ratio = 1
+    }
     
-    
-
-
-    
-
     func extractYouTubeID(from link: String) -> String? {
         if link.contains("youtube.com") {
             // Extrahiere die ID aus einem normalen YouTube-Link
@@ -143,331 +138,281 @@ struct RecipeView: View {
     
     var body: some View {
         GeometryReader { geometry in
-           
             ScrollView {
                 VStack(alignment: .center, spacing: 10) {
-                    ZStack {
-                        // Rezept-Titel in der Mitte
-                        Text(recipe.title)
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: .infinity, alignment: .center)
-
-                        // Button rechtsbündig
-                              
-                        ShareSheetView(recipe: recipe)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                    .padding(.horizontal, 16) // Gleicher Abstand links & rechts
-                        
-                    Divider().padding(.horizontal, 16)
-                    RecipeImageView(imagePath: recipe.image)
-                    if recipe.tags != nil {
-                        if recipe.tags!.count > 0 {
-                            RecipeTagsView(tags: recipe.tags!)
-                        }
-                    }
-                    Divider().padding(.horizontal, 16)
-                   
-                        VStack {
-                      
-                            // Portionierung
-                            if recipe.portion != .notPortion && recipe.portion != nil {
-                                if geometry.size.width > 600 { // Wenn genug Platz ist (z.B. iPads oder breite Bildschirme)
-                                    ZStack {
-                                   
-                                        VStack(alignment: .center ){
-                                            Text("Portionen:")
-                                            HStack{
-                                                Spacer()
-                                                portionScaleMinus()
-                                                Text(formatPortion(portion))
-                                                portionScalePlus()
-                                                Spacer()
-                                            }
-                                            // Rezept bearbeiten
-                                            VStack {
-                                                NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView, onSave: {
-                                                    refreshID = UUID()
-                                                    loadRecipe(recipe)
-                                                    // 🔄 Aktualisiert die ID → SwiftUI lädt die View neu
-                                                })) {
-                                                    CardView {
-                                                        Text("Rezept Bearbeiten")
-                                                    }
-                                                    .frame(maxWidth: 200) // Begrenzte Breite für die Card, damit sie nicht zu groß wird
-                                                }
-                                                resetScale() // Reset-Button rutscht unter die Felder
-                                            }
-                                            .frame(maxWidth: .infinity, alignment: .trailing)
-                                        }
-                                    }
-                                } else { // Falls der Platz zu klein ist (z.B. iPhone SE)
-                                    VStack(alignment: .center ) {
-                                        Text("Portionen:")
-                                        HStack(alignment: .center ) {
-                                            
-                                            Spacer()
-                                            portionScaleMinus()
-                                            Text(formatPortion(portion))
-                                            portionScalePlus()
-                                            Spacer()
-                                        }
-                                    }
-                                        // Rezept bearbeiten
-                                        VStack {
-                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView, onSave: {
-                                                refreshID = UUID()  // 🔄 Aktualisiert die ID → SwiftUI lädt die View neu
-                                                loadRecipe(recipe)
-                                            }))  {
-                                                CardView {
-                                                    Text("Rezept Bearbeiten")
-                                                }
-                                                .frame(maxWidth: 200) // Begrenzte Breite für die Card, damit sie nicht zu groß wird
-                                            }
-                                            resetScale() // Reset-Button rutscht unter die Felder
-                                        }
-                                        
-                                    
-                                }
-                            }
-                            
-                            // Kuchenform-Auswahl
-                            if let cakeInfo = recipe.cake, case .cake = cakeInfo {
-                                Picker("Kuchenform", selection: $cakeFormSelection) {
-                                    Text("Eckig").tag(Formen.eckig)
-                                    Text("Rund").tag(Formen.rund)
-                                }
-                                .pickerStyle(SegmentedPickerStyle())
-                                .padding()
-                                .onChange(of: cakeFormSelection) { newValue in
-                                    if newValue == Formen.rund {
-                                        if privLength != length || privWidth != width {
-                                            rectToRound()
-                                            privWidth = width
-                                            privLength = length
-                                            privDiameter = diameter
-                                            ratio = length / width
-                                            scaleRoundIngredients()
-                                        }
-                                    } else if newValue == Formen.eckig {
-                                        if privDiameter != diameter {
-                                            roundToRect()
-                                            privDiameter = diameter
-                                            privWidth = width
-                                            privLength = length
-                                            ratio = length / width
-                                            scaleRectIngredients()
-                                        }
-                                    }
-                                }
-                                
-                                // Dynamische Anordnung von Länge/Breite/Durchmesser + Buttons
-                                if geometry.size.width > 600 {
-                                    // Mehr Platz: Alles in einer Zeile
-                                    HStack {
-                                        if cakeFormSelection == .rund {
-                                            Text("Durchmesser (cm):")
-                                            TextField("Durchmesser (cm)", text: Binding(
-                                                get: { "\(diameter)" },
-                                                set: { if let value = Double($0) { diameter = value } }
-                                            ))
-                                            .keyboardType(.decimalPad)
-                                            .onSubmit { scaleRoundIngredients() }
-                                        }
-
-                                        if cakeFormSelection == .eckig {
-                                            Text("Länge (cm):")
-                                            TextField("Länge (cm)", text: Binding(
-                                                get: { "\(length)" },
-                                                set: { if let value = Double($0) { length = value } }
-                                            ))
-                                            .keyboardType(.decimalPad)
-                                            .onSubmit {
-                                                ratio = length / width
-                                                scaleRectIngredients()
-                                            }
-
-                                            Text("Breite (cm):")
-                                            TextField("Breite (cm)", text: Binding(
-                                                get: { "\(width)" },
-                                                set: { if let value = Double($0) { width = value } }
-                                            ))
-                                            .keyboardType(.decimalPad)
-                                            .onSubmit {
-                                                ratio = length / width
-                                                scaleRectIngredients()
-                                            }
-                                        }
-                                        // Rezept bearbeiten
-                                        VStack {
-                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView, onSave: {
-                                                refreshID = UUID()  // 🔄 Aktualisiert die ID → SwiftUI lädt die View neu
-                                                loadRecipe(recipe)
-                                            }))  {
-                                                CardView {
-                                                    Text("Rezept Bearbeiten")
-                                                }
-                                                .frame(maxWidth: 200) // Begrenzte Breite für die Card, damit sie nicht zu groß wird
-                                            }
-                                            resetScale() // Reset-Button rutscht unter die Felder
-                                        }
-                                        .frame(maxWidth: .infinity, alignment: .trailing)
-                                    }
-                                } else {
-                                    // Weniger Platz: Länge/Breite/Durchmesser oben, Buttons unten
-                                    VStack {
-                                        if cakeFormSelection == .rund {
-                                            HStack {
-                                                Text("Durchmesser (cm):")
-                                                TextField("Durchmesser (cm)", text: Binding(
-                                                    get: { "\(diameter)" },
-                                                    set: { if let value = Double($0) { diameter = value } }
-                                                ))
-                                                .keyboardType(.decimalPad)
-                                                .onSubmit { scaleRoundIngredients() }
-                                            }
-                                        }
-
-                                        if cakeFormSelection == .eckig {
-                                            HStack {
-                                                HStack {
-                                                    Text("Länge (cm):")
-                                                    TextField("Länge (cm)", text: Binding(
-                                                        get: { "\(length)" },
-                                                        set: { if let value = Double($0) { length = value } }
-                                                    ))
-                                                    .keyboardType(.decimalPad)
-                                                    .onSubmit {
-                                                        ratio = length / width
-                                                        scaleRectIngredients()
-                                                    }
-                                                }
-
-                                                HStack {
-                                                    Text("Breite (cm):")
-                                                    TextField("Breite (cm)", text: Binding(
-                                                        get: { "\(width)" },
-                                                        set: { if let value = Double($0) { width = value } }
-                                                    ))
-                                                    .keyboardType(.decimalPad)
-                                                    .onSubmit {
-                                                        ratio = length / width
-                                                        scaleRectIngredients()
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        
-                                        // Rezept bearbeiten
-                                        VStack {
-                                            NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView, onSave: {
-                                                refreshID = UUID()  // 🔄 Aktualisiert die ID → SwiftUI lädt die View neu
-                                                loadRecipe(recipe)
-                                            }))  {
-                                                CardView {
-                                                    Text("Rezept Bearbeiten")
-                                                }
-                                                .frame(maxWidth: 200) // Begrenzte Breite für die Card, damit sie nicht zu groß wird
-                                            }
-                                            resetScale() // Reset-Button rutscht unter die Felder
-                                        }
-                                       
-                                    }
-                                }
-                            }
-                            
-                         
-                        
-                    }
-                    Divider().padding(.horizontal, 16)
-                           
-                    NutritionSummaryView(summary: summary)
-                            
-                    Divider().padding(.horizontal, 16)
-                    RecipeIngredientsView(ingredients: $ingredients)
-                        .onAppear {
-                            print("Angezeigte Zutaten in der View: \(ingredients)")
-                        }
-                        .onChange(of: ingredients) { newIngredients in
-                            DispatchQueue.main.async {
-                                // Falls die Änderung von der Kuchenform kommt, ignorieren
-                                guard !isFormUpdatingIngredients else {
-                                    isFormUpdatingIngredients = false // Status zurücksetzen
-                                    return
-                                }
-                                        
-                                print("Zutaten haben sich geändert: \(newIngredients)")
-                                        
-                                // Portion nur aktualisieren, wenn sie relevant ist
-                                if recipe.portion != .notPortion {
-                                    ingriedentsScalePortion()
-                                }
-                                        
-                                // Kuchenform nur anpassen, wenn sie relevant ist
-                                if recipe.cake != .notCake {
-                                    if cakeFormSelection == .rund {
-                                        ingriedentsScaleDia()
-                                    } else if cakeFormSelection == .eckig {
-                                        ingriedentsScaleWL()
-                                    }
-                                }
-                            }
-                        }
-                            
-                    Divider().padding(.horizontal, 16)
-                    RecipeInstructionsView(instructions: recipe.instructions)
-                    Divider().padding(.horizontal, 16)
-                    if recipe.videoLink != "" && recipe.videoLink != nil {
-                        RecipeVideoView(videoLink: recipe.videoLink)
-                        Divider().padding(.horizontal, 16)
-                    }
-                    Kochmodus()
+                    // Titel & Share-Button
+                    recipeHeader
                     
-                    Button(action: {
-                                        createShoppingList()
-                                        fetchReminderLists()  // Holt die verfügbaren Listen
-                                        showingReminderSheet = true
-                                    }) {
-                                        Text("Einkaufsliste zu Erinnerungen hinzufügen")
-                                            .padding()
-                                            .background(Color.blue)
-                                            .foregroundColor(.white)
-                                            .cornerRadius(10)
-                                    }
-                                    .padding()
-                                }
-                            
+                    Divider().padding(.horizontal, 16)
+                    
+                    RecipeImageView(imagePath: recipe.image)
+                    
+                    // Tags anzeigen, falls vorhanden
+                    if let tags = recipe.tags, !tags.isEmpty {
+                        RecipeTagsView(tags: tags)
+                    }
+                    
+                    Divider().padding(.horizontal, 16)
+                    
+                    // Portionierung & Rezeptbearbeitung
+                    if let portion = recipe.portion, portion != .notPortion {
+                        portionView(for: geometry.size.width)
+                    }
+                    
+                    // Kuchenform-Auswahl
+                    if recipe.cake != .notCake {
+                        cakeSelectionView(for: geometry.size.width)
+                    }
+                    
+                    Divider().padding(.horizontal, 16)
+                    
+                    // Nährwerte
+                    NutritionSummaryView(summary: summary)
+                    
+                    Divider().padding(.horizontal, 16)
+                    
+                    // Zutatenliste
+                    RecipeIngredientsView(ingredients: $ingredients, modelView: modelView)
+                        .onAppear { print("Angezeigte Zutaten: \(ingredients)") }
+                        .onChange(of: ingredients) { newIngredients in
+                            updateIngredients(newIngredients)
+                        }
+                    
+                    Divider().padding(.horizontal, 16)
+                    
+                    // Anweisungen & Video
+                    RecipeInstructionsView(instructions: recipe.instructions)
+                    
+                    if let videoLink = recipe.videoLink, !videoLink.isEmpty {
+                        Divider().padding(.horizontal, 16)
+                        RecipeVideoView(videoLink: videoLink)
+                    }
+                    
+                    Divider().padding(.horizontal, 16)
+                    
+                    // Kochmodus & Einkaufsliste
+                    Kochmodus()
+                    shoppingListButton
+                }
                 .sheet(isPresented: $showingReminderSheet) {
-                           ReminderListSelectionView(
-                               availableLists: $availableReminderLists,  // 🔄 Jetzt als Binding
-                               selectedList: $selectedReminderList,
-                               newListName: $newListName,
-                               eventStore: eventStore,
-                               onConfirm: {
-                                   addShoppingListToReminders()
-                               },
-                               fetchReminderLists: fetchReminderLists  // 🔄 Übergeben der Funktion
-                           )
+                    ReminderListSelectionView(
+                        availableLists: $availableReminderLists,
+                        selectedList: $selectedReminderList,
+                        newListName: $newListName,
+                        eventStore: eventStore,
+                        onConfirm: addShoppingListToReminders,
+                        fetchReminderLists: fetchReminderLists
+                    )
                 }
                 .padding()
                 .background()
                 .cornerRadius(15)
                 .shadow(radius: 5)
-            }
-            .onAppear {
-//                DispatchQueue.main.async {
+                .onAppear {
                     loadRecipe(recipe)
-//                    summary.calculate(from: ingredients)
-//                }
-            }
-            .id(refreshID)
-            .onChange(of: recipe) { newValue in
-                loadRecipe(newValue)
-                print("fhiuvbiruhfiewuvhweiruvhweiuveiwuvnweiuvnuewinewveuiwvnewuvnweivnewviuwenveiwunvewivneuw")
+                    summary.calculate(from: ingredients)
+                }
+                .id(refreshID)
+                .onChange(of: recipe) { newRecipe in
+                    loadRecipe(newRecipe)
+                    summary.calculate(from: ingredients)
+                }
             }
         }
+    }
+    
+    private var recipeHeader: some View {
+        ZStack {
+            Text(recipe.title)
+                .font(.title)
+                .fontWeight(.bold)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+            
+            ShareSheetView(recipe: recipe)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .padding(.horizontal, 16)
+    }
+    
+    private func portionView(for width: CGFloat) -> some View {
+        VStack {
+            Text("Portionen:")
+            
+            HStack {
+                Spacer()
+                portionScaleMinus()
+                Text(formatPortion(portion))
+                portionScalePlus()
+                Spacer()
+            }
+            HStack{
+                recipeEditButton
+                resetScale()
+            }
+            
+        }
+    }
+
+    private func updateIngredients(_ newIngredients: [FoodItemStruct]) {
+        DispatchQueue.main.async {
+            // Falls die Änderung durch die Kuchenform kommt, ignorieren
+            guard !isFormUpdatingIngredients else {
+                isFormUpdatingIngredients = false // Status zurücksetzen
+                return
+            }
+            
+            print("Zutaten haben sich geändert: \(newIngredients)")
+            
+            // Portionierung anpassen
+            if recipe.portion != .notPortion {
+                ingriedentsScalePortion()
+            }
+            
+            // Kuchenform anpassen
+            if recipe.cake != .notCake {
+                if cakeFormSelection == .rund {
+                    ingriedentsScaleDia()
+                } else if cakeFormSelection == .eckig {
+                    ingriedentsScaleWL()
+                }
+            }
+            
+            // Nährwerte neu berechnen
+            summary.calculate(from: ingredients)
+        }
+    }
+    
+    private func updateCakeForm(_ newValue: Formen) {
+        DispatchQueue.main.async {
+            if newValue == .rund {
+                if privLength != length || privWidth != width {
+                    rectToRound() // Umrechnung von rechteckig zu rund
+                    privWidth = width
+                    privLength = length
+                    privDiameter = diameter
+                    ratio = length / width
+                    scaleRoundIngredients()
+                }
+            } else if newValue == .eckig {
+                if privDiameter != diameter {
+                    roundToRect() // Umrechnung von rund zu rechteckig
+                    privDiameter = diameter
+                    privWidth = width
+                    privLength = length
+                    ratio = length / width
+                    scaleRectIngredients()
+                }
+            }
+            
+            // Markieren, dass die Zutaten durch die Kuchenform geändert wurden
+            isFormUpdatingIngredients = true
+            summary.calculate(from: ingredients)
+        }
+    }
+    
+    private func cakeSelectionView(for width: CGFloat) -> some View {
+        VStack {
+            Picker("Kuchenform", selection: $cakeFormSelection) {
+                Text("Eckig").tag(Formen.eckig)
+                Text("Rund").tag(Formen.rund)
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding()
+            .onChange(of: cakeFormSelection, perform: updateCakeForm)
+            
+            // Dynamische Anordnung je nach Bildschirmbreite
+            if width > 600 {
+                HStack {
+                    cakeSizeInputFields
+                    VStack {
+                        recipeEditButton
+                        resetScale()
+                    }
+                }
+            } else {
+                VStack {
+                    cakeSizeInputFields
+                    VStack {
+                        recipeEditButton
+                        resetScale()
+                    }
+                }
+            }
+        }
+    }
+    
+    private var cakeSizeInputFields: some View {
+        Group {
+            if cakeFormSelection == .rund {
+                HStack {
+                    Text("Durchmesser (cm):")
+                    TextField("Durchmesser", text: Binding(
+                        get: { "\(diameter)" },
+                        set: { if let value = Double($0) { diameter = value } }
+                    ))
+                    .keyboardType(.decimalPad)
+                    .onSubmit {
+                        scaleRoundIngredients()
+                        summary.calculate(from: ingredients)
+                    }
+                }
+            } else {
+                HStack {
+                    Text("Länge (cm):")
+                    TextField("Länge", text: Binding(
+                        get: { "\(length)" },
+                        set: { if let value = Double($0) { length = value } }
+                    ))
+                    .keyboardType(.decimalPad)
+                    .onSubmit {
+                        ratio = length / width
+                        scaleRectIngredients()
+                        summary.calculate(from: ingredients)
+                    }
+                    
+                    Text("Breite (cm):")
+                    TextField("Breite", text: Binding(
+                        get: { "\(width)" },
+                        set: { if let value = Double($0) { width = value } }
+                    ))
+                    .keyboardType(.decimalPad)
+                    .onSubmit {
+                        ratio = length / width
+                        scaleRectIngredients()
+                        summary.calculate(from: ingredients)
+                    }
+                }
+            }
+        }
+    }
+
+    private var recipeEditButton: some View {
+        NavigationLink(destination: RecipeCreationView(recipe: recipe, modelView: modelView, onSave: {
+            refreshID = UUID()
+            loadRecipe(recipe)
+            summary.calculate(from: ingredients)
+        })) {
+            CardView {
+                Text("Rezept Bearbeiten")
+            }
+            .frame(maxWidth: 200)
+        }
+    }
+    
+    private var shoppingListButton: some View {
+        Button(action: {
+            createShoppingList()
+            fetchReminderLists()
+            showingReminderSheet = true
+        }) {
+            Text("Einkaufsliste zu Erinnerungen hinzufügen")
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+        }
+        .padding()
     }
   
     @ViewBuilder
@@ -482,85 +427,86 @@ struct RecipeView: View {
     }
     
     func createShoppingList() {
-           shoppingList.removeAll()
-           for ingredient in ingredients {
-               if let index = shoppingList.firstIndex(where: { $0.food == ingredient.food }) {
-                   shoppingList[index].quantity += ingredient.quantity
-               } else {
-                   shoppingList.append(ingredient)
-               }
-           }
-       }
+        shoppingList.removeAll()
+        for ingredient in ingredients {
+            if let index = shoppingList.firstIndex(where: { $0.food == ingredient.food }) {
+                shoppingList[index].quantity += ingredient.quantity
+            } else {
+                shoppingList.append(ingredient)
+            }
+        }
+    }
 
-       func fetchReminderLists() {
-           eventStore.requestFullAccessToReminders { granted, _ in
-               guard granted else { return }
+    func fetchReminderLists() {
+        eventStore.requestFullAccessToReminders { granted, _ in
+            guard granted else { return }
                
-               let calendars = eventStore.calendars(for: .reminder)
-               DispatchQueue.main.async {
-                   self.availableReminderLists = calendars
-               }
-           }
-       }
+            let calendars = eventStore.calendars(for: .reminder)
+            DispatchQueue.main.async {
+                self.availableReminderLists = calendars
+            }
+        }
+    }
 
-       func addShoppingListToReminders() {
-           guard let reminderList = selectedReminderList else { return }
+    func addShoppingListToReminders() {
+        guard let reminderList = selectedReminderList else { return }
 
-           for item in shoppingList {
-               findRemindersForItem(item, in: reminderList) { existingReminders in
-                   if let existingReminders = existingReminders, !existingReminders.isEmpty {
-                       updateExistingReminders(existingReminders, with: item)
-                   } else {
-                       let reminder = EKReminder(eventStore: eventStore)
-                       reminder.title = "\(item.quantity) " + item.unit.rawValue + " " + item.food.name
-                       reminder.calendar = reminderList
+        for item in shoppingList {
+            findRemindersForItem(item, in: reminderList) { existingReminders in
+                if let existingReminders = existingReminders, !existingReminders.isEmpty {
+                    updateExistingReminders(existingReminders, with: item)
+                } else {
+                    let reminder = EKReminder(eventStore: eventStore)
+                    reminder.title = "\(item.quantity) " + item.unit.rawValue + " " + item.food.name
+                    reminder.calendar = reminderList
                        
-                       do {
-                           try eventStore.save(reminder, commit: true)
-                       } catch {
-                           print("Fehler beim Speichern der Erinnerung: \(error.localizedDescription)")
-                       }
-                   }
-               }
-           }
+                    do {
+                        try eventStore.save(reminder, commit: true)
+                    } catch {
+                        print("Fehler beim Speichern der Erinnerung: \(error.localizedDescription)")
+                    }
+                }
+            }
+        }
 
-           isReminderAdded = true
-           showingReminderSheet = false
-           print("Einkaufsliste zur Erinnerungen-App hinzugefügt.")
-       }
+        isReminderAdded = true
+        showingReminderSheet = false
+        print("Einkaufsliste zur Erinnerungen-App hinzugefügt.")
+    }
 
-       func findRemindersForItem(_ item: FoodItemStruct, in reminderList: EKCalendar?, completion: @escaping ([EKReminder]?) -> Void) {
-           guard let reminderList = reminderList else { completion(nil); return }
+    func findRemindersForItem(_ item: FoodItemStruct, in reminderList: EKCalendar?, completion: @escaping ([EKReminder]?) -> Void) {
+        guard let reminderList = reminderList else { completion(nil); return }
            
-           eventStore.requestFullAccessToReminders { granted, _ in
-               if granted {
-                   let predicate = eventStore.predicateForReminders(in: [reminderList])
-                   eventStore.fetchReminders(matching: predicate) { reminders in
-                       let filteredReminders = reminders?.filter { $0.title?.contains(item.unit.rawValue + " " + item.food.name) ?? false }
-                       completion(filteredReminders)
-                   }
-               } else {
-                   print("Access to reminders denied.")
-                   completion(nil)
-               }
-           }
-       }
+        eventStore.requestFullAccessToReminders { granted, _ in
+            if granted {
+                let predicate = eventStore.predicateForReminders(in: [reminderList])
+                eventStore.fetchReminders(matching: predicate) { reminders in
+                    let filteredReminders = reminders?.filter { $0.title?.contains(item.unit.rawValue + " " + item.food.name) ?? false }
+                    completion(filteredReminders)
+                }
+            } else {
+                print("Access to reminders denied.")
+                completion(nil)
+            }
+        }
+    }
 
     func updateExistingReminders(_ reminders: [EKReminder], with item: FoodItemStruct) {
-        var shouldCreateNewReminder = true  // Standardmäßig annehmen, dass eine neue Erinnerung nötig ist
+        var shouldCreateNewReminder = true // Standardmäßig annehmen, dass eine neue Erinnerung nötig ist
         let targetUnit = item.unit
         let targetQuantity = item.quantity
 
         for reminder in reminders {
             // Falls es eine offene Erinnerung gibt, aktualisieren wir diese statt eine neue zu erstellen
             if !reminder.isCompleted {
-                shouldCreateNewReminder = false  // Es gibt bereits eine noch nicht erledigte Erinnerung, also keine neue nötig
+                shouldCreateNewReminder = false // Es gibt bereits eine noch nicht erledigte Erinnerung, also keine neue nötig
                 
                 // Versuche, die vorhandene Menge aus der Erinnerung zu extrahieren
                 let reminderParts = reminder.title.components(separatedBy: " ")
-                guard reminderParts.count >= 3,  // Mindestens: "100 g Zucker"
+                guard reminderParts.count >= 3, // Mindestens: "100 g Zucker"
                       let existingQuantity = Double(reminderParts[0]),
-                      let existingUnit = Unit.fromString(reminderParts[1]) else {
+                      let existingUnit = Unit.fromString(reminderParts[1])
+                else {
                     print("⚠️ Fehler beim Lesen der offenen Erinnerung: \(reminder.title).")
                     continue
                 }
@@ -754,7 +700,7 @@ struct RecipeView: View {
                 return
             }
             
-            factor = convertedQuantity / firstOriginIngredient.quantity 
+            factor = convertedQuantity / firstOriginIngredient.quantity
         }
         let originalArea = Double.pi * pow(originDiameter / 2, 2)
 
@@ -785,7 +731,7 @@ struct RecipeView: View {
             }
             
             factor = convertedQuantity / firstOriginIngredient.quantity
-            print ("Faktor: ", factor)
+//            print ("Faktor: ", factor)
         }
         let originalArea = originLength * originWidth
 
@@ -801,7 +747,7 @@ struct RecipeView: View {
             print("⚠️ Fehler: Berechnete Länge/Breite ist NaN")
             return
         }
-        print("neeeuuuuuue: ", newWidth, newLength)
+//        print("neeeuuuuuue: ", newWidth, newLength)
         width = newWidth
         length = newLength
     }
@@ -865,12 +811,13 @@ struct RecipeImageView: View {
     var body: some View {
 //        Text(imagePath ?? "ccccccc")
         
-        if let fileName = imagePath {  // fileName ist die Rezept-ID
+        if let fileName = imagePath { // fileName ist die Rezept-ID
             let applicationSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            let fileURL = applicationSupport.appendingPathComponent(fileName)  // ✅ Nur Dateiname verwenden!
+            let fileURL = applicationSupport.appendingPathComponent(fileName) // ✅ Nur Dateiname verwenden!
 
             if FileManager.default.fileExists(atPath: fileURL.path),
-               let uiImage = UIImage(contentsOfFile: fileURL.path) {
+               let uiImage = UIImage(contentsOfFile: fileURL.path)
+            {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFit()
@@ -896,14 +843,11 @@ struct RecipeImageView: View {
                             print("Bild nicht gefunden: \(fileURL.path)")
                         }
                 }
-               
             }
         } else {
-          
-                Text("Bild nicht verfügbar")
-                    .foregroundColor(.secondary)
-                    .padding()
-            
+            Text("Bild nicht verfügbar")
+                .foregroundColor(.secondary)
+                .padding()
         }
     }
 }
@@ -956,10 +900,14 @@ struct RecipeIngredientsView: View {
     @State private var selectedIngredient: FoodItemStruct? = nil // Direkte Referenz zur bearbeiteten Zutat
     @State private var editedQuantity: String = "" // Temporär bearbeitete Menge
     @State private var selectedUnit: Unit = .gram // Temporär bearbeitete Einheit
+    @State private var selectedFood: FoodStruct? = nil
+    var modelView : ViewModel
+   
     
-    init(ingredients: Binding<[FoodItemStruct]>) {
+    init(ingredients: Binding<[FoodItemStruct]>, modelView: ViewModel) {
         self._ingredients = ingredients
         self.orignIngredients = ingredients.wrappedValue
+        self.modelView = modelView
     }
     
     var body: some View {
@@ -972,7 +920,16 @@ struct RecipeIngredientsView: View {
                 HStack {
                     VStack(alignment: .leading) {
                         Text("\(ingredients[index].food.name)")
-                            .font(.body)
+                                       .font(.body)
+                                       .onLongPressGesture {
+                                           selectedFood = ingredients[index].food
+                                           print("iiiiii",ingredients[index].food.nutritionFacts?.protein)
+                                       }
+                               
+                               .sheet(item: $selectedFood) { food in
+                                   FoodDetailView(food: food, modelView: modelView)
+                                  
+                               }
                         
                         HStack {
                             Text("\(ingredients[index].quantity.rounded(toPlaces: 2).formatted(toPlaces: 2))")
@@ -980,9 +937,9 @@ struct RecipeIngredientsView: View {
                             
                             Text(ingredients[index].unit.rawValue)
                                 .font(.subheadline)
-                                .onLongPressGesture {
-                                    preparePopup(for: index)
-                                }
+                        }
+                        .onLongPressGesture {
+                            preparePopup(for: index)
                         }
                         .padding(.bottom, 5)
                     }
@@ -1036,27 +993,40 @@ struct RecipeIngredientsView: View {
 
         // Passe die Mengen der anderen Zutaten an
         for i in ingredients.indices where i != index {
-            ingredients[i].quantity = adjustmentFactor * orignIngredients[i].quantity
+            ingredients[i].quantity = Unit.convert(value: adjustmentFactor * orignIngredients[i].quantity, from: orignIngredients[i].unit, to: ingredients[i].unit, density: ingredients[i].food.density ?? 0) ?? ingredients[i].quantity
         }
     }
 }
 
-
+import SwiftUI
 
 struct RecipeInstructionsView: View {
     var instructions: [String]
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            Text("Anleitung:")
-                .font(.headline)
-                .multilineTextAlignment(.center)
-            ForEach(instructions, id: \.self) { instruction in
-                Text(instruction)
-//                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Anleitung")
+                .font(.title2)
+                .fontWeight(.bold)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.bottom, 5)
+
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(Array(instructions.enumerated()), id: \.element) { index, instruction in
+                    HStack(alignment: .top, spacing: 8) {
+                        Text("\(index + 1).")
+                            .fontWeight(.bold)
+                            .foregroundColor(.accentColor)
+                        Text(instruction)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+                }
             }
         }
+        .padding()
     }
 }
 
@@ -1083,4 +1053,3 @@ extension Double {
         return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
     }
 }
-
