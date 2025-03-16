@@ -33,7 +33,7 @@ struct NutritionSummary {
                 missingStings.append("\(item.food.name) hat eine Stückmenge daher ist die Berechnung nicht vollständing")
             } else {
                 if let nutrition = item.food.nutritionFacts {
-                    print(nutrition)
+//                    print(nutrition)
                     totalCalories += Int(Double(nutrition.calories ?? 0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100)
                     totalProtein += (nutrition.protein ?? 0.0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
                     totalCarbohydrates += (nutrition.carbohydrates ?? 0.0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100

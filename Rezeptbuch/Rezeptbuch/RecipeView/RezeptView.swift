@@ -173,7 +173,7 @@ struct RecipeView: View {
                     
                     // Zutatenliste
                     RecipeIngredientsView(ingredients: $ingredients, modelView: modelView)
-                        .onAppear { print("Angezeigte Zutaten: \(ingredients)") }
+//                        .onAppear { print("Angezeigte Zutaten: \(ingredients)") }
                         .onChange(of: ingredients) { newIngredients in
                             updateIngredients(newIngredients)
                         }
@@ -923,7 +923,7 @@ struct RecipeIngredientsView: View {
                                        .font(.body)
                                        .onLongPressGesture {
                                            selectedFood = ingredients[index].food
-                                           print("iiiiii",ingredients[index].food.nutritionFacts?.protein)
+//                                           print("iiiiii",ingredients[index].food.nutritionFacts?.protein)
                                        }
                                
                                .sheet(item: $selectedFood) { food in

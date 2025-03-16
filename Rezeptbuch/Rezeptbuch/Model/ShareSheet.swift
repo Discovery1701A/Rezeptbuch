@@ -154,129 +154,67 @@ extension URL {
 }
 
 /// iOS App Delegate - URL Scheme Handling:
-
-
 import UIKit
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // App initialisieren
+        print("✅ AppDelegate wurde erfolgreich gestartet!")
+        
+        if let fileURL = launchOptions?[.url] as? URL {
+            print("📂 App wurde mit Datei gestartet: \(fileURL)")
+            openRecipeFile(at: fileURL)
+        }
         return true
     }
-  
 
     func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        guard url.scheme == "recipe", let path = url.queryParameters["path"] else {
+        print("📂 Datei-Öffnen-Event empfangen! URL: \(url)")
+
+        let fileManager = FileManager.default
+        let fileExists = fileManager.fileExists(atPath: url.path)
+
+        print("📂 Existiert Datei? \(fileExists)")
+
+        if !fileExists {
+            print("⚠️ Datei nicht gefunden! Möglicherweise ein Berechtigungsproblem.")
             return false
         }
-        
-        let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(path)
-        print(fileURL)
-        print("Angekommen yhaeeeee")
-        //        if let data = try? Data(contentsOf: fileURL), let recipe = deserializeRecipeData(data) {
-        //            // Handle the recipe data
-        //            print("Recipe loaded: \(recipe.title)")
-        //            return true
-        //        } else {
-        //            print("Failed to load recipe")
-        //            return false
-        //        }
+
+        do {
+            let attributes = try fileManager.attributesOfItem(atPath: url.path)
+            print("📂 Datei-Attribute: \(attributes)")
+        } catch {
+            print("❌ Fehler beim Abrufen der Datei-Attribute: \(error)")
+        }
+
+        openRecipeFile(at: url)
         return true
     }
-    
 
-    
-    private func processRecipeData(_ data: Data) {
-        // Verarbeite hier die geladenen Rezeptdaten
-        print("Processing recipe data...")
-        // Beispielsweise deserialisiere die Plist zu einem Rezeptobjekt und zeige es an
+    private func openRecipeFile(at fileURL: URL) {
+        print("📂 Datei wird verarbeitet: \(fileURL)")
+
+        do {
+            let data = try Data(contentsOf: fileURL)
+            print("📂 Dateigröße: \(data.count) Bytes")
+
+            if let recipe = deserializePlistToRecipe(plistData: data) {
+                print("🎉 Rezept erfolgreich geladen: \(recipe.title)")
+                NotificationCenter.default.post(name: .recipeOpened, object: recipe)
+            } else {
+                print("❌ Fehler: Konnte Rezept nicht deserialisieren.")
+            }
+        } catch {
+            print("❌ Fehler beim Öffnen der Datei: \(error)")
+        }
     }
 }
-
-
-
-//class ShareRecipeViewController: UIViewController {
-//    var recipe: Recipe!
-//
-//    func shareRecipe() {
-//        serializeRecipeToPlist(recipe: recipe) { [weak self] url in
-//            guard let self = self, let url = url else { return }
-//            print(url.scheme)
-//            let activityController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-//            activityController.excludedActivityTypes = [.addToReadingList, .assignToContact, .openInIBooks, .print, .saveToCameraRoll]
-//            self.present(activityController, animated: true)
-//        }
-//    }
-//}
-
-
 
 import Foundation
-func importRecipe(from plistData: Data) {
-    do {
-        // Try to deserialize the Recipe object from plist data
-        if let recipe = deserializePlistToRecipe(plistData: plistData) {
-            saveRecipe(recipe)
-            print("Rezept importiert: \(recipe.title)")
-        } else {
-            print("Error: Could not deserialize the recipe from the plist data.")
-        }
-    } catch {
-        print("Fehler beim Parsen des Rezepts: \(error)")
-    }
-}
 
 
-
-
-func saveRecipe(_ recipe: Recipe) {
-    // Implementieren Sie Logik zum Speichern des Rezepts in Core Data oder einer anderen lokalen Datenbank
-    print("Rezept gespeichert: \(recipe.title)")
-}
-
-
-
-
-
-
-func serializeIngredients(ingredients: [FoodItemStruct]) -> [[String: Any]] {
-    return ingredients.map { ingredient in
-        let foodDict = serializeFood(food: ingredient.food)
-        let ingredientDict: [String: Any] = [
-            "food": foodDict,
-            "unit": ingredient.unit.rawValue,
-            "quantity": ingredient.quantity
-        ]
-        return ingredientDict
-    }
-}
-
-func serializeFood(food: FoodStruct) -> [String: Any] {
-    var foodDict = [String: Any]()
-    foodDict["id"] = food.id.uuidString
-    foodDict["name"] = food.name
-    foodDict["category"] = food.category ?? ""
-    foodDict["info"] = food.info ?? ""
-
-    var nutritionFactsDict = [String: Any]()
-    if let nutritionFacts = food.nutritionFacts {
-        nutritionFactsDict["calories"] = nutritionFacts.calories ?? 0
-        nutritionFactsDict["protein"] = nutritionFacts.protein ?? 0
-        nutritionFactsDict["carbohydrates"] = nutritionFacts.carbohydrates ?? 0
-        nutritionFactsDict["fat"] = nutritionFacts.fat ?? 0
-    }
-    foodDict["nutritionFacts"] = nutritionFactsDict
-
-    if let tags = food.tags {
-        foodDict["tags"] = tags.map { tag -> [String: Any] in
-            ["id": tag.id.uuidString, "name": tag.name]
-        }
-    }
-
-    return foodDict
-}
 func deserializePlistToRecipe(plistData: Data) -> Recipe? {
     do {
         // Parse the plist data to a dictionary
@@ -311,9 +249,11 @@ func deserializePlistToRecipe(plistData: Data) -> Recipe? {
                             id: foodId,
                             name: foodDict["name"] as? String ?? "",
                             category: foodDict["category"] as? String,
+                            density : foodDict["density"] as? Double ?? 0.0,
                             info: foodDict["info"] as? String,
                             nutritionFacts: nutritionFacts,
                             tags: [] // Tags handling might be added here similarly
+                        
                         )
 
                         let foodItem = FoodItemStruct(food: food, unit: unit, quantity: quantity, id: id)
@@ -343,6 +283,46 @@ func deserializePlistToRecipe(plistData: Data) -> Recipe? {
     }
     return nil
 }
+
+
+func serializeIngredients(ingredients: [FoodItemStruct]) -> [[String: Any]] {
+    return ingredients.map { ingredient in
+        let foodDict = serializeFood(food: ingredient.food)
+        let ingredientDict: [String: Any] = [
+            "food": foodDict,
+            "unit": ingredient.unit.rawValue,
+            "quantity": ingredient.quantity
+        ]
+        return ingredientDict
+    }
+}
+
+func serializeFood(food: FoodStruct) -> [String: Any] {
+    var foodDict = [String: Any]()
+    foodDict["id"] = food.id.uuidString
+    foodDict["name"] = food.name
+    foodDict["category"] = food.category ?? ""
+    foodDict["info"] = food.info ?? ""
+    foodDict["density"] = food.density ?? 0
+
+    var nutritionFactsDict = [String: Any]()
+    if let nutritionFacts = food.nutritionFacts {
+        nutritionFactsDict["calories"] = nutritionFacts.calories ?? 0
+        nutritionFactsDict["protein"] = nutritionFacts.protein ?? 0
+        nutritionFactsDict["carbohydrates"] = nutritionFacts.carbohydrates ?? 0
+        nutritionFactsDict["fat"] = nutritionFacts.fat ?? 0
+    }
+    foodDict["nutritionFacts"] = nutritionFactsDict
+
+    if let tags = food.tags {
+        foodDict["tags"] = tags.map { tag -> [String: Any] in
+            ["id": tag.id.uuidString, "name": tag.name]
+        }
+    }
+
+    return foodDict
+}
+
 
 func generatePDF(for recipe: Recipe) -> URL? {
     let fileName = "\(recipe.title).pdf"
@@ -453,4 +433,8 @@ func generatePDF(for recipe: Recipe) -> URL? {
         print("Error generating PDF: \(error)")
         return nil
     }
+}
+
+extension Notification.Name {
+    static let recipeOpened = Notification.Name("recipeOpened")
 }

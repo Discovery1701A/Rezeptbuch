@@ -2,56 +2,85 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>com.Discovery.recipe</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>recipe</string>
-			</array>
-		</dict>
-	</array>
+
+    <!-- URL-Scheme für Rezeptbuch-App -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.Discovery.recipe</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>recipe</string>
+            </array>
+        </dict>
+    </array>
+
+    <!-- Registrierung als Standard-Handler für `.recipe`-Dateien -->
     <key>CFBundleDocumentTypes</key>
     <array>
         <dict>
             <key>CFBundleTypeName</key>
             <string>Recipe File</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string> <!-- App kann `.recipe`-Dateien öffnen und bearbeiten -->
+            <key>LSHandlerRank</key>
+            <string>Owner</string> <!-- App ist bevorzugter Handler -->
+            <key>LSTypeIsPackage</key>
+            <true/>
             <key>LSItemContentTypes</key>
             <array>
                 <string>com.Discovery.recipe</string>
             </array>
+            <key>CFBundleTypeExtensions</key>
+            <array>
+                <string>recipe</string>
+            </array>
+            <key>LSSupportsOpeningDocumentsInPlace</key>
+            <true/>
         </dict>
     </array>
-   <key>UTExportedTypeDeclarations</key>
-<array>
-    <dict>
-        <key>UTTypeIdentifier</key>
-        <string>com.Discovery.recipe</string>
-        <key>UTTypeDescription</key>
-        <string>Recipe File</string>
-        <key>UTTypeConformsTo</key>
-        <array>
-            <string>public.data</string>
-        </array>
-        <key>UTTypeTagSpecification</key>
+
+    <!-- UTType für `.recipe`-Dateien registrieren -->
+    <key>UTExportedTypeDeclarations</key>
+    <array>
         <dict>
-            <key>public.filename-extension</key>
-            <string>recipe</string>
-            <key>public.mime-type</key>
-            <string>application/json</string>
+            <key>UTTypeIdentifier</key>
+            <string>com.Discovery.recipe</string>
+            <key>UTTypeDescription</key>
+            <string>Recipe File</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+                <string>public.content</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>recipe</string>
+                </array>
+                <key>public.mime-type</key>
+                <string>application/x-recipe</string>
+            </dict>
         </dict>
-    </dict>
-</array>
+    </array>
+
+    <!-- Unterstützung für das Öffnen von Dateien über das Share Sheet -->
+    <key>UISupportsDocumentBrowser</key>
+    <true/>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+
+    <!-- Datenschutzberechtigungen -->
     <key>NSCameraUsageDescription</key>
-    <string>App möchte auf die Kamera zugrifen</string>
+    <string>App möchte auf die Kamera zugreifen</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>App möchte auf das Mikrofon zugreifen</string>
     <key>NSSpeechRecognitionUsageDescription</key>
-    <string>App möchte auf das Mikrofon zugreifen</string>
+    <string>App möchte auf die Spracheingabe zugreifen</string>
     <key>NSRemindersFullAccessUsageDescription</key>
     <string>App möchte auf die Erinnerungen zugreifen</string>
+
 </dict>
 </plist>
-
