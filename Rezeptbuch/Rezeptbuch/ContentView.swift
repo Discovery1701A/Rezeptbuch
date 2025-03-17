@@ -8,17 +8,15 @@
 import SwiftUI
 import CoreData
 
-
 struct ContentView: View {
     @ObservedObject var modelView: ViewModel
-    @State private var recipesChanged = false
     @State private var selectedTab = 0
-    @State private var selectedRecipe: UUID? = nil  // Rezept, das nach dem Speichern geöffnet werden soll
-
+    @State private var selectedRecipe: UUID? = nil  // Rezept, das nach dem Öffnen angezeigt wird
+    @State private var importedRecipe: Recipe? = nil // Temporär geöffnetes Rezept
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            RecipeListView(modelView: modelView, selectedTab: $selectedTab,UUIDOfSelectedRecipe: $selectedRecipe)
+            RecipeListView(modelView: modelView, selectedTab: $selectedTab, UUIDOfSelectedRecipe: $selectedRecipe)
                 .tabItem {
                     Label("Rezepte", systemImage: "list.bullet")
                 }
@@ -29,31 +27,68 @@ struct ContentView: View {
                     Label("Rezept erstellen", systemImage: "plus.circle")
                 }
                 .tag(1)
-        
-//            FoodCreationView(modelView: modelView)
-//                .tabItem {
-//                    Label("Lebensmittel erstellen", systemImage: "plus.circle")
-//                }
         }
-        .onChange(of: recipesChanged) { _ in
-            // Force update the view when recipes change
+        .sheet(item: $importedRecipe) { recipe in
+            RecipePreviewView(recipe: recipe, onSave: {
+                CoreDataManager().saveRecipe(recipe)
+                modelView.updateRecipe()
+                modelView.updateFood()
+                modelView.updateBooks()
+                modelView.updateTags()
+            }) // Zeigt das importierte Rezept in einem Modal-Fenster an
         }
-        .onReceive(modelView.$recipes) { _ in
-//              print ("View2",modelView.recipes)
-            recipesChanged.toggle()
+        .onOpenURL { url in
+            print("📂 Datei-Öffnen-Event über onOpenURL erhalten: \(url)")
+            openRecipeFile(at: url)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .recipeOpened)) { notification in
+            if let recipe = notification.object as? Recipe {
+                importedRecipe = recipe
+                print("📂 Rezept über Notification erhalten: \(recipe.title)")
+            }
+        }
+    }
+
+    private func openRecipeFile(at url: URL) {
+        print("📂 Datei wird verarbeitet: \(url)")
+
+        if url.startAccessingSecurityScopedResource() {
+            defer { url.stopAccessingSecurityScopedResource() }
+
+            do {
+                let fileManager = FileManager.default
+                let tempDirectory = FileManager.default.temporaryDirectory
+                let destinationURL = tempDirectory.appendingPathComponent(url.lastPathComponent)
+
+                if fileManager.fileExists(atPath: destinationURL.path) {
+                    try fileManager.removeItem(at: destinationURL)
+                }
+
+                try fileManager.copyItem(at: url, to: destinationURL)
+                print("✅ Datei erfolgreich nach: \(destinationURL) kopiert")
+
+                let data = try Data(contentsOf: destinationURL)
+                print("📂 Dateigröße: \(data.count) Bytes")
+
+                if let recipe = deserializePlistToRecipe(plistData: data) {
+                    print("🎉 Rezept erfolgreich geladen: \(recipe.title)")
+
+                    // 📌 Rezept NUR temporär speichern
+                    DispatchQueue.main.async {
+                        importedRecipe = recipe  // Öffnet das Rezept in einem Modal
+                        print(recipe)
+                    }
+                } else {
+                    print("❌ Fehler: Konnte Rezept nicht deserialisieren.")
+                }
+            } catch {
+                print("❌ Fehler beim Kopieren oder Öffnen der Datei: \(error)")
+            }
+        } else {
+            print("❌ Fehler: Kein Zugriff auf die Datei möglich (Security-Scoped Resource)")
         }
     }
 }
-
-
-
-    struct ContenteView_Previews: PreviewProvider {
-        
-        static var previews: some View {
-            let modelView : ViewModel = ViewModel()
-            ContentView(modelView: modelView)
-        }
-    }
 
 
 

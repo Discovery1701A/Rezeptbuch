@@ -79,65 +79,7 @@ struct ShareSheetView: View {
     }
 }
 
-func serializeRecipeToPlist(recipe: Recipe, completion: @escaping (URL?, URL?) -> Void) {
-    var dict = [String: Any]()
-    dict["id"] = recipe.id.uuidString
-    dict["title"] = recipe.title
-    dict["instructions"] = recipe.instructions
-   
-    dict["videoLink"] = recipe.videoLink ?? ""
-    dict["info"] = recipe.info ?? ""
-    dict["recipeBookIDs"] = recipe.recipeBookIDs?.map { $0.uuidString }
-    if let imagePath = recipe.image {
-        if let image = UIImage(contentsOfFile: imagePath) {
-            if let imageData = image.jpegData(compressionQuality: 1.0) {
-                dict["imageData"] = imageData
-            }
-        } else {
-            print("Das Bild konnte nicht geladen werden.")
-        }
-    } else if let imageName = recipe.image {
-        // Hier wird versucht, ein Bild aus den Asset-Katalogen zu laden
-        if let image = UIImage(named: imageName) {
-            if let imageData = image.jpegData(compressionQuality: 1.0) {
-                dict["imageData"] = imageData
-            }
-        } else {
-            print("Das Bild konnte nicht aus den Assets geladen werden.")
-        }
-    }
-  
-    if let portion = recipe.portion {
-        dict["portion"] = portion.stringValue()
-    }
 
-    if let cake = recipe.cake {
-        dict["cake"] = cake.stringValue()
-    }
-
-    dict["ingredients"] = serializeIngredients(ingredients: recipe.ingredients)
-
-    if let tags = recipe.tags {
-        dict["tags"] = tags.map { ["id": $0.id.uuidString, "name": $0.name] }
-    }
-
-    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let filePath = documentsDirectory.appendingPathComponent("recipe.plist")
-     
-       
-    do {
-           let data = try JSONSerialization.data(withJSONObject: dict, options: [])
-           let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-           let fileURL = documentsDirectory.appendingPathComponent("\(recipe.title).recipe")
-
-           try data.write(to: fileURL)
-        let customURL = URL(string: "recipe://open?path=\(fileURL.lastPathComponent)")
-           completion(fileURL, customURL)
-       } catch {
-           print("Failed to write recipe file: \(error)")
-           completion(nil, nil)
-       }
-   }
 
 
 extension URL {
@@ -158,56 +100,54 @@ import UIKit
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        print("✅ AppDelegate wurde erfolgreich gestartet!")
-        
-        if let fileURL = launchOptions?[.url] as? URL {
-            print("📂 App wurde mit Datei gestartet: \(fileURL)")
-            openRecipeFile(at: fileURL)
-        }
-        return true
-    }
+    var contentView: ContentView? // Referenz zur ContentView für importedRecipe
 
     func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        print("📂 Datei-Öffnen-Event empfangen! URL: \(url)")
+        print("📂 Datei-Öffnen-Event über AppDelegate erhalten: \(url)")
 
-        let fileManager = FileManager.default
-        let fileExists = fileManager.fileExists(atPath: url.path)
-
-        print("📂 Existiert Datei? \(fileExists)")
-
-        if !fileExists {
-            print("⚠️ Datei nicht gefunden! Möglicherweise ein Berechtigungsproblem.")
-            return false
+        DispatchQueue.main.async {
+            self.openRecipeFile(at: url)
         }
 
-        do {
-            let attributes = try fileManager.attributesOfItem(atPath: url.path)
-            print("📂 Datei-Attribute: \(attributes)")
-        } catch {
-            print("❌ Fehler beim Abrufen der Datei-Attribute: \(error)")
-        }
-
-        openRecipeFile(at: url)
         return true
     }
 
-    private func openRecipeFile(at fileURL: URL) {
-        print("📂 Datei wird verarbeitet: \(fileURL)")
+    private func openRecipeFile(at url: URL) {
+        print("📂 Datei wird verarbeitet: \(url)")
 
-        do {
-            let data = try Data(contentsOf: fileURL)
-            print("📂 Dateigröße: \(data.count) Bytes")
+        if url.startAccessingSecurityScopedResource() {
+            defer { url.stopAccessingSecurityScopedResource() }
 
-            if let recipe = deserializePlistToRecipe(plistData: data) {
-                print("🎉 Rezept erfolgreich geladen: \(recipe.title)")
-                NotificationCenter.default.post(name: .recipeOpened, object: recipe)
-            } else {
-                print("❌ Fehler: Konnte Rezept nicht deserialisieren.")
+            do {
+                let fileManager = FileManager.default
+                let tempDirectory = FileManager.default.temporaryDirectory
+                let destinationURL = tempDirectory.appendingPathComponent(url.lastPathComponent)
+
+                if fileManager.fileExists(atPath: destinationURL.path) {
+                    try fileManager.removeItem(at: destinationURL)
+                }
+
+                try fileManager.copyItem(at: url, to: destinationURL)
+                print("✅ Datei erfolgreich nach: \(destinationURL) kopiert")
+
+                let data = try Data(contentsOf: destinationURL)
+                print("📂 Dateigröße: \(data.count) Bytes")
+
+                if let recipe = deserializePlistToRecipe(plistData: data) {
+                    print("🎉 Rezept erfolgreich geladen: \(recipe.title)")
+
+                    // 📌 Rezept NUR temporär speichern und an ContentView übergeben
+                    DispatchQueue.main.async {
+                        NotificationCenter.default.post(name: .recipeOpened, object: recipe)
+                    }
+                } else {
+                    print("❌ Fehler: Konnte Rezept nicht deserialisieren.")
+                }
+            } catch {
+                print("❌ Fehler beim Kopieren oder Öffnen der Datei: \(error)")
             }
-        } catch {
-            print("❌ Fehler beim Öffnen der Datei: \(error)")
+        } else {
+            print("❌ Fehler: Kein Zugriff auf die Datei möglich (Security-Scoped Resource)")
         }
     }
 }
@@ -226,45 +166,60 @@ func deserializePlistToRecipe(plistData: Data) -> Recipe? {
             let videoLink = dict["videoLink"] as? String
             let info = dict["info"] as? String
             let recipeBookIDs = (dict["recipeBookIDs"] as? [String])?.compactMap(UUID.init)
+            
+            let portion: PortionsInfo? = {
+                if let portionString = dict["portion"] as? String {
+                    return PortionsInfo.fromString(portionString)
+                }
+                return nil
+            }()
 
+            let cake: CakeInfo? = {
+                if let cakeString = dict["cake"] as? String {
+                    return CakeInfo.fromString(cakeString)
+                }
+                return nil
+            }()
+            
             var ingredients = [FoodItemStruct]()
             if let ingredientsArray = dict["ingredients"] as? [[String: Any]] {
                 for ingredientDict in ingredientsArray {
-                    if let foodDict = ingredientDict["food"] as? [String: Any],
-                       let nutritionDict = foodDict["nutritionFacts"] as? [String: Any],
-                       let foodId = UUID(uuidString: foodDict["id"] as? String ?? ""),
-                       let unitString = ingredientDict["unit"] as? String,
-                       let unit = Unit(rawValue: unitString),
-                       let id = UUID(uuidString: ingredientDict["id"] as? String ?? ""),
-                       let quantity = ingredientDict["quantity"] as? Double {
-
-                        let nutritionFacts = NutritionFactsStruct(
-                            calories: nutritionDict["calories"] as? Int,
-                            protein: nutritionDict["protein"] as? Double,
-                            carbohydrates: nutritionDict["carbohydrates"] as? Double,
-                            fat: nutritionDict["fat"] as? Double
-                        )
-
-                        let food = FoodStruct(
-                            id: foodId,
-                            name: foodDict["name"] as? String ?? "",
-                            category: foodDict["category"] as? String,
-                            density : foodDict["density"] as? Double ?? 0.0,
-                            info: foodDict["info"] as? String,
-                            nutritionFacts: nutritionFacts,
-                            tags: [] // Tags handling might be added here similarly
-                        
-                        )
-
-                        let foodItem = FoodItemStruct(food: food, unit: unit, quantity: quantity, id: id)
-                        ingredients.append(foodItem)
+                    guard let ingredientIdString = ingredientDict["id"] as? String,
+                          let ingredientId = UUID(uuidString: ingredientIdString),
+                          let foodDict = ingredientDict["food"] as? [String: Any],
+                          let foodIdString = foodDict["id"] as? String,
+                          let foodId = UUID(uuidString: foodIdString),
+                          let name = foodDict["name"] as? String,
+                          let unitString = ingredientDict["unit"] as? String,
+                          let unit = Unit(rawValue: unitString),
+                          let quantity = ingredientDict["quantity"] as? Double else {
+                        print("⚠️ Fehler beim Dekodieren eines Ingredients: \(ingredientDict)")
+                        continue
                     }
+
+                    let nutritionFacts = NutritionFactsStruct(
+                        calories: (foodDict["nutritionFacts"] as? [String: Any])?["calories"] as? Int ?? 0,
+                        protein: (foodDict["nutritionFacts"] as? [String: Any])?["protein"] as? Double ?? 0.0,
+                        carbohydrates: (foodDict["nutritionFacts"] as? [String: Any])?["carbohydrates"] as? Double ?? 0.0,
+                        fat: (foodDict["nutritionFacts"] as? [String: Any])?["fat"] as? Double ?? 0.0
+                    )
+
+                    let food = FoodStruct(
+                        id: foodId,
+                        name: name,
+                        category: foodDict["category"] as? String,
+                        density: foodDict["density"] as? Double ?? 0.0,
+                        info: foodDict["info"] as? String,
+                        nutritionFacts: nutritionFacts
+                    )
+
+                    let foodItem = FoodItemStruct(food: food, unit: unit, quantity: quantity, id: ingredientId)
+                    ingredients.append(foodItem)
                 }
             }
-
-            let portion = PortionsInfo.fromString((dict["portion"] as? String)!)
-            let cake = CakeInfo.fromString((dict["cake"] as? String)!)
             
+
+          
             var tags = [TagStruct]()
             if let tagsArray = dict["tags"] as? [[String: Any]] {
                 for tagDict in tagsArray {
@@ -284,12 +239,51 @@ func deserializePlistToRecipe(plistData: Data) -> Recipe? {
     return nil
 }
 
+func serializeRecipeToPlist(recipe: Recipe, completion: @escaping (URL?, URL?) -> Void) {
+    var dict: [String: Any] = [
+        "id": recipe.id.uuidString,
+        "title": recipe.title,
+        "instructions": recipe.instructions,
+        "videoLink": recipe.videoLink ?? "",
+        "info": recipe.info ?? "",
+        "recipeBookIDs": recipe.recipeBookIDs?.map { $0.uuidString } ?? [],
+        "ingredients": serializeIngredients(ingredients: recipe.ingredients),
+        "tags": recipe.tags?.map { ["id": $0.id.uuidString, "name": $0.name] } ?? []
+    ]
+
+    if let imagePath = recipe.image, let image = UIImage(contentsOfFile: imagePath), let imageData = image.jpegData(compressionQuality: 1.0) {
+        dict["imageData"] = imageData
+    }
+
+    if let portion = recipe.portion {
+        dict["portion"] = portion.stringValue()
+    }
+
+    if let cake = recipe.cake {
+        dict["cake"] = cake.stringValue()
+    }
+
+    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    
+    do {
+        let data = try PropertyListSerialization.data(fromPropertyList: dict, format: .xml, options: 0)
+        let fileURL = documentsDirectory.appendingPathComponent("\(recipe.title).recipe")
+
+        try data.write(to: fileURL)
+        let customURL = URL(string: "recipe://open?path=\(fileURL.lastPathComponent)")
+        completion(fileURL, customURL)
+    } catch {
+        print("❌ Fehler beim Speichern der Rezeptdatei: \(error)")
+        completion(nil, nil)
+    }
+}
 
 func serializeIngredients(ingredients: [FoodItemStruct]) -> [[String: Any]] {
     return ingredients.map { ingredient in
         let foodDict = serializeFood(food: ingredient.food)
         let ingredientDict: [String: Any] = [
             "food": foodDict,
+            "id": ingredient.id.uuidString,
             "unit": ingredient.unit.rawValue,
             "quantity": ingredient.quantity
         ]
