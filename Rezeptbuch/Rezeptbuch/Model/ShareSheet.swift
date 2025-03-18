@@ -453,17 +453,27 @@ func generatePDF(for recipe: Recipe) -> URL? {
     let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     let pdfURL = documentsDirectory.appendingPathComponent(fileName)
 
-    let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 612, height: 792)) // A4-Seite
-    
+    let pageWidth: CGFloat = 612
+    let pageHeight: CGFloat = 792
+    let margin: CGFloat = 40
+    let contentWidth = pageWidth - 2 * margin
+    let lineHeight: CGFloat = 20
+    var yOffset: CGFloat = 50
+
+    let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight))
+
     do {
         try pdfRenderer.writePDF(to: pdfURL, withActions: { context in
+            func checkPageSpace(_ requiredSpace: CGFloat) {
+                if yOffset + requiredSpace > pageHeight - margin {
+                    context.beginPage()
+                    yOffset = margin
+                }
+            }
+            
             context.beginPage()
             
-            let pageWidth: CGFloat = 612
-            let margin: CGFloat = 40
-            var yOffset: CGFloat = 50
-            
-            // Titel des Rezepts (zentriert)
+            // Titel des Rezepts
             let titleStyle = NSMutableParagraphStyle()
             titleStyle.alignment = .center
             let titleAttributes: [NSAttributedString.Key: Any] = [
@@ -471,18 +481,44 @@ func generatePDF(for recipe: Recipe) -> URL? {
                 .paragraphStyle: titleStyle
             ]
             let titleString = NSAttributedString(string: recipe.title, attributes: titleAttributes)
-            titleString.draw(in: CGRect(x: margin, y: yOffset, width: pageWidth - 2 * margin, height: 30))
+            titleString.draw(in: CGRect(x: margin, y: yOffset, width: contentWidth, height: 30))
             
             yOffset += 40
-            
+
             // Rezept-Bild (falls vorhanden)
-            if let imagePath = recipe.image, let image = UIImage(contentsOfFile: imagePath) {
-                let imageRect = CGRect(x: margin, y: yOffset, width: pageWidth - 2 * margin, height: 150)
-                image.draw(in: imageRect)
-                yOffset += 160
+            if let imagePath = recipe.image {
+                let fileManager = FileManager.default
+                let applicationSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+                let imageFileURL = applicationSupport.appendingPathComponent(imagePath)
+                
+                if fileManager.fileExists(atPath: imageFileURL.path),
+                   let image = UIImage(contentsOfFile: imageFileURL.path) {
+                    
+                    let maxWidth: CGFloat = contentWidth
+                    let maxHeight: CGFloat = 200 // Begrenzte Höhe für das Bild
+                    let aspectRatio = image.size.height / image.size.width
+                    var imageWidth = maxWidth
+                    var imageHeight = maxWidth * aspectRatio
+                    
+                    if imageHeight > maxHeight {
+                        imageHeight = maxHeight
+                        imageWidth = maxHeight / aspectRatio
+                    }
+                    
+                    let imageRect = CGRect(
+                        x: margin + (contentWidth - imageWidth) / 2,
+                        y: yOffset,
+                        width: imageWidth,
+                        height: imageHeight
+                    )
+                    
+                    checkPageSpace(imageHeight + 10)
+                    image.draw(in: imageRect)
+                    yOffset += imageHeight + 10
+                }
             }
 
-            // Rezept-Infos (Portionen, Tags, Form)
+            // Rezept-Infos
             let infoStyle = NSMutableParagraphStyle()
             infoStyle.alignment = .left
             let infoAttributes: [NSAttributedString.Key: Any] = [
@@ -508,19 +544,20 @@ func generatePDF(for recipe: Recipe) -> URL? {
             infoText += "Tags: \(tagsText)"
 
             let infoString = NSAttributedString(string: infoText, attributes: infoAttributes)
-            infoString.draw(in: CGRect(x: margin, y: yOffset, width: pageWidth - 2 * margin, height: 70))
-            
+            checkPageSpace(80)
+            infoString.draw(in: CGRect(x: margin, y: yOffset, width: contentWidth, height: 70))
             yOffset += 80
-            
+
             // Zutaten
             let sectionTitleAttributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.boldSystemFont(ofSize: 18),
                 .paragraphStyle: infoStyle
             ]
             let sectionTitle = NSAttributedString(string: "Zutaten:", attributes: sectionTitleAttributes)
+            checkPageSpace(25)
             sectionTitle.draw(at: CGPoint(x: margin, y: yOffset))
             yOffset += 25
-            
+
             let bodyAttributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 14),
                 .paragraphStyle: NSMutableParagraphStyle()
@@ -531,14 +568,16 @@ func generatePDF(for recipe: Recipe) -> URL? {
                     string: "- \(ingredient.food.name) \(ingredient.quantity) \(ingredient.unit.rawValue)",
                     attributes: bodyAttributes
                 )
+                checkPageSpace(lineHeight)
                 ingredientString.draw(at: CGPoint(x: margin, y: yOffset))
-                yOffset += 20
+                yOffset += lineHeight
             }
             
             yOffset += 20
 
             // Zubereitung
             let instructionsTitle = NSAttributedString(string: "Zubereitung:", attributes: sectionTitleAttributes)
+            checkPageSpace(25)
             instructionsTitle.draw(at: CGPoint(x: margin, y: yOffset))
             yOffset += 25
             
@@ -547,7 +586,8 @@ func generatePDF(for recipe: Recipe) -> URL? {
                     string: "\(index + 1). \(step)",
                     attributes: bodyAttributes
                 )
-                stepString.draw(in: CGRect(x: margin, y: yOffset, width: pageWidth - 2 * margin, height: 50))
+                checkPageSpace(50)
+                stepString.draw(in: CGRect(x: margin, y: yOffset, width: contentWidth, height: 50))
                 yOffset += 40
             }
         })
