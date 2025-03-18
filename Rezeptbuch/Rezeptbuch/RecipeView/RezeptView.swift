@@ -583,6 +583,7 @@ struct RecipeView: View {
                     portion = ceil(portion) // Falls Dezimalstelle, aufrunden
                 }
                 scaleIngredients(portion: portion)
+                summary.calculate(from: ingredients)
             }
         }, label: {
             Image(systemName: "plus.circle.fill")
@@ -599,6 +600,7 @@ struct RecipeView: View {
                     portion = floor(portion) // Falls Dezimalstelle, abrunden
                 }
                 scaleIngredients(portion: portion)
+                summary.calculate(from: ingredients)
             }
         }, label: {
             Image(systemName: "minus.circle.fill")

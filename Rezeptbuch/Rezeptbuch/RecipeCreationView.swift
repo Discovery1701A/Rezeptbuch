@@ -1063,6 +1063,7 @@ struct IngredientSearchView: View {
 }
 
 struct IngredientRow: View {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     let index: Int
     @Binding var food: FoodStruct
     @Binding var quantity: String
@@ -1076,38 +1077,63 @@ struct IngredientRow: View {
     @State private var showingIngredientSearch = false
 
     var body: some View {
-        HStack {
-            Text("\(index + 1).")
-            Button(action: {
-                showingIngredientSearch = true
-            }) {
-                Text(food.name == "" ? "Zutat auswählen" : food.name)
+           HStack {
+               Text("\(index + 1).")
+               Button(action: {
+                   showingIngredientSearch = true
+               }) {
+                   Text(food.name.isEmpty ? "Zutat auswählen" : food.name)
+                       .foregroundColor(.blue)
+               }
+               .sheet(isPresented: $showingIngredientSearch) {
+                   IngredientSearchView(
+                       selectedFood: $food,
+                       allFoods: allFoods,
+                       modelView: modelView
+                   )
+               }
 
-                    .foregroundColor(.blue)
-            }
-            .sheet(isPresented: $showingIngredientSearch) {
-                IngredientSearchView(
-                    selectedFood: $food,
-                    allFoods: allFoods,
-                    modelView: modelView
-                )
-            }
+               if horizontalSizeClass == .compact {
+                   // Falls nicht genug Platz ist, setzen wir die Labels über die Eingabefelder
+                   VStack(alignment: .leading, spacing: 4) {
+                       Text("Menge")
 
-            Section(header: Text("Menge")) {
-                HStack {
-                    TextField("Menge", text: $quantity)
-#if os(iOS)
-                        .keyboardType(.decimalPad)
-#endif
-                    Picker("Einheit", selection: $selectedUnit) {
-                        ForEach(Unit.allCases, id: \.self) { unit in
-                            Text(unit.rawValue)
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                .padding()
-            }
-        }
-    }
+
+                       TextField("Menge", text: $quantity)
+   #if os(iOS)
+                           .keyboardType(.decimalPad)
+   #endif
+                   }
+
+                   VStack(alignment: .leading, spacing: 4) {
+                       Text("Einheit")
+                    
+
+                       Picker("", selection: $selectedUnit) {
+                           ForEach(Unit.allCases, id: \.self) { unit in
+                               Text(unit.rawValue)
+                           }
+                       }
+                       .pickerStyle(MenuPickerStyle()) // Dropdown für kleine Bildschirme
+                   }
+               } else {
+                   // Falls genug Platz ist, bleibt der Header links und das Layout horizontal
+                   Section(header: Text("Menge")) {
+                       HStack {
+                           TextField("Menge", text: $quantity)
+   #if os(iOS)
+                               .keyboardType(.decimalPad)
+   #endif
+                           Picker("Einheit", selection: $selectedUnit) {
+                               ForEach(Unit.allCases, id: \.self) { unit in
+                                   Text(unit.rawValue)
+                               }
+                           }
+                           .pickerStyle(SegmentedPickerStyle()) // Segmentierte Auswahl für große Bildschirme
+                       }
+                       .padding()
+                   }
+               }
+           }
+       }
 }
