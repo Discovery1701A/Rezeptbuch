@@ -88,6 +88,7 @@ struct EditIngredientPopup: View {
                         }
                         onClose() // Schließt das Popup
                     }
+                    .disabled(Double(editedQuantity) ?? 0 <= 0)
                     .padding()
                 }
             }

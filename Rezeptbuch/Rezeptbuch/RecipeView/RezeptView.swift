@@ -993,7 +993,11 @@ struct RecipeIngredientsView: View {
 
         // Passe die Mengen der anderen Zutaten an
         for i in ingredients.indices where i != index {
-            ingredients[i].quantity = Unit.convert(value: adjustmentFactor * orignIngredients[i].quantity, from: orignIngredients[i].unit, to: ingredients[i].unit, density: ingredients[i].food.density ?? 0) ?? ingredients[i].quantity
+            if ingredients[i].unit != .piece{
+                ingredients[i].quantity = Unit.convert(value: adjustmentFactor * orignIngredients[i].quantity, from: orignIngredients[i].unit, to: ingredients[i].unit, density: ingredients[i].food.density ?? 0) ?? ingredients[i].quantity
+            } else {
+                ingredients[i].quantity = adjustmentFactor * orignIngredients[i].quantity
+            }
         }
     }
 }
