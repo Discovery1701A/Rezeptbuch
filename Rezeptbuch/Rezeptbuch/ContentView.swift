@@ -5,13 +5,13 @@
 //  Created by Anna Rieckmann on 07.03.24.
 //
 
-import SwiftUI
 import CoreData
+import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var modelView: ViewModel
     @State private var selectedTab = 0
-    @State private var selectedRecipe: UUID? = nil  // Rezept, das nach dem Öffnen angezeigt wird
+    @State private var selectedRecipe: UUID? = nil // Rezept, das nach dem Öffnen angezeigt wird
     @State private var importedRecipe: Recipe? = nil // Temporär geöffnetes Rezept
 
     var body: some View {
@@ -35,7 +35,8 @@ struct ContentView: View {
                 modelView.updateFood()
                 modelView.updateBooks()
                 modelView.updateTags()
-            }) // Zeigt das importierte Rezept in einem Modal-Fenster an
+            }, onCancel:
+            { deleteImage(id: recipe.id) }) // Zeigt das importierte Rezept in einem Modal-Fenster an
         }
         .onOpenURL { url in
             print("📂 Datei-Öffnen-Event über onOpenURL erhalten: \(url)")
@@ -75,7 +76,7 @@ struct ContentView: View {
 
                     // 📌 Rezept NUR temporär speichern
                     DispatchQueue.main.async {
-                        importedRecipe = recipe  // Öffnet das Rezept in einem Modal
+                        importedRecipe = recipe // Öffnet das Rezept in einem Modal
                         print(recipe)
                     }
                 } else {
@@ -89,6 +90,3 @@ struct ContentView: View {
         }
     }
 }
-
-
-
