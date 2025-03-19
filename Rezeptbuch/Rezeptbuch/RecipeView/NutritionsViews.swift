@@ -7,21 +7,24 @@
 
 import SwiftUICore
 
-// Struktur zur Zusammenfassung der Nährwerte
+/// Struktur zur Berechnung und Speicherung der Nährwertzusammenfassung eines Rezepts oder einer Mahlzeit.
 struct NutritionSummary {
-    var totalCalories: Int = 0
-    var totalProtein: Double = 0.0
-    var totalCarbohydrates: Double = 0.0
-    var totalFat: Double = 0.0
-    var missingStings: [String] = []
+    var totalCalories: Int = 0  // Gesamtanzahl der Kalorien
+    var totalProtein: Double = 0.0  // Gesamtmenge an Protein in Gramm
+    var totalCarbohydrates: Double = 0.0  // Gesamtmenge an Kohlenhydraten in Gramm
+    var totalFat: Double = 0.0  // Gesamtmenge an Fett in Gramm
+    var missingStings: [String] = []  // Liste der fehlenden Informationen
 
+    /// Berechnet die Nährwerte basierend auf den angegebenen Zutaten.
     mutating func calculate(from items: [FoodItemStruct]) {
+        // Setze Werte zurück, um neue Berechnung durchzuführen
         totalCalories = 0
         totalProtein = 0.0
         totalCarbohydrates = 0.0
         totalFat = 0.0
-//       print("vjnevorenvoervnreoivnroevneroivnfvernvernverocvnjdckjnkfdclfldjbvcjfdvc")
+
         for item in items {
+            // Überprüfung auf fehlende Dichte oder unvollständige Nährwertangaben
             if item.food.density == nil || item.food.density ?? 0 <= 0 {
                 missingStings.append("\(item.food.name) hat keine Dichte")
             }
@@ -29,25 +32,27 @@ struct NutritionSummary {
                 missingStings.append("\(item.food.name) hat fehlende Nährwerte")
             }
             
+            // Falls die Einheit "Stück" ist, kann keine vollständige Berechnung erfolgen
             if item.unit == .piece {
-                missingStings.append("\(item.food.name) hat eine Stückmenge daher ist die Berechnung nicht vollständing")
+                missingStings.append("\(item.food.name) hat eine Stückmenge, daher ist die Berechnung nicht vollständig.")
             } else {
                 if let nutrition = item.food.nutritionFacts {
-//                    print(nutrition)
-                    totalCalories += Int(Double(nutrition.calories ?? 0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100)
-                    totalProtein += (nutrition.protein ?? 0.0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
-                    totalCarbohydrates += (nutrition.carbohydrates ?? 0.0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
+                    let convertedQuantity = Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0
                     
-                    totalFat += (nutrition.fat ?? 0.0) * (Unit.convert(value: item.quantity, from: item.unit, to: .gram, density: item.food.density ?? 0) ?? 0) / 100
+                    totalCalories += Int(Double(nutrition.calories ?? 0) * convertedQuantity / 100)
+                    totalProtein += (nutrition.protein ?? 0.0) * convertedQuantity / 100
+                    totalCarbohydrates += (nutrition.carbohydrates ?? 0.0) * convertedQuantity / 100
+                    totalFat += (nutrition.fat ?? 0.0) * convertedQuantity / 100
                 }
             }
         }
     }
 }
 
+/// Ansicht zur Darstellung einer zusammengefassten Nährwertübersicht.
 struct NutritionSummaryView: View {
-    let summary: NutritionSummary
-    let maxBarHeight: CGFloat = 150 // Maximale Höhe für die höchsten Balken
+    let summary: NutritionSummary  // Berechnete Nährwerte
+    let maxBarHeight: CGFloat = 150  // Maximale Höhe für die höchsten Balken
 
     var body: some View {
         let maxValue = max(summary.totalCalories,
@@ -55,16 +60,20 @@ struct NutritionSummaryView: View {
                            Int(summary.totalCarbohydrates),
                            Int(summary.totalFat),
                            1) // Verhindert Division durch 0
-        
+
         VStack {
             Text("Nährwerte")
                 .font(.headline)
                 .padding()
             
-            if summary.missingStings.count > 0 {
+            // Falls fehlende Daten existieren, wird eine Warnung ausgegeben
+            if !summary.missingStings.isEmpty {
                 Text("Es wurden bei der Berechnung nicht alle Zutaten berücksichtigt.")
+                    .foregroundColor(.red)
+                    .font(.subheadline)
             }
             
+            // Balkendiagramm zur Visualisierung der Nährwerte
             HStack {
                 NutritionBar(value: summary.totalCalories, maxValue: maxValue, label: "Kalorien", color: .red, maxHeight: maxBarHeight)
                 NutritionBar(value: Int(summary.totalProtein), maxValue: maxValue, label: "Protein", color: .blue, maxHeight: maxBarHeight)
@@ -76,16 +85,16 @@ struct NutritionSummaryView: View {
     }
 }
 
-// Hilfskomponente für Balkendiagramme mit relativer Skalierung
+/// Eine einzelne Balkendarstellung für die Nährwerte.
 struct NutritionBar: View {
-    var value: Int
-    var maxValue: Int
-    var label: String
-    var color: Color
-    let maxHeight: CGFloat // Maximale Balkenhöhe
+    var value: Int  // Wert für den Balken
+    var maxValue: Int  // Höchster Wert zur relativen Skalierung
+    var label: String  // Name des Nährstoffs
+    var color: Color  // Farbe des Balkens
+    let maxHeight: CGFloat  // Maximale Balkenhöhe
 
     var body: some View {
-        let barHeight = CGFloat(value) / CGFloat(maxValue) * maxHeight // Relative Skalierung
+        let barHeight = CGFloat(value) / CGFloat(maxValue) * maxHeight  // Relative Skalierung
 
         VStack {
             Text(label)
@@ -94,7 +103,7 @@ struct NutritionBar: View {
             
             Rectangle()
                 .fill(color)
-                .frame(width: 20, height: max(10, barHeight)) // Mindestens 10, damit nicht unsichtbar
+                .frame(width: 20, height: max(10, barHeight)) // Mindestens 10, damit der Balken nicht unsichtbar wird
                 .cornerRadius(5)
             
             Text("\(value)")

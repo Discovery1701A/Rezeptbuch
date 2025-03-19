@@ -7,10 +7,10 @@
 
 import Foundation
 
-
+/// Leere Lebensmittel-Struktur als Platzhalter.
 let emptyFood = FoodStruct(id: UUID(), name: "")
 
-
+/// Beispielhafte Lebensmitteldatenbank mit vordefinierten Lebensmitteln.
 let zartbitterSchokolade = FoodStruct(
     id: UUID(),
     name: "Zartbitter Schokolade",
@@ -23,36 +23,42 @@ let zartbitterSchokolade = FoodStruct(
         fat: 31.8
     )
 )
+
 let butter = FoodStruct(
     id: UUID(),
     name: "Butter",
     category: "Milchprodukte",
     nutritionFacts: NutritionFactsStruct(calories: 741, protein: 0.7, carbohydrates: 0.6, fat: 83)
 )
+
 let vanilleExtrakt = FoodStruct(
     id: UUID(),
     name: "Vanille-Extrakt",
     category: "Gewürze",
     nutritionFacts: NutritionFactsStruct(calories: 288, protein: 0.1, carbohydrates: 12.7, fat: 0.1)
 )
+
 let zucker = FoodStruct(
     id: UUID(),
     name: "Zucker",
     category: "Backzutaten",
     nutritionFacts: NutritionFactsStruct(calories: 405, protein: 0, carbohydrates: 99.8, fat: 0)
 )
+
 let eier = FoodStruct(
     id: UUID(),
     name: "Eier",
     category: "Eier & Eiprodukte",
     nutritionFacts: NutritionFactsStruct(calories: 156, protein: 13, carbohydrates: 1.1, fat: 11.3)
 )
+
 let mehl = FoodStruct(
     id: UUID(),
     name: "Mehl",
     category: "Backzutaten",
     nutritionFacts: NutritionFactsStruct(calories: 348, protein: 10, carbohydrates: 72.3, fat: 0)
 )
+
 let schokostücke = FoodStruct(
     id: UUID(),
     name: "Schokostücke",
@@ -61,10 +67,7 @@ let schokostücke = FoodStruct(
 )
 
 
-
-
-
-// Example recipe usage
+/// Beispielhaftes Rezept für Spaghetti Bolognese.
 let pastaRecipe = Recipe(
     id: UUID(),
     title: "Spaghetti Bolognese",
@@ -81,11 +84,13 @@ let pastaRecipe = Recipe(
         "Tomatensoße dazugeben",
         "Spaghetti kochen"
     ],
-    image: "spaghetti-mit-schneller-tomatensosse",
-    portion: .Portion(4),
-    cake: .notCake,
-    tags: createTags(["Italienisch", "Nudelgericht", "Hauptgericht"])
+    image: "spaghetti-mit-schneller-tomatensosse",  // Bildname für die Darstellung
+    portion: .Portion(4),  // Das Rezept ist für 4 Portionen
+    cake: .notCake,  // Kein Kuchen
+    tags: createTags(["Italienisch", "Nudelgericht", "Hauptgericht"])  // Tags zur Kategorisierung
 )
+
+/// Beispielhaftes Rezept für Brownies.
 let brownieRecipe = Recipe(
     id: UUID(),
     title: "Brownie",
@@ -107,9 +112,7 @@ let brownieRecipe = Recipe(
         "Teig in eine Form oder aufs Backblech geben",
         "30 Minuten in den Backofen"
     ],
-    image: "Brownie",
-    cake: .cake(form: .eckig, size: .rectangular(length: 35, width: 40)),
-    tags: createTags(["Dessert", "Schokoladenkuchen", "Süßigkeit"])
+    image: "Brownie",  // Bildname für die Darstellung
+    cake: .cake(form: .eckig, size: .rectangular(length: 35, width: 40)),  // Der Brownie hat eine rechteckige Form
+    tags: createTags(["Dessert", "Schokoladenkuchen", "Süßigkeit"])  // Tags zur Kategorisierung
 )
-
-

@@ -3,52 +3,68 @@
 //  Rezeptbuch
 //
 //  Created by Anna Rieckmann on 24.11.24.
-//Daten wurden über ein Python programm eingefügt. Daten stammen von YAZIO und wurden von Chat GPT in das Programm übertragen
+//
+//  Daten wurden über ein Python-Programm eingefügt.
+//  Die Daten stammen von YAZIO und wurden von ChatGPT für das Programm konvertiert.
 
 import Foundation
 import SQLite3
 
 // MARK: - Database Helper Class
 
+/// Diese Klasse hilft beim Zugriff auf eine SQLite-Datenbank.
 class DatabaseHelper {
-    var db: OpaquePointer?
+    var db: OpaquePointer? // Zeiger auf die geöffnete SQLite-Datenbank
 
+    /// Initialisiert die Verbindung zur SQLite-Datenbank.
+    /// - Parameter databasePath: Der Pfad zur SQLite-Datenbankdatei.
     init(databasePath: String) {
         if sqlite3_open(databasePath, &db) != SQLITE_OK {
-            print("Failed to open database at \(databasePath)")
+            print("Fehler beim Öffnen der Datenbank: \(databasePath)")
         }
     }
 
+    /// Schließt die Datenbankverbindung beim Löschen des Objekts.
     deinit {
         sqlite3_close(db)
     }
 
+    /// Führt eine SQL-Abfrage aus und gibt die Ergebnisse als Array zurück.
+    /// - Parameter query: Die SQL-Abfrage, die ausgeführt werden soll.
+    /// - Parameter map: Eine Funktion, die eine Zeile des Ergebnisses verarbeitet und in den gewünschten Typ umwandelt.
+    /// - Returns: Ein Array der abgefragten Objekte.
     func fetchAllRows<T>(query: String, map: @escaping (OpaquePointer?) -> T) -> [T] {
         var result: [T] = []
         var stmt: OpaquePointer?
 
+        // Bereitet die SQL-Anfrage vor
         if sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK {
+            // Geht durch die Ergebniszeilen und wendet die `map`-Funktion an
             while sqlite3_step(stmt) == SQLITE_ROW {
                 result.append(map(stmt))
             }
         } else {
-            print("Failed to prepare query: \(query)")
+            print("Fehler beim Vorbereiten der Abfrage: \(query)")
         }
 
-        sqlite3_finalize(stmt)
+        sqlite3_finalize(stmt) // Gibt den Speicher des Statements frei
         return result
     }
 }
 
 // MARK: - Database Service Using Provided Structs
 
+/// Diese Klasse bietet Methoden zum Laden spezifischer Daten aus der SQLite-Datenbank.
 class DatabaseService {
-    private let dbHelper: DatabaseHelper
+    private let dbHelper: DatabaseHelper // Instanz des DatabaseHelper zur Kommunikation mit SQLite
 
+    /// Initialisiert den DatabaseService mit einem gegebenen Datenbankpfad.
     init(databasePath: String) {
         self.dbHelper = DatabaseHelper(databasePath: databasePath)
     }
 
+    /// Lädt alle Tags aus der Datenbank.
+    /// - Returns: Ein Array von `TagStruct`-Objekten.
     func loadTags() -> [TagStruct] {
         let query = "SELECT id, name FROM Tag;"
         return dbHelper.fetchAllRows(query: query) { stmt in
@@ -58,23 +74,29 @@ class DatabaseService {
         }
     }
 
+    /// Lädt die Nährwerte für eine bestimmte Zutat aus der Datenbank.
+    /// - Parameter foodId: Die UUID der Zutat.
+    /// - Returns: Ein `NutritionFactsStruct`-Objekt mit den Nährwerten oder `nil`, falls nicht gefunden.
     func loadNutritionFacts(for foodId: UUID) -> NutritionFactsStruct? {
         let query = "SELECT calories, protein, carbohydrates, fat FROM NutritionFacts WHERE food_id = '\(foodId.uuidString.lowercased())';"
         return dbHelper.fetchAllRows(query: query) { stmt in
-            let calories = sqlite3_column_int(stmt, 0)
-            let protein = sqlite3_column_double(stmt, 1)
-            let carbohydrates = sqlite3_column_double(stmt, 2)
-            let fat = sqlite3_column_double(stmt, 3)
-//            print("werteeeee",calories,protein,carbohydrates,fat)
+            let calories = sqlite3_column_int(stmt, 0) // Kalorien als Integer
+            let protein = sqlite3_column_double(stmt, 1) // Protein als Double
+            let carbohydrates = sqlite3_column_double(stmt, 2) // Kohlenhydrate als Double
+            let fat = sqlite3_column_double(stmt, 3) // Fett als Double
+//            print("Nährwerte geladen:", calories, protein, carbohydrates, fat)
             return NutritionFactsStruct(
                 calories: Int(calories),
                 protein: protein,
                 carbohydrates: carbohydrates,
                 fat: fat
             )
-        }.first
+        }.first // Gibt nur das erste (und einzige) Ergebnis zurück
     }
 
+    /// Lädt die Tags für eine bestimmte Zutat aus der Datenbank.
+    /// - Parameter foodId: Die UUID der Zutat.
+    /// - Returns: Ein Array von `TagStruct`-Objekten.
     func loadFoodTags(for foodId: UUID) -> [TagStruct] {
         let query = """
         SELECT Tag.id, Tag.name
@@ -89,8 +111,10 @@ class DatabaseService {
         }
     }
 
+    /// Lädt alle Lebensmittel aus der Datenbank.
+    /// - Returns: Ein Array von `FoodStruct`-Objekten.
     func loadFoods() -> [FoodStruct] {
-        print("lade")
+        print("Lade Lebensmittel...")
         let query = "SELECT id, name, category, info, density FROM Food;"
         return dbHelper.fetchAllRows(query: query) { stmt in
             let id = UUID(uuidString: String(cString: sqlite3_column_text(stmt, 0))) ?? UUID()
@@ -99,8 +123,8 @@ class DatabaseService {
             let info = String(cString: sqlite3_column_text(stmt, 3))
             let density = Double(sqlite3_column_double(stmt, 4))
 
-            let nutritionFacts = self.loadNutritionFacts(for: id)
-            let tags = self.loadFoodTags(for: id)
+            let nutritionFacts = self.loadNutritionFacts(for: id) // Lädt die zugehörigen Nährwerte
+            let tags = self.loadFoodTags(for: id) // Lädt die zugehörigen Tags
 
             return FoodStruct(
                 id: id,

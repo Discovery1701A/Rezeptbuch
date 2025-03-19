@@ -7,9 +7,12 @@
 
 import SwiftUI
 
+/// Ansicht zur Erstellung oder Bearbeitung eines Lebensmittels.
 struct FoodCreationView: View {
-    @ObservedObject var modelView: ViewModel
-    var onSave: () -> Void // Closure hinzugefügt
+    @ObservedObject var modelView: ViewModel  // Das ViewModel zur Datenverwaltung
+    var onSave: () -> Void  // Callback, der nach dem Speichern aufgerufen wird
+    
+    // Zustandsvariablen für die Eingabefelder
     @State private var foodName = ""
     @State private var foodCategory = ""
     @State private var foodInfo = ""
@@ -18,10 +21,14 @@ struct FoodCreationView: View {
     @State private var carbohydrates = ""
     @State private var fat = ""
     @State private var fooddensity: String = ""
+    
+    // Alle verfügbaren Tags und die ausgewählten Tags
     @State private var allTags: [TagStruct]
     @State private var selectedTags: Set<UUID>
-    var existingFood: FoodStruct? = nil
     
+    var existingFood: FoodStruct? = nil  // Optionales bestehendes Lebensmittel zur Bearbeitung
+
+    /// Initialisiert die Ansicht mit optionalen bestehenden Lebensmitteln zur Bearbeitung.
     init(modelView: ViewModel, existingFood: FoodStruct? = nil, onSave: @escaping () -> Void) {
         self.modelView = modelView
         self.existingFood = existingFood
@@ -29,7 +36,7 @@ struct FoodCreationView: View {
         self.allTags = modelView.tags
         self.selectedTags = []
 
-        // Lade die bestehenden Daten, falls vorhanden
+        // Falls ein bestehendes Lebensmittel übergeben wurde, lade dessen Daten
         if let existingFood = existingFood {
             _foodName = State(initialValue: existingFood.name)
             _foodCategory = State(initialValue: existingFood.category ?? "")
@@ -39,41 +46,32 @@ struct FoodCreationView: View {
             _protein = State(initialValue: "\(existingFood.nutritionFacts?.protein ?? 0.0)")
             _carbohydrates = State(initialValue: "\(existingFood.nutritionFacts?.carbohydrates ?? 0.0)")
             _fat = State(initialValue: "\(existingFood.nutritionFacts?.fat ?? 0.0)")
-            let tagStructs = existingFood.tags!.compactMap {  $0}
+            
+            let tagStructs = existingFood.tags?.compactMap { $0 } ?? []
             _selectedTags = State(initialValue: Set(tagStructs.map(\.id)))
-
-        
         }
     }
 
-
-#if os(macOS)
-    
+    // macOS-Version der Ansicht
+    #if os(macOS)
     var body: some View {
-        
         content
-        
-        
     }
-    
-    
-#else
-    
-    
+    #else
+    // iOS-Version der Ansicht
     var body: some View {
         NavigationView {
             content
                 .navigationBarTitle("Lebensmittel erstellen")
-            
-        } .navigationViewStyle(StackNavigationViewStyle()) // Hier wird der Modifier hinzugefügt
+        }
+        .navigationViewStyle(StackNavigationViewStyle())  // Stellt sicher, dass es auf iPads gut funktioniert
     }
-    
-#endif
-    
-    
-    
+    #endif
+
+    /// Der Hauptinhalt der Ansicht, unabhängig vom Betriebssystem.
     var content: some View {
         Form {
+            // Allgemeine Informationen des Lebensmittels
             Section(header: Text("Allgemeine Informationen")) {
                 HStack {
                     Text("Lebensmittelname:")
@@ -93,13 +91,15 @@ struct FoodCreationView: View {
                         .keyboardType(.decimalPad)
                 }
             }
-            
+
+            // Auswahl der Tags
             Section(header: Text("Tags")) {
                 TagsSectionView(allTags: $allTags, selectedTags: $selectedTags)
             }
-            
+
+            // Nährwertangaben pro 100g
             Section(header: Text("Nährwertangaben pro 100g")) {
-#if os(macOS)
+                #if os(macOS)
                 HStack {
                     Text("Kalorien:")
                     TextField("Kalorien", text: $calories)
@@ -116,7 +116,7 @@ struct FoodCreationView: View {
                     Text("Fett (g):")
                     TextField("Fett (g)", text: $fat)
                 }
-#else
+                #else
                 HStack {
                     Text("Kalorien:")
                     TextField("Kalorien", text: $calories)
@@ -137,9 +137,10 @@ struct FoodCreationView: View {
                     TextField("Fett (g)", text: $fat)
                         .keyboardType(.decimalPad)
                 }
-#endif
+                #endif
             }
-            
+
+            // Speichern-Button
             Section {
                 Button("Speichern") {
                     saveFood()
@@ -148,10 +149,12 @@ struct FoodCreationView: View {
         }
         .navigationTitle("Lebensmittel erstellen")
     }
-    
-    func saveFood() {
-        guard !foodName.isEmpty else { return }
 
+    /// Speichert oder aktualisiert das Lebensmittel in Core Data.
+    func saveFood() {
+        guard !foodName.isEmpty else { return }  // Stellt sicher, dass der Name nicht leer ist
+
+        // Falls ein optionales Feld leer ist, setze es auf nil
         let info = foodInfo.isEmpty ? nil : foodInfo
         let category = foodCategory.isEmpty ? nil : foodCategory
         let density = fooddensity.isEmpty ? nil : Double(fooddensity)
@@ -160,17 +163,17 @@ struct FoodCreationView: View {
         let carbohydratesValue = carbohydrates.isEmpty ? nil : Double(carbohydrates)
         let fatValue = fat.isEmpty ? nil : Double(fat)
         let tags = selectedTags.isEmpty ? nil : allTags.filter { selectedTags.contains($0.id) }
-               
-           
 
+        // Nährwertangaben als Struktur speichern
         let nutritionFacts = NutritionFactsStruct(
-            calories: caloriesValue, protein: proteinValue,
-            carbohydrates: carbohydratesValue, fat: fatValue
+            calories: caloriesValue,
+            protein: proteinValue,
+            carbohydrates: carbohydratesValue,
+            fat: fatValue
         )
      
         if let existingFood = existingFood {
-            // Aktualisiere die bestehende Zutat
-          
+            // Aktualisierung eines bestehenden Lebensmittels
             let updatedFood = FoodStruct(
                 id: existingFood.id,
                 name: foodName,
@@ -182,7 +185,7 @@ struct FoodCreationView: View {
             )
             CoreDataManager().updateFood(foodStruct: updatedFood)
         } else {
-            // Neue Zutat speichern
+            // Neues Lebensmittel speichern
             let newFood = FoodStruct(
                 id: UUID(),
                 name: foodName,
@@ -195,10 +198,7 @@ struct FoodCreationView: View {
             CoreDataManager().saveFood(foodStruct: newFood)
         }
 
-        modelView.updateFood()
-        onSave()
+        modelView.updateFood()  // Aktualisiert die Liste der Lebensmittel im ViewModel
+        onSave()  // Ruft die onSave-Closure auf, um die übergeordnete Ansicht zu informieren
     }
-
 }
-    
-

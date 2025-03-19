@@ -9,104 +9,111 @@ import SwiftUICore
 import EventKit
 import SwiftUI
 
-
+/// Eine Ansicht zur Auswahl einer Erinnerungs-Liste oder zum Erstellen einer neuen Liste in der Erinnerungen-App.
 struct ReminderListSelectionView: View {
   
-    @Binding var availableLists: [EKCalendar] // 🔄 Jetzt als Binding, damit die Änderungen im Haupt-View übernommen werden
-    @Binding var selectedList: EKCalendar?
-    @Binding var newListName: String
-    let eventStore : EKEventStore
-    var onConfirm: () -> Void
-    var fetchReminderLists: () -> Void  // 🔄 Funktion wird übergeben, um die Listen zu aktualisieren
-    @Environment(\.presentationMode) var presentationMode
-       @State private var showOpenRemindersAlert = false  // 🔄 State für Alert-Steuerung
-       
-       var body: some View {
-           NavigationView {
-               VStack {
-                   Text("Einkaufsliste auswählen")
-                       .font(.headline)
-                       .padding()
+    @Binding var availableLists: [EKCalendar]  // Verfügbare Listen als Binding, damit Änderungen übernommen werden
+    @Binding var selectedList: EKCalendar?  // Die aktuell ausgewählte Liste
+    @Binding var newListName: String  // Name für eine neu zu erstellende Liste
+    let eventStore: EKEventStore  // Der EventStore für den Zugriff auf Erinnerungen
+    var onConfirm: () -> Void  // Callback-Funktion für die Bestätigung
+    var fetchReminderLists: () -> Void  // Funktion zum erneuten Laden der Erinnerungslisten
+    
+    @Environment(\.presentationMode) var presentationMode  // Steuerung der Darstellung
+    @State private var showOpenRemindersAlert = false  // Status für das Anzeigen eines Alerts
 
-                   Picker("Liste auswählen", selection: $selectedList) {
-                       ForEach(availableLists, id: \.self) { list in
-                           Text(list.title).tag(list as EKCalendar?)
-                       }
-                   }
-                   .pickerStyle(WheelPickerStyle())
+    var body: some View {
+        NavigationView {
+            VStack {
+                Text("Einkaufsliste auswählen")
+                    .font(.headline)
+                    .padding()
 
-                   TextField("Neue Liste erstellen", text: $newListName)
-                       .textFieldStyle(RoundedBorderTextFieldStyle())
-                       .padding()
-                   
-                   Button("Neue Liste hinzufügen") {
-                       createNewReminderList()
-                   }
-                   .padding()
-                   .disabled(newListName.isEmpty)
+                // Picker zur Auswahl einer bestehenden Erinnerungsliste
+                Picker("Liste auswählen", selection: $selectedList) {
+                    ForEach(availableLists, id: \.self) { list in
+                        Text(list.title).tag(list as EKCalendar?)
+                    }
+                }
+                .pickerStyle(WheelPickerStyle())
 
-                   Spacer()
+                // Eingabefeld zum Erstellen einer neuen Liste
+                TextField("Neue Liste erstellen", text: $newListName)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+                
+                // Button zum Erstellen einer neuen Liste
+                Button("Neue Liste hinzufügen") {
+                    createNewReminderList()
+                }
+                .padding()
+                .disabled(newListName.isEmpty)  // Deaktiviert den Button, wenn das Feld leer ist
 
-                   Button("Bestätigen") {
-//                       onConfirm()
-                       showOpenRemindersAlert = true // 🔄 Nach Bestätigung soll Alert erscheinen
-                   }
-                   .padding()
-                   .background(Color.green)
-                   .foregroundColor(.white)
-                   .cornerRadius(10)
-               }
-               .padding()
-               .alert(isPresented: $showOpenRemindersAlert) {
-                   Alert(
-                       title: Text("Erinnerungen öffnen?"),
-                       message: Text("Möchtest du die Erinnerungen-App jetzt öffnen?"),
-                       primaryButton: .default(Text("Ja")) {
-                           openRemindersApp()
-                           presentationMode.wrappedValue.dismiss()
-                           onConfirm()
-                       },
-                       secondaryButton: .cancel {
-                           presentationMode.wrappedValue.dismiss()
-                           onConfirm()
-                       }
-                   )
-               }
-           }
-       }
-       
-       func createNewReminderList() {
-           let newList = EKCalendar(for: .reminder, eventStore: eventStore)
-           newList.title = newListName
-           
-           if let defaultSource = eventStore.sources.first(where: { $0.sourceType == .calDAV }) {
-               newList.source = defaultSource
-           } else if let localSource = eventStore.sources.first(where: { $0.sourceType == .local }) {
-               newList.source = localSource
-           } else {
-               print("⚠️ Keine gültige Quelle für den neuen Kalender gefunden!")
-               return
-           }
-           
-           do {
-               try eventStore.saveCalendar(newList, commit: true)
-               DispatchQueue.main.async {
-                   self.selectedList = newList
-                   self.fetchReminderLists()
-               }
-               print("✅ Neue Liste erstellt: \(newListName)")
-           } catch {
-               print("❌ Fehler beim Erstellen der Liste: \(error.localizedDescription)")
-           }
-       }
+                Spacer()
 
+                // Button zum Bestätigen der Auswahl
+                Button("Bestätigen") {
+                    showOpenRemindersAlert = true  // Zeigt den Alert an
+                }
+                .padding()
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+            .padding()
+            .alert(isPresented: $showOpenRemindersAlert) {
+                Alert(
+                    title: Text("Erinnerungen öffnen?"),
+                    message: Text("Möchtest du die Erinnerungen-App jetzt öffnen?"),
+                    primaryButton: .default(Text("Ja")) {
+                        openRemindersApp()
+                        presentationMode.wrappedValue.dismiss()  // Schließt die Ansicht
+                        onConfirm()  // Ruft die Bestätigung auf
+                    },
+                    secondaryButton: .cancel {
+                        presentationMode.wrappedValue.dismiss()
+                        onConfirm()
+                    }
+                )
+            }
+        }
+    }
+    
+    /// Erstellt eine neue Erinnerungs-Liste im Event Store.
+    func createNewReminderList() {
+        let newList = EKCalendar(for: .reminder, eventStore: eventStore)
+        newList.title = newListName  // Setzt den Titel der neuen Liste
+        
+        // Wählt die Quelle für die Liste (Cloud oder lokal)
+        if let defaultSource = eventStore.sources.first(where: { $0.sourceType == .calDAV }) {
+            newList.source = defaultSource
+        } else if let localSource = eventStore.sources.first(where: { $0.sourceType == .local }) {
+            newList.source = localSource
+        } else {
+            print("⚠️ Keine gültige Quelle für den neuen Kalender gefunden!")
+            return
+        }
+        
+        do {
+            try eventStore.saveCalendar(newList, commit: true)
+            DispatchQueue.main.async {
+                self.selectedList = newList
+                self.fetchReminderLists()  // Aktualisiert die Liste der Erinnerungen
+            }
+            print("✅ Neue Liste erstellt: \(newListName)")
+        } catch {
+            print("❌ Fehler beim Erstellen der Liste: \(error.localizedDescription)")
+        }
+    }
+
+    /// Öffnet die Erinnerungen-App mit der ausgewählten Liste.
     func openRemindersApp() {
         guard let selectedList = selectedList else {
             print("⚠️ Keine Liste ausgewählt!")
             return
         }
 
-        // Versuche, die Liste direkt zu öffnen
+        // Versucht, die spezifische Liste direkt zu öffnen
         let calendarID = selectedList.calendarIdentifier
         let remindersURL = "x-apple-reminderkit://list/\(calendarID)"
         
@@ -125,7 +132,7 @@ struct ReminderListSelectionView: View {
         }
     }
 
-    /// Falls die spezifische Liste nicht geöffnet werden kann, öffne einfach die Erinnerungen-App
+    /// Falls die spezifische Liste nicht geöffnet werden kann, öffnet einfach die Erinnerungen-App.
     func openRemindersFallback() {
         if let url = URL(string: "x-apple-reminderkit://") {
             UIApplication.shared.open(url, options: [:]) { success in
@@ -135,4 +142,4 @@ struct ReminderListSelectionView: View {
             }
         }
     }
-   }
+}
