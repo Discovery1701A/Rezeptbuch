@@ -6,145 +6,209 @@
 //
 import SwiftUI
 import Speech
+import AVFoundation
 
 struct CookingModeView: View {
     var recipe: Recipe
+
     @State private var currentStepIndex = 0
     @State private var isListening = false
     @State private var recognizedText = ""
-    let synthesizer = AVSpeechSynthesizer()
-    let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "de-DE")) // Setzen Sie die Sprache entsprechend ein
+
+    @State private var lastProcessedSegmentIndex = 0
+
     @State private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     @State private var recognitionTask: SFSpeechRecognitionTask?
+    let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "de-DE"))
     let audioEngine = AVAudioEngine()
-    
+
+    enum SlideDirection {
+        case forward
+        case backward
+    }
+
+    @State private var direction: SlideDirection = .forward
+    @State private var stepText: String = ""
+    @State private var offset: CGFloat = 0
+
     var body: some View {
         VStack {
-            Text(recipe.instructions[currentStepIndex])
+            Spacer()
+
+            Text("Schritt \(currentStepIndex + 1) von \(recipe.instructions.count)")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+
+            Text(stepText)
+                .font(.title3)
+                .multilineTextAlignment(.center)
                 .padding()
-            
-            Button(action: {
-                if self.isListening {
-                    self.stopRecording()
-                } else {
-                    self.startRecording()
-                }
-            }) {
-                Text(self.isListening ? "Stop Listening" : "Start Listening")
-                    .padding()
-                    .foregroundColor(.white)
-                    .background(Color.blue)
-                    .cornerRadius(10)
+                .offset(x: offset)
+                .animation(.easeInOut(duration: 0.3), value: offset)
+
+            Spacer()
+
+            if !recognizedText.isEmpty {
+                Text("Erkannt: \"\(recognizedText)\"")
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                    .padding(.bottom, 10)
             }
-            
-            HStack {
-                Button(action: {
-                    self.goToPreviousStep()
-                }) {
-                    Text("Previous")
-                        .padding()
-                        .foregroundColor(.white)
-                        .background(Color.green)
-                        .cornerRadius(10)
-                }
-                
-                Button(action: {
-                    self.goToNextStep()
-                }) {
-                    Text("Next")
-                        .padding()
-                        .foregroundColor(.white)
-                        .background(Color.green)
-                        .cornerRadius(10)
-                }
-            }
-        }
-        .onAppear {
-            self.prepareSpeechRecognition()
-        }
-    }
-    
-    func prepareSpeechRecognition() {
-        if let recognizer = recognizer {
-            recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-            recognitionRequest?.shouldReportPartialResults = true
-            
-            recognitionTask = recognizer.recognitionTask(with: recognitionRequest!) { result, error in
-                if let result = result {
-                    self.recognizedText = result.bestTranscription.formattedString.lowercased() // Kleinschreibung für den Text
-                    if result.isFinal {
-                        self.processSpeech(result.bestTranscription.formattedString)
+
+            VStack(spacing: 15) {
+                HStack(spacing: 20) {
+                    Button(action: {
+                        animateStepChange(to: currentStepIndex - 1, direction: .backward)
+                    }) {
+                        Label("Zurück", systemImage: "arrow.left")
+                            .padding()
+                            .frame(minWidth: 120)
+                            .background(Color(.systemGray5))
+                            .foregroundColor(.primary)
+                            .cornerRadius(12)
                     }
-                } else if let error = error {
-                    print("Recognition error: \(error.localizedDescription)")
+                    .disabled(currentStepIndex == 0)
+
+                    Button(action: {
+                        animateStepChange(to: currentStepIndex + 1, direction: .forward)
+                    }) {
+                        Label("Weiter", systemImage: "arrow.right")
+                            .padding()
+                            .frame(minWidth: 120)
+                            .background(Color(.systemGray5))
+                            .foregroundColor(.primary)
+                            .cornerRadius(12)
+                    }
+                    .disabled(currentStepIndex == recipe.instructions.count - 1)
+                }
+
+                Button(action: {
+                    isListening ? stopRecording() : startRecording()
+                }) {
+                    Label(isListening ? "Stoppen" : "Sprachsteuerung", systemImage: isListening ? "mic.slash.fill" : "mic.fill")
+                        .padding()
+                        .frame(minWidth: 200)
+                        .background(isListening ? Color.red.opacity(0.8) : Color.blue.opacity(0.8))
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                        .scaleEffect(isListening ? 1.1 : 1.0)
+                        .animation(.easeInOut(duration: 0.3), value: isListening)
                 }
             }
-        } else {
-            print("Speech recognizer not available")
+            .padding(.bottom, 30)
+        }
+        .padding()
+        .onAppear {
+            stepText = recipe.instructions[currentStepIndex]
+        }
+        .onDisappear {
+            stopRecording()
         }
     }
-    
+
+    // MARK: - Animation
+
+    func animateStepChange(to newIndex: Int, direction: SlideDirection) {
+        guard newIndex >= 0 && newIndex < recipe.instructions.count else { return }
+        self.direction = direction
+
+        let width = UIScreen.main.bounds.width
+
+        // Ausgangs-Animation
+        withAnimation {
+            offset = direction == .forward ? -width : width
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            currentStepIndex = newIndex
+            stepText = recipe.instructions[newIndex]
+            offset = direction == .forward ? width : -width
+
+            withAnimation {
+                offset = 0
+            }
+        }
+    }
+
+    // MARK: - Speech Recognition
+
     func startRecording() {
-        isListening = true
-        #if os (iOS)
+        SFSpeechRecognizer.requestAuthorization { status in
+            guard status == .authorized else {
+                print("🔴 Sprach-Erlaubnis nicht erteilt")
+                return
+            }
+
+            DispatchQueue.main.async {
+                self.recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+                guard let recognitionRequest = self.recognitionRequest else { return }
+                recognitionRequest.shouldReportPartialResults = true
+
+                self.startAudioSession()
+
+                let inputNode = self.audioEngine.inputNode
+                let recordingFormat = inputNode.outputFormat(forBus: 0)
+                inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
+                    recognitionRequest.append(buffer)
+                }
+
+                self.audioEngine.prepare()
+                do {
+                    try self.audioEngine.start()
+                    self.isListening = true
+                    self.lastProcessedSegmentIndex = 0
+                } catch {
+                    print("Audio Engine konnte nicht gestartet werden: \(error.localizedDescription)")
+                }
+
+                self.recognitionTask = self.recognizer?.recognitionTask(with: recognitionRequest) { result, error in
+                    if let result = result {
+                        let newSegments = result.bestTranscription.segments.dropFirst(self.lastProcessedSegmentIndex)
+                        for segment in newSegments {
+                            let word = segment.substring.lowercased()
+                            print("📣 Neues Wort: \(word)")
+                            self.processSpeech(word)
+                        }
+                        self.lastProcessedSegmentIndex = result.bestTranscription.segments.count
+                    }
+
+                    if let error = error {
+                        print("Recognition Error: \(error.localizedDescription)")
+                        self.stopRecording()
+                    }
+                }
+            }
+        }
+    }
+
+    func stopRecording() {
+        audioEngine.inputNode.removeTap(onBus: 0)
+        audioEngine.stop()
+        recognitionRequest?.endAudio()
+        recognitionTask?.cancel()
+        recognitionTask = nil
+        isListening = false
+        recognizedText = ""
+        try? AVAudioSession.sharedInstance().setActive(false)
+    }
+
+    func startAudioSession() {
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
-            print("Audio session setup error: \(error.localizedDescription)")
+            print("Audio Session Error: \(error.localizedDescription)")
         }
-        
-        let recordingFormat = audioEngine.inputNode.outputFormat(forBus: 0)
-        audioEngine.inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
-            self.recognitionRequest?.append(buffer)
-        }
-        
-        audioEngine.prepare()
-        do {
-            try audioEngine.start()
-        } catch {
-            print("Audio engine start error: \(error.localizedDescription)")
-        }
-        #endif
-    }
-    
-    func stopRecording() {
-        #if os(iOS)
-        isListening = false
-        
-        audioEngine.inputNode.removeTap(onBus: 0)
-        audioEngine.stop()
-        recognitionRequest?.endAudio()
-        
-        do {
-            try AVAudioSession.sharedInstance().setActive(false)
-        } catch {
-            print("Failed to deactivate audio session: \(error.localizedDescription)")
-        }
-        #endif
     }
 
-    
+    // MARK: - Logic
+
     func processSpeech(_ text: String) {
         if text.contains("weiter") {
-            goToNextStep()
+            animateStepChange(to: currentStepIndex + 1, direction: .forward)
         } else if text.contains("zurück") {
-            goToPreviousStep()
-        }
-        
-        print("Recognized text: \(text)")
-    }
-    
-    func goToPreviousStep() {
-        if currentStepIndex > 0 {
-            currentStepIndex -= 1
-        }
-    }
-    
-    func goToNextStep() {
-        if currentStepIndex < recipe.instructions.count - 1 {
-            currentStepIndex += 1
+            animateStepChange(to: currentStepIndex - 1, direction: .backward)
         }
     }
 }

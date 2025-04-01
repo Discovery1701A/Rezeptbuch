@@ -941,87 +941,96 @@ struct RecipeTagsView: View {
 
 /// Stellt die Zutaten eines Rezepts dar und ermöglicht das Bearbeiten einzelner Mengen.
 struct RecipeIngredientsView: View {
-    @Binding var ingredients: [FoodItemStruct] // Zutaten als Binding
-    @State var orignIngredients: [FoodItemStruct] // Originale Mengen zum Vergleich
-    @State private var selectedIngredient: FoodItemStruct? = nil // Referenz zur bearbeiteten Zutat
-    @State private var editedQuantity: String = "" // Temporär bearbeitete Menge
-    @State private var selectedUnit: Unit = .gram // Temporär bearbeitete Einheit
-    @State private var selectedFood: FoodStruct? = nil // Detailansicht für einzelne Lebensmittel
+    @Binding var ingredients: [FoodItemStruct]
+    @State private var orignIngredients: [FoodItemStruct]
+    @State private var selectedIngredient: FoodItemStruct? = nil
+    @State private var editedQuantity: String = ""
+    @State private var selectedUnit: Unit = .gram
+    @State private var selectedFood: FoodStruct? = nil
     var modelView: ViewModel
-   
-    /// Initialisiert die Ansicht mit den Zutaten und dem ViewModel.
+
     init(ingredients: Binding<[FoodItemStruct]>, modelView: ViewModel) {
         self._ingredients = ingredients
-        self.orignIngredients = ingredients.wrappedValue
+        self._orignIngredients = State(initialValue: ingredients.wrappedValue)
         self.modelView = modelView
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text("Zutaten:")
                 .font(.headline)
                 .multilineTextAlignment(.center)
-            
-            ForEach(ingredients.indices, id: \.self) { index in
-                HStack {
-                    VStack(alignment: .leading) {
-                        // Name des Lebensmittels anzeigen
-                        Text("\(ingredients[index].food.name)")
-                            .font(.body)
-                            .onLongPressGesture {
-                                selectedFood = ingredients[index].food // Lebensmittel für Detailansicht speichern
-                            }
-                            .sheet(item: $selectedFood) { food in
-                                FoodDetailView(food: food, modelView: modelView) // Detailansicht anzeigen
-                            }
-                        
-                        // Menge und Einheit der Zutat anzeigen
-                        HStack {
-                            Text("\(ingredients[index].quantity.rounded(toPlaces: 2).formatted(toPlaces: 2))")
-                                .font(.subheadline)
-                            
-                            Text(ingredients[index].unit.rawValue)
-                                .font(.subheadline)
-                        }
-                        .onLongPressGesture {
-                            preparePopup(for: index) // Popup zum Bearbeiten vorbereiten
-                        }
-                        .padding(.bottom, 5)
-                    }
-                }
-                .padding()
+
+            ForEach(Array(ingredients.indices), id: \.self) { index in
+                ingredientRow(for: index)
             }
         }
         .padding()
+        .sheet(item: $selectedFood) { food in
+            FoodDetailView(food: food, modelView: modelView)
+        }
         .sheet(item: $selectedIngredient) { ingredient in
             EditIngredientPopup(
-                ingredient: Binding(
-                    get: { ingredient },
-                    set: { updatedIngredient in
-                        // Aktualisiere die bearbeitete Zutat im Array
-                        if let index = ingredients.firstIndex(where: { $0.id == updatedIngredient.id }) {
-                            ingredients[index] = updatedIngredient
-                        }
-                    }
-                ),
+                ingredient: binding(for: ingredient),
                 editedQuantity: $editedQuantity,
                 selectedUnit: $selectedUnit,
                 onSave: { newQuantity, newUnit in
-                    if let index = ingredients.firstIndex(where: { $0.id == ingredient.id }) {
-                        ingredients[index].quantity = newQuantity
-                        ingredients[index].unit = newUnit
-                        print("✅ Neue Menge gespeichert: \(ingredients[index].quantity)")
-                        adjustOtherIngredients(for: ingredient) // Andere Zutaten anpassen
-                    }
+                    saveEditedIngredient(ingredient, newQuantity: newQuantity, newUnit: newUnit)
                 },
                 onClose: {
-                    selectedIngredient = nil // Popup schließen
+                    selectedIngredient = nil
                 }
             )
         }
     }
 
-    /// Bereitet das Bearbeitungs-Popup für eine bestimmte Zutat vor.
+    // MARK: - Views
+
+    @ViewBuilder
+    private func ingredientRow(for index: Int) -> some View {
+        let ingredient = ingredients[index]
+
+        HStack {
+            VStack(alignment: .leading) {
+                Text("\(ingredient.food.name)")
+                    .font(.body)
+                    .onLongPressGesture {
+                        selectedFood = ingredient.food
+                    }
+
+                HStack {
+                    Text(ingredient.quantity.cleanFormatted())
+                        .font(.subheadline)
+
+                    Text(ingredient.unit.rawValue)
+                        .font(.subheadline)
+                }
+                .onLongPressGesture {
+                    preparePopup(for: index)
+                }
+                .padding(.bottom, 5)
+            }
+        }
+        .padding()
+    }
+
+    // MARK: - Binding
+
+    private func binding(for ingredient: FoodItemStruct) -> Binding<FoodItemStruct> {
+        Binding(
+            get: {
+                ingredients.first(where: { $0.id == ingredient.id }) ?? ingredient
+            },
+            set: { updatedIngredient in
+                if let index = ingredients.firstIndex(where: { $0.id == updatedIngredient.id }) {
+                    ingredients[index] = updatedIngredient
+                }
+            }
+        )
+    }
+
+    // MARK: - Actions
+
     private func preparePopup(for index: Int) {
         let ingredient = ingredients[index]
         selectedIngredient = ingredient
@@ -1029,18 +1038,36 @@ struct RecipeIngredientsView: View {
         selectedUnit = ingredient.unit
     }
 
-    /// Passt die Mengen der anderen Zutaten an, wenn eine einzelne Zutat geändert wird.
+    private func saveEditedIngredient(_ ingredient: FoodItemStruct, newQuantity: Double, newUnit: Unit) {
+        guard let index = ingredients.firstIndex(where: { $0.id == ingredient.id }) else { return }
+
+        ingredients[index].quantity = newQuantity
+        ingredients[index].unit = newUnit
+        print("✅ Neue Menge gespeichert: \(ingredients[index].quantity) \(ingredients[index].unit.rawValue)")
+        adjustOtherIngredients(for: ingredient)
+    }
+
     private func adjustOtherIngredients(for ingredient: FoodItemStruct) {
         guard let index = ingredients.firstIndex(where: { $0.id == ingredient.id }) else { return }
-        
+
         let oldQuantity = orignIngredients[index].quantity
-        let newQuantity = Unit.convert(value: ingredients[index].quantity, from: ingredients[index].unit, to: orignIngredients[index].unit, density: ingredients[index].food.density ?? 0) ?? ingredients[index].quantity
+        let newQuantity = Unit.convert(
+            value: ingredients[index].quantity,
+            from: ingredients[index].unit,
+            to: orignIngredients[index].unit,
+            density: ingredients[index].food.density ?? 0
+        ) ?? ingredients[index].quantity
+
         let adjustmentFactor = newQuantity / oldQuantity
 
-        // Passe die Mengen der anderen Zutaten an
         for i in ingredients.indices where i != index {
             if ingredients[i].unit != .piece {
-                ingredients[i].quantity = Unit.convert(value: adjustmentFactor * orignIngredients[i].quantity, from: orignIngredients[i].unit, to: ingredients[i].unit, density: ingredients[i].food.density ?? 0) ?? ingredients[i].quantity
+                ingredients[i].quantity = Unit.convert(
+                    value: adjustmentFactor * orignIngredients[i].quantity,
+                    from: orignIngredients[i].unit,
+                    to: ingredients[i].unit,
+                    density: ingredients[i].food.density ?? 0
+                ) ?? ingredients[i].quantity
             } else {
                 ingredients[i].quantity = adjustmentFactor * orignIngredients[i].quantity
             }
@@ -1099,5 +1126,26 @@ struct YouTubeView: UIViewRepresentable {
         guard let url = URL(string: "https://www.youtube.com/embed/\(videoID)?playsinline=1") else { return }
         uiView.scrollView.isScrollEnabled = false  // Deaktiviert Scrollen
         uiView.load(URLRequest(url: url))
+    }
+}
+
+extension Double {
+    /// Formatiert eine Double-Zahl je nach Nachkommastellen:
+    /// - entfernt Nachkommastellen, wenn .00
+    /// - zeigt eine Stelle, wenn zweite eine 0 ist (z. B. 12.50 → 12.5)
+    /// - zeigt zwei Stellen, wenn beide relevant sind
+    func cleanFormatted() -> String {
+        let rounded = self.rounded(toPlaces: 2)
+        let intPart = Int(rounded)
+        let firstDecimal = Int((rounded * 10).truncatingRemainder(dividingBy: 10))
+        let secondDecimal = Int((rounded * 100).truncatingRemainder(dividingBy: 10))
+
+        if rounded == Double(intPart) {
+            return "\(intPart)"
+        } else if secondDecimal == 0 {
+            return String(format: "%.1f", rounded)
+        } else {
+            return String(format: "%.2f", rounded)
+        }
     }
 }
