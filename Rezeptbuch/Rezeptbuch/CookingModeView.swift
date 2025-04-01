@@ -33,11 +33,13 @@ struct CookingModeView: View {
 
     var body: some View {
         VStack {
-            Spacer()
+        
+                 Text("Schritt \(currentStepIndex + 1) von \(recipe.instructions.count)")
+                     .font(.subheadline)
+                     .foregroundColor(.gray)
+                     .padding(.top, 20)
 
-            Text("Schritt \(currentStepIndex + 1) von \(recipe.instructions.count)")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+                 Spacer()
 
             Text(stepText)
                 .font(.title3)
