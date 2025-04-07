@@ -956,7 +956,7 @@ struct RecipeIngredientsView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .center, spacing: 5) {
             Text("Zutaten:")
                 .font(.headline)
                 .multilineTextAlignment(.center)
@@ -991,7 +991,7 @@ struct RecipeIngredientsView: View {
         let ingredient = ingredients[index]
 
         HStack {
-            VStack(alignment: .leading) {
+            VStack(alignment: .center) {
                 Text("\(ingredient.food.name)")
                     .font(.body)
                     .onLongPressGesture {

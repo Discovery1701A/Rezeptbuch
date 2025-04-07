@@ -13,7 +13,8 @@ struct EditIngredientPopup: View {
     @Binding var ingredient: FoodItemStruct  // Die zu bearbeitende Zutat
     @Binding var editedQuantity: String  // Die aktuell bearbeitete Menge als Zeichenkette
     @Binding var selectedUnit: Unit  // Die aktuell gewählte Einheit
-    @State private var temporaryUnit: Unit  // Temporäre Einheit für Umrechnungen
+//    @State private var temporaryUnit: Unit  // Temporäre Einheit für Umrechnungen
+    @State private var lastUnit: Unit
     var onClose: () -> Void  // Callback zum Schließen des Popups
     var onSave: (Double, Unit) -> Void  // Callback zum Speichern der Änderungen
     
@@ -30,7 +31,8 @@ struct EditIngredientPopup: View {
         self._selectedUnit = selectedUnit
         self.onClose = onClose
         self.onSave = onSave
-        self._temporaryUnit = State(initialValue: selectedUnit.wrappedValue)  // Initialisiere die temporäre Einheit
+//        self._temporaryUnit = State(initialValue: selectedUnit.wrappedValue)  // Initialisiere die temporäre Einheit
+        self._lastUnit = State(initialValue: selectedUnit.wrappedValue)
     }
     
     var body: some View {
@@ -65,18 +67,20 @@ struct EditIngredientPopup: View {
                 .pickerStyle(WheelPickerStyle())
                 .disabled(ingredient.unit == .piece)  // Deaktiviert Picker für "Stück"
                 .onChange(of: selectedUnit) { newUnit in
-                    if ingredient.unit != .piece {
-                        // Falls eine Umrechnung möglich ist, wird die Menge entsprechend angepasst
-                        if let newQuantity = convertUnit(
-                            value: Double(editedQuantity) ?? 0,
-                            from: temporaryUnit,
-                            to: newUnit,
-                            density: ingredient.food.density
-                        ) {
-                            editedQuantity = String(format: "%.2f", newQuantity)
-                        }
-                        temporaryUnit = newUnit  // Aktualisiert die temporäre Einheit
+                    guard ingredient.unit != .piece else { return }
+
+                    let currentValue = Double(editedQuantity) ?? 0
+
+                    if let newQuantity = convertUnit(
+                        value: currentValue,
+                        from: lastUnit,
+                        to: newUnit,
+                        density: ingredient.food.density
+                    ) {
+                        editedQuantity = newQuantity.cleanFormatted()
                     }
+
+                    lastUnit = newUnit
                 }
             }
             .padding()
@@ -114,8 +118,8 @@ struct EditIngredientPopup: View {
             // Falls keine Dichte vorhanden ist, erlaube nur Umrechnungen innerhalb von Masse oder Volumen
             if ingredient.unit == .gram || ingredient.unit == .kilogram {
                 return [.gram, .kilogram]
-            } else if ingredient.unit == .milliliter || ingredient.unit == .liter {
-                return [.milliliter, .liter]
+            } else if ingredient.unit == .milliliter || ingredient.unit == .liter || ingredient.unit == .cup {
+                return [.milliliter, .liter,.cup]
             } else {
                 return [ingredient.unit]  // Keine Umrechnung möglich
             }
@@ -134,7 +138,8 @@ struct EditIngredientPopup: View {
         ]
         let volumeConversions: [Unit: Double] = [
             .milliliter: 1.0,
-            .liter: 1000.0
+            .liter: 1000.0,
+            .cup : 240.0
         ]
         
         // Falls Umrechnung innerhalb von Massen- oder Volumeneinheiten möglich ist, wende sie an
