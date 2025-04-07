@@ -179,6 +179,7 @@ enum Unit: String, CaseIterable, Hashable {
     case piece = "Stk"
     case teaspoon = "Teelöffel"
     case tablespoon = "Esslöffel"
+    case cup = "Cup"
 
     /// Wandelt eine Zeichenkette in eine `Unit` um.
     static func fromString(_ stringValue: String) -> Unit? {
@@ -199,7 +200,7 @@ enum Unit: String, CaseIterable, Hashable {
     static func convert(value: Double, from: Unit, to: Unit, density: Double = 1.0) -> Double? {
         // Definiert Mengen- und Volumeneinheiten für direkte Umrechnung
         let massUnits: Set<Unit> = [.gram, .kilogram]
-        let volumeUnits: Set<Unit> = [.milliliter, .liter]
+        let volumeUnits: Set<Unit> = [.milliliter, .liter, .cup, .teaspoon, .tablespoon]
 
         // Umrechnung innerhalb von Masseneinheiten (g, kg)
         if massUnits.contains(from) && massUnits.contains(to) {
@@ -210,35 +211,51 @@ enum Unit: String, CaseIterable, Hashable {
             }
         }
 
-        // Umrechnung innerhalb von Volumeneinheiten (ml, l)
+        // Umrechnung innerhalb von Volumeneinheiten (ml, l, cup, teaspoon, tablespoon)
         if volumeUnits.contains(from) && volumeUnits.contains(to) {
-            switch (from, to) {
-            case (.milliliter, .liter): return value / 1000.0
-            case (.liter, .milliliter): return value * 1000.0
-            default: return value
-            }
+            let mlValue: Double = {
+                switch from {
+                case .milliliter: return value
+                case .liter: return value * 1000.0
+                case .cup: return value * 240.0
+                case .teaspoon: return value * 5.0
+                case .tablespoon: return value * 15.0
+                default: return 0.0
+                }
+            }()
+
+            return {
+                switch to {
+                case .milliliter: return mlValue
+                case .liter: return mlValue / 1000.0
+                case .cup: return mlValue / 240.0
+                case .teaspoon: return mlValue / 5.0
+                case .tablespoon: return mlValue / 15.0
+                default: return nil
+                }
+            }()
         }
 
         // Sicherheitsprüfung: Dichte darf nicht 0 oder negativ sein.
         guard density > 0 else { return nil }
 
-        // Schritt 1: Umrechnung in eine Basiseinheit (Gramm)
+        // Schritt 1: Umrechnung in Basiseinheit (Gramm)
         let baseValue: Double? = {
             switch from {
             case .gram: return value
             case .kilogram: return value * 1000.0
             case .milliliter: return value * density
             case .liter: return value * 1000.0 * density
-            case .teaspoon: return value * density * 5.0  // 1 Teelöffel = 5 ml
-            case .tablespoon: return value * density * 15.0  // 1 Esslöffel = 15 ml
-            case .piece: return nil  // Stück kann nicht sinnvoll umgerechnet werden
+            case .teaspoon: return value * density * 5.0
+            case .tablespoon: return value * density * 15.0
+            case .cup: return value * density * 240.0
+            case .piece: return nil
             }
         }()
 
-        // Falls keine Basiseinheit berechnet werden kann, Rückgabe `nil`
         guard let base = baseValue else { return nil }
 
-        // Schritt 2: Umrechnung von der Basiseinheit in die Ziel-Einheit
+        // Schritt 2: Umrechnung von Gramm in Ziel-Einheit
         return {
             switch to {
             case .gram: return base
@@ -247,7 +264,8 @@ enum Unit: String, CaseIterable, Hashable {
             case .liter: return base / 1000.0 / density
             case .teaspoon: return base / 5.0 / density
             case .tablespoon: return base / 15.0 / density
-            case .piece: return nil  // Stück kann nicht dichtebasiert umgerechnet werden
+            case .cup: return base / 240.0 / density
+            case .piece: return nil
             }
         }()
     }
