@@ -175,8 +175,9 @@ struct FilterSection<Item: Hashable & Identifiable & Named>: View {
     var title: String
     var items: [Item]
     @Binding var selectedItems: [Item]
-    var clearAction: () -> Void // Aktion zum Entfernen der Filter für die jeweilige Kategorie
-    @State private var filterText = "" // Lokale Suchvariable
+    var clearAction: () -> Void
+
+    @State private var filterText = ""
 
     var filteredItems: [Item] {
         if filterText.isEmpty {
@@ -185,22 +186,19 @@ struct FilterSection<Item: Hashable & Identifiable & Named>: View {
             return items.filter { $0.name.localizedCaseInsensitiveContains(filterText) }
         }
     }
-    
+
     var body: some View {
-        VStack(alignment: .leading) {
+        Section(header: HStack {
+            Text(title)
+            Spacer()
+            Button("Alle entfernen", action: clearAction)
+                .font(.caption)
+                .foregroundColor(.red)
+        }) {
             HStack {
-                Text(title)
-                Spacer()
-                Button("Filter entfernen", action: clearAction)
-                    .foregroundColor(.red)
-                    .font(.caption)
-            }
-            
-            HStack {
-                TextField("Suche \(title.lowercased())", text: $filterText)
+                TextField("Suche...", text: $filterText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                
-                // Clear Button für das Suchfeld in der Filtersektion
+
                 if !filterText.isEmpty {
                     Button(action: {
                         filterText = ""
@@ -210,33 +208,25 @@ struct FilterSection<Item: Hashable & Identifiable & Named>: View {
                     }
                 }
             }
-            .padding(.bottom, 4)
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(filteredItems, id: \.self) { item in
-                        Button(action: {
-                            toggleSelection(for: item)
-                        }) {
-                            Text(item.name)
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 16)
-                                .foregroundColor(selectedItems.contains(item) ? .white : .blue)
-                                .background(selectedItems.contains(item) ? Color.blue : Color.white)
-                                .cornerRadius(16)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.blue, lineWidth: 1)
-                                )
-                        }
-                        .padding(.trailing, 8)
+                    ForEach(filteredItems, id: \.id) { item in
+                        Text(item.name)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 16)
+                            .background(selectedItems.contains(item) ? Color.blue : Color.gray.opacity(0.3))
+                            .foregroundColor(selectedItems.contains(item) ? .white : .primary)
+                            .clipShape(Capsule())
+                            .onTapGesture {
+                                toggleSelection(for: item)
+                            }
                     }
                 }
             }
         }
-        .padding(.vertical, 8)
     }
-    
+
     private func toggleSelection(for item: Item) {
         if let index = selectedItems.firstIndex(of: item) {
             selectedItems.remove(at: index)
