@@ -9,19 +9,21 @@ import SwiftUI
 
 /// Eine Ansicht zur Vorschau eines Rezepts mit Optionen zum Speichern oder Abbrechen.
 struct RecipePreviewView: View {
-    let recipe: Recipe  // Das anzuzeigende Rezept
-    var onSave: () -> Void  // Aktion, die ausgeführt wird, wenn das Rezept gespeichert wird
-    var onCancel: () -> Void  // Aktion, die ausgeführt wird, wenn das Rezept abgebrochen wird
-    @State private var saved: Bool = false  // Status, ob das Rezept gespeichert wurde
+    let recipe: Recipe // Das anzuzeigende Rezept
+    var onSave: () -> Void // Aktion, die beim Speichern ausgeführt wird
+    var onCancel: () -> Void // Aktion, die beim Abbrechen ausgeführt wird
+    @State private var saved: Bool = false // Status, ob das Rezept gespeichert wurde
 
-    @Environment(\.presentationMode) var presentationMode  // Umgebungseigenschaft zur Steuerung der Darstellung
+    @Environment(\.presentationMode) var presentationMode // Umgebungseigenschaft zur Steuerung der Ansicht
 
     var body: some View {
-        NavigationView {
+        NavigationView { // NavigationView ermöglicht eine Navigationsleiste oben
             ScrollView {
-                VStack {
-                    // Falls das Rezept ein Bild hat, wird es angezeigt
-                    if let imagePath = recipe.image, let uiImage = UIImage(contentsOfFile: imagePath) {
+                VStack(alignment: .leading, spacing: 32) {
+                    // 📷 Rezeptbild anzeigen (falls vorhanden)
+                    if let imagePath = recipe.image,
+                       let uiImage = UIImage(contentsOfFile: imagePath)
+                    {
                         Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFit()
@@ -30,50 +32,64 @@ struct RecipePreviewView: View {
                             .shadow(radius: 5)
                             .padding()
                     } else {
-                        // Platzhalter-Text, falls kein Bild vorhanden ist
+                        // 🔲 Platzhaltertext, wenn kein Bild verfügbar ist
                         Text("Kein Bild verfügbar")
                             .foregroundColor(.gray)
+                            .frame(maxWidth: .infinity)
                             .padding()
                     }
 
-                    // Liste mit Zutaten und Zubereitungsschritten
-                    List {
-                        // Zutatenliste
-                        Section(header: Text("Zutaten")) {
-                            ForEach(recipe.ingredients, id: \.food.id) { ingredient in
-                                Text("\(ingredient.quantity) \(ingredient.unit.rawValue) \(ingredient.food.name)")
-                            }
-                        }
+                    // 🧂 Zutatenliste
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("🧂 Zutaten")
+                            .font(.headline)
+                            .padding(.horizontal)
 
-                        // Zubereitungsschritte
-                        Section(header: Text("Zubereitung")) {
-                            ForEach(recipe.instructions, id: \.self) { step in
-                                Text(step)
-                            }
+                        // Alle Zutaten des Rezepts auflisten
+                        ForEach(recipe.ingredients, id: \.food.id) { ingredient in
+                            Text("• \(ingredient.quantity.cleanFormatted()) \(ingredient.unit.rawValue) \(ingredient.food.name)")
+                                .padding(.horizontal)
+                        }
+                    }
+
+                    // 👩‍🍳 Zubereitungsschritte
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("👩‍🍳 Zubereitung")
+                            .font(.headline)
+                            .padding(.horizontal)
+
+                        // Alle Schritte nummeriert anzeigen
+                        ForEach(Array(recipe.instructions.enumerated()), id: \.offset) { index, step in
+                            Text("\(index + 1). \(step)")
+                                .padding(.horizontal)
                         }
                     }
                 }
+              
+                .padding(.vertical)
+                .padding(.horizontal) // ➕ fügt links und rechts Abstand hinzu
             }
-            .navigationTitle(recipe.title)  // Titel der Navigation ist der Rezeptname
+            .navigationTitle(recipe.title) // Titel der Navigation = Rezeptname
             .toolbar {
-                // Abbrechen-Button in der Navigationsleiste (links)
+                // 🔙 Abbrechen-Button (links)
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Abbrechen") {
-                        onCancel()  // Abbruch-Aktion ausführen
-                        presentationMode.wrappedValue.dismiss()  // Ansicht schließen
+                        onCancel() // Aktion ausführen
+                        presentationMode.wrappedValue.dismiss() // Ansicht schließen
                     }
                 }
-                // Speichern-Button in der Navigationsleiste (rechts)
+
+                // 💾 Speichern-Button (rechts)
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Speichern") {
-                        saved = true  // Speichern-Status setzen
-                        onSave()  // Speichern-Aktion ausführen
-                        presentationMode.wrappedValue.dismiss()  // Ansicht schließen
+                        saved = true // Zustand speichern
+                        onSave() // Aktion ausführen
+                        presentationMode.wrappedValue.dismiss() // Ansicht schließen
                     }
                 }
             }
             .onDisappear {
-                // Falls die Ansicht geschlossen wird, ohne dass gespeichert wurde, rufe `onCancel` auf
+                // Wenn geschlossen wird, ohne zu speichern, Abbruchaktion ausführen
                 if !saved {
                     onCancel()
                 }

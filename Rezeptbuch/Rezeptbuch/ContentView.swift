@@ -93,7 +93,7 @@ struct ContentView: View {
                     // Rezept wird temporär im Modal-Fenster geöffnet
                     DispatchQueue.main.async {
                         importedRecipe = recipe
-                        print(recipe)
+                        print(importedRecipe?.ingredients.count)
                     }
                 } else {
                     print("❌ Fehler: Konnte Rezept nicht deserialisieren.")
