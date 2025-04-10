@@ -201,7 +201,7 @@ func deserializePlistToRecipe(plistData: Data) -> Recipe? {
                                 if let image = UIImage(data: imageData) {
                                     let fileManager = FileManager.default
                                     let applicationSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-                                    let imageFileURL = applicationSupport.appendingPathComponent("\(id).jpg")
+                                    let imageFileURL = applicationSupport.appendingPathComponent("\(id).jpeg")
 
                                     do {
                                         // Erstelle das Verzeichnis falls es nicht existiert

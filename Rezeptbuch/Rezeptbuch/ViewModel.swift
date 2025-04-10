@@ -35,11 +35,22 @@ class ViewModel: ObservableObject {
         foods = CoreDataManager().fetchFoods()
     }
     
+    
+    func updateAll() {
+       updateRecipe()
+        print(recipes.count)
+        updateFood()
+      updateBooks()
+      updateTags()
+    }
+    
+    
     /// Fügt ein neues Rezept zur Liste hinzu.
     func appendToRecipes(recipe: Recipe) {
         recipes.append(recipe)
 //        print(recipes)
     }
+    
     
     /// Aktualisiert die Liste der Rezepte durch erneutes Abrufen aus CoreData.
     func updateRecipe() {

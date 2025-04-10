@@ -67,6 +67,20 @@ class CoreDataManager {
     }
     
     
+    func recipeExists(id: UUID) -> Bool {
+        let request = Recipes.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        request.fetchLimit = 1
+
+        do {
+            let result = try persistentContainer.viewContext.fetch(request)
+            return !result.isEmpty
+        } catch {
+            print("Fehler bei der Prüfung auf Duplikat: \(error)")
+            return false
+        }
+    }
+    
     // MARK: Saving Methods
     
     /// Speichert ein Rezept in einem bestimmten Rezeptbuch.
@@ -83,6 +97,47 @@ class CoreDataManager {
         populateRecipeEntity(recipeEntity, from: recipe)
         print("✅ Rezept gespeichert: \(recipeEntity)")
         saveContext()
+    }
+    
+    /// Speichert ein Rezept mit optionalem Überschreiben.
+    /// Wenn `overwrite == false` und ein Rezept mit gleicher ID existiert, wird stattdessen ein neues Rezept mit neuer UUID erstellt.
+    func saveRecipe(_ recipe: Recipe, overwrite: Bool) {
+        var finalRecipe = recipe
+
+        if !overwrite && recipeExists(id: recipe.id) {
+            // Neue UUID vergeben, um Duplikate zu vermeiden
+            finalRecipe.id = UUID()
+            // 📸 Bild verschieben/umbenennen (falls vorhanden)
+            if let oldPath = finalRecipe.image {
+                let oldURL = URL(fileURLWithPath: oldPath)
+                let newFileName = "\(finalRecipe.id).jpeg"
+                print(newFileName)
+                let newURL = oldURL.deletingLastPathComponent().appendingPathComponent(newFileName)
+                
+                do {
+                    if FileManager.default.fileExists(atPath: oldURL.path) {
+                        try FileManager.default.moveItem(at: oldURL, to: newURL)
+                        finalRecipe.image = newFileName
+                        print("✅ Bild umbenannt für neue ID: \(newFileName)")
+                    }
+                } catch {
+                    print("❌ Fehler beim Verschieben/Umbennenen des Bildes: \(error)")
+                }
+            }
+            
+            let recipeEntity = findOrCreateRecipeEntity(from: finalRecipe)
+            populateRecipeEntity(recipeEntity, from: finalRecipe)
+            print("✅ Rezept gespeichert: \(recipeEntity)")
+        } else if overwrite && recipeExists(id: recipe.id) {
+           
+                        finalRecipe.image = "\(finalRecipe.id).jpeg"
+                
+            updateRecipe(finalRecipe)
+        }
+        
+     //bücher
+
+        
     }
     
     /// Fügt ein Rezept einem Rezeptbuch hinzu.
@@ -120,6 +175,24 @@ class CoreDataManager {
             print("❌ Fehler beim Erstellen des Rezeptbuchs: \(error)")
         }
         return newBook
+    }
+    /// Löscht ein Rezept aus Core Data anhand seiner ID.
+    func deleteRecipe(by id: UUID) {
+        let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        fetchRequest.fetchLimit = 1
+
+        do {
+            if let recipeToDelete = try managedContext.fetch(fetchRequest).first {
+                managedContext.delete(recipeToDelete)
+                try managedContext.save()
+                print("🗑️ Rezept gelöscht: \(id)")
+            } else {
+                print("⚠️ Kein Rezept mit der ID gefunden: \(id)")
+            }
+        } catch {
+            print("❌ Fehler beim Löschen des Rezepts: \(error)")
+        }
     }
     
     /// Sucht ein bestehendes Rezept oder erstellt eine neue Entität, falls keines existiert.
@@ -484,6 +557,7 @@ class CoreDataManager {
             print("❌ Fehler beim Aktualisieren: \(error), \(error.userInfo)")
         }
     }
+
     
     /// Aktualisiert ein bestehendes Rezept (`Recipe`) in Core Data.
     func updateRecipe(_ recipe: Recipe) {

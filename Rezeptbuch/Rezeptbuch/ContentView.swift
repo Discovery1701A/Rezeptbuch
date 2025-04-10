@@ -14,6 +14,8 @@ struct ContentView: View {
     @State private var selectedTab = 0 // Aktuell ausgewähltes Tab-Element
     @State private var selectedRecipe: UUID? = nil // Speichert die UUID des geöffneten Rezepts
     @State private var importedRecipe: Recipe? = nil // Temporär importiertes Rezept
+    @State private var showDuplicateAlert = false
+    @State private var pendingRecipe: Recipe? = nil
 
     var body: some View {
         // Tab-Ansicht für die Navigation zwischen den Hauptbereichen
@@ -35,15 +37,41 @@ struct ContentView: View {
         // Modal-Fenster für importierte Rezepte
         .sheet(item: $importedRecipe) { recipe in
             RecipePreviewView(recipe: recipe, onSave: {
-                // Speichert das importierte Rezept und aktualisiert das ModelView
-                CoreDataManager().saveRecipe(recipe)
-                modelView.updateRecipe()
-                modelView.updateFood()
-                modelView.updateBooks()
-                modelView.updateTags()
+                
+                if CoreDataManager().recipeExists(id: recipe.id) {
+                    pendingRecipe = recipe
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        showDuplicateAlert = true
+                    }
+                    print("bfnbjfdnkbjfdnbjkfdnkbnfbjfd")
+                } else {
+                    print("jnknknjknnkjnkjn")
+                    CoreDataManager().saveRecipe(recipe)
+                    modelView.updateAll()
+                }
+                importedRecipe = nil
             }, onCancel: {
-                deleteImage(id: recipe.id) // Löscht das Bild, falls das Rezept nicht gespeichert wird
+                deleteImage(id: recipe.id)
+                importedRecipe = nil
             })
+        }
+        .alert(isPresented: $showDuplicateAlert) {
+            Alert(
+                title: Text("Rezept bereits vorhanden"),
+                message: Text("Es existiert bereits ein Rezept mit dieser ID. Möchtest du es überschreiben oder als neues speichern?"),
+                primaryButton: .destructive(Text("Überschreiben")) {
+                    if let recipe = pendingRecipe {
+                        CoreDataManager().saveRecipe(recipe, overwrite: true)
+                        modelView.updateAll()
+                    }
+                },
+                secondaryButton: .default(Text("Als neues speichern")) {
+                    if var recipe = pendingRecipe {
+                        CoreDataManager().saveRecipe(recipe, overwrite: false)
+                        modelView.updateAll()
+                    }
+                }
+            )
         }
         // Behandelt das Öffnen von Rezept-Dateien über eine externe URL
         .onOpenURL { url in
