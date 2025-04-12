@@ -4277,3 +4277,835 @@ foodBackzutaten_tags = [
 ]
 
 setDatabase(tags,foodsBackzutaten,nutritionBackzutaten_facts,foodBackzutaten_tags,dichte_Backzutaten)
+
+
+
+
+# Getränke mit Kategorien
+foodsGetränke = [
+    # Fruchtsäfte
+    ("Apfelsaft", "Fruchtsäfte", "100 % Apfelsaft, reich an Vitamin C"),
+    ("Orangensaft", "Fruchtsäfte", "100 % Orangensaft, hoher Vitamin-C-Gehalt"),
+    ("Multivitaminsaft", "Fruchtsäfte", "Mehrfruchtsaft mit zugesetzten Vitaminen"),
+    ("Traubensaft", "Fruchtsäfte", "Direktsaft aus roten oder weißen Trauben"),
+    ("Ananassaft", "Fruchtsäfte", "Süßer Fruchtsaft mit hohem Enzymgehalt"),
+    
+    # Gemüsesäfte
+    ("Tomatensaft", "Gemüsesäfte", "Herzgesunder Saft mit Lycopin"),
+    ("Karottensaft", "Gemüsesäfte", "Reich an Beta-Carotin und Vitamin A"),
+    ("Rote-Bete-Saft", "Gemüsesäfte", "Fördert die Blutbildung und enthält Nitrat"),
+    ("Sauerkrautsaft", "Gemüsesäfte", "Verdauungsfördernd und probiotisch"),
+    ("Gemüsesaft", "Gemüsesäfte", "Gemischter Saft mit verschiedenen Vitaminen"),
+    
+    # Softdrinks
+    ("Coca-Cola", "Softdrinks", "Koffeinhaltiges Erfrischungsgetränk mit Zucker"),
+    ("Fanta Orange", "Softdrinks", "Kohlensäurehaltige Orangenlimonade"),
+    ("Sprite", "Softdrinks", "Zitronenlimonade mit Kohlensäure"),
+    ("Mezzo Mix", "Softdrinks", "Cola mit Orangengeschmack"),
+    ("Spezi", "Softdrinks", "Kombination aus Cola und Orangenlimonade"),
+    ("Zitronenlimonade", "Softdrinks", "Zitronenhaltiges Erfrischungsgetränk"),
+    ("Orangenlimonade", "Softdrinks", "Orangenhaltiges Erfrischungsgetränk"),
+    
+    # Diätgetränke
+    ("Cola Light", "Diätgetränke", "Kalorienfreie Cola mit Süßstoff"),
+    ("Cola Zero", "Diätgetränke", "Zuckerfreie Cola ohne Kalorien"),
+    ("Fanta Zero", "Diätgetränke", "Zuckerfreie Orangenlimonade"),
+    
+    # Tee & Kaffee
+    ("Schwarzer Tee", "Tee", "Koffeinhaltiger Tee, anregend"),
+    ("Grüner Tee", "Tee", "Antioxidantienreich, leicht koffeinhaltig"),
+    ("Pfefferminztee", "Tee", "Erfrischend und verdauungsfördernd"),
+    ("Kamillentee", "Tee", "Beruhigend und entzündungshemmend"),
+    ("Früchtetee", "Tee", "Fruchtige Mischung ohne Koffein"),
+    ("Kaffee schwarz", "Kaffeegetränke", "Koffeinhaltiges Heißgetränk ohne Milch"),
+    ("Cappuccino", "Kaffeegetränke", "Espresso mit aufgeschäumter Milch"),
+    ("Latte Macchiato", "Kaffeegetränke", "Milch mit Espresso, geschichtet"),
+    ("Eiskaffee", "Kaffeegetränke", "Gekühlter Kaffee mit Milch"),
+    ("Chai Latte", "Kaffeegetränke", "Gewürztee mit Milch"),
+    
+    # Milch & Alternativen
+    ("Vollmilch", "Milchgetränke", "3,5 % Fett, tierischen Ursprungs"),
+    ("fettarme Milch", "Milchgetränke", "1,5 % Fett, kalorienärmer"),
+    ("Sojamilch", "Pflanzliche Milchalternativen", "Vegan, proteinreich"),
+    ("Mandelmilch", "Pflanzliche Milchalternativen", "Laktosefrei, leicht nussig"),
+    ("Hafermilch", "Pflanzliche Milchalternativen", "Mild und ballaststoffreich"),
+    ("Reismilch", "Pflanzliche Milchalternativen", "Leicht süßlich, laktosefrei"),
+    ("Kokosmilch", "Pflanzliche Milchalternativen", "Aromatisch, fettreicher"),
+    ("Buttermilch", "Milchgetränke", "Proteinreich, leicht sauer"),
+    ("Kefir", "Milchgetränke", "Probiotisch, fördert Verdauung"),
+    ("Trinkjoghurt", "Milchgetränke", "Joghurtgetränk, oft mit Frucht"),
+    
+    # Energy & Isotonisch
+    ("Red Bull", "Energy Drinks", "Koffein- und taurinhaltiges Getränk"),
+    ("Monster Energy", "Energy Drinks", "Energy Drink mit hohem Koffeingehalt"),
+    ("Rockstar Energy", "Energy Drinks", "Koffeinhaltiges Erfrischungsgetränk"),
+    ("Powerade", "Isotonische Getränke", "Sportgetränk mit Elektrolyten"),
+    ("Gatorade", "Isotonische Getränke", "Isotonisches Getränk für Sportler"),
+    ("Isostar", "Isotonische Getränke", "Kohlenhydrat-Elektrolyt-Getränk"),
+    ("Vitaminwasser", "Isotonische Getränke", "Mit Vitaminen angereichertes Wasser"),
+    ("Sportgetränk Zitrone", "Isotonische Getränke", "Zitronengeschmack, elektrolythaltig"),
+    ("Sportgetränk Orange", "Isotonische Getränke", "Mit Orangengeschmack, isotonisch"),
+    ("Elektrolytgetränk", "Isotonische Getränke", "Ausgleich von Mineralverlust"),
+    
+    # Wasser
+    ("Leitungswasser", "Wasser", "Unbehandeltes Trinkwasser aus dem Hahn"),
+    ("Stillwasser", "Mineralwasser", "Ohne Kohlensäure, mineralhaltig"),
+    ("Sprudelwasser", "Mineralwasser", "Mit Kohlensäure versetzt"),
+    ("Mineralwasser mit Zitrone", "Mineralwasser", "Zitronengeschmack, erfrischend"),
+    ("Mineralwasser mit Apfel", "Mineralwasser", "Apfelgeschmack, leicht fruchtig"),
+    ("Mineralwasser mit Orange", "Mineralwasser", "Mit Orangengeschmack"),
+    ("Mineralwasser mit Limette", "Mineralwasser", "Limettengeschmack, belebend"),
+    ("Mineralwasser mit Grapefruit", "Mineralwasser", "Herb-fruchtiger Geschmack"),
+    ("Mineralwasser mit Himbeere", "Mineralwasser", "Fruchtig und frisch"),
+    ("Mineralwasser mit Kirsche", "Mineralwasser", "Süßlich-fruchtiger Geschmack"),
+    
+    # Sonstige
+    ("Malzbier", "Alkoholfreie Biere", "Malzig, alkoholfrei"),
+    ("Alkoholfreies Weizenbier", "Alkoholfreie Biere", "Hefeweizen ohne Alkohol"),
+    ("Kinderpunsch", "Sonstige Getränke", "Fruchtiger Punsch, alkoholfrei"),
+    ("Eistee Pfirsich", "Eistee", "Pfirsichgeschmack, gekühlt serviert"),
+    ("Eistee Zitrone", "Eistee", "Zitronengeschmack, erfrischend"),
+    ("Smoothie Erdbeere-Banane", "Smoothies", "Fruchtiger Mix, dickflüssig"),
+    ("Smoothie Mango-Ananas", "Smoothies", "Exotische Fruchtkombination"),
+    ("Proteinshake Vanille", "Proteinshakes", "Eiweißreich, mit Vanillegeschmack"),
+    ("Proteinshake Schokolade", "Proteinshakes", "Schokoladengeschmack, muskelaufbauend"),
+    ("Trinkschokolade", "Schokoladengetränke", "Süßes Getränk mit Kakaopulver"),
+]
+
+densitiesGetränke = [
+    # Fruchtsäfte
+    1.046,  # Apfelsaft
+    1.045,  # Orangensaft
+    1.050,  # Multivitaminsaft
+    1.048,  # Traubensaft
+    1.049,  # Ananassaft
+
+    # Gemüsesäfte
+    1.030,  # Tomatensaft
+    1.035,  # Karottensaft
+    1.035,  # Rote-Bete-Saft
+    1.020,  # Sauerkrautsaft
+    1.030,  # Gemüsesaft (Mischung)
+
+    # Softdrinks
+    1.037,  # Coca-Cola
+    1.038,  # Fanta Orange
+    1.037,  # Sprite
+    1.038,  # Mezzo Mix
+    1.038,  # Spezi
+    1.036,  # Zitronenlimonade
+    1.036,  # Orangenlimonade
+
+    # Diätgetränke
+    1.000,  # Cola Light
+    1.000,  # Cola Zero
+    1.000,  # Fanta Zero
+
+    # Tee & Kaffee
+    1.000,  # Schwarzer Tee
+    1.000,  # Grüner Tee
+    1.000,  # Pfefferminztee
+    1.000,  # Kamillentee
+    1.000,  # Früchtetee
+    1.000,  # Kaffee schwarz
+    1.020,  # Cappuccino
+    1.025,  # Latte Macchiato
+    1.030,  # Eiskaffee
+    1.030,  # Chai Latte
+
+    # Milch & Alternativen
+    1.035,  # Vollmilch
+    1.032,  # fettarme Milch
+    1.025,  # Sojamilch
+    1.018,  # Mandelmilch
+    1.030,  # Hafermilch
+    1.018,  # Reismilch
+    1.025,  # Kokosmilch
+    1.035,  # Buttermilch
+    1.033,  # Kefir
+    1.038,  # Trinkjoghurt
+
+    # Energy & Isotonisch
+    1.040,  # Red Bull
+    1.042,  # Monster Energy
+    1.042,  # Rockstar Energy
+    1.030,  # Powerade
+    1.030,  # Gatorade
+    1.030,  # Isostar
+    1.020,  # Vitaminwasser
+    1.025,  # Sportgetränk Zitrone
+    1.025,  # Sportgetränk Orange
+    1.025,  # Elektrolytgetränk
+
+    # Wasser
+    0.998,  # Leitungswasser
+    0.998,  # Stillwasser
+    1.000,  # Sprudelwasser
+    1.000,  # Mineralwasser mit Zitrone
+    1.000,  # Mineralwasser mit Apfel
+    1.000,  # Mineralwasser mit Orange
+    1.000,  # Mineralwasser mit Limette
+    1.000,  # Mineralwasser mit Grapefruit
+    1.000,  # Mineralwasser mit Himbeere
+    1.000,  # Mineralwasser mit Kirsche
+
+    # Sonstige
+    1.030,  # Malzbier
+    1.030,  # Alkoholfreies Weizenbier
+    1.030,  # Kinderpunsch
+    1.038,  # Eistee Pfirsich
+    1.038,  # Eistee Zitrone
+    1.050,  # Smoothie Erdbeere-Banane
+    1.050,  # Smoothie Mango-Ananas
+    1.045,  # Proteinshake Vanille
+    1.045,  # Proteinshake Schokolade
+    1.030,  # Trinkschokolade
+]
+
+
+# Format: (Kalorien, Protein, Kohlenhydrate, Fett)
+nutrition_factsGetränke = [
+    # Fruchtsäfte
+    (46, 0.1, 11.0, 0.1),  # Apfelsaft
+    (45, 0.7, 10.4, 0.2),  # Orangensaft
+    (50, 0.5, 11.5, 0.1),  # Multivitaminsaft
+    (60, 0.3, 15.0, 0.1),  # Traubensaft
+    (53, 0.3, 12.5, 0.1),  # Ananassaft
+
+    # Gemüsesäfte
+    (17, 0.8, 3.0, 0.1),   # Tomatensaft
+    (33, 0.6, 7.4, 0.2),   # Karottensaft
+    (41, 1.5, 8.8, 0.1),   # Rote-Bete-Saft
+    (11, 0.7, 1.7, 0.2),   # Sauerkrautsaft
+    (28, 1.0, 5.5, 0.1),   # Gemüsesaft
+
+    # Softdrinks
+    (42, 0.0, 10.6, 0.0),  # Coca-Cola
+    (44, 0.0, 11.0, 0.0),  # Fanta Orange
+    (38, 0.0, 9.0, 0.0),   # Sprite
+    (45, 0.0, 11.0, 0.0),  # Mezzo Mix
+    (45, 0.0, 11.0, 0.0),  # Spezi
+    (39, 0.0, 9.5, 0.0),   # Zitronenlimonade
+    (43, 0.0, 10.5, 0.0),  # Orangenlimonade
+
+    # Diätgetränke
+    (1, 0.0, 0.1, 0.0),    # Cola Light
+    (0, 0.0, 0.0, 0.0),    # Cola Zero
+    (1, 0.0, 0.1, 0.0),    # Fanta Zero
+
+    # Tee & Kaffee
+    (1, 0.1, 0.1, 0.0),    # Schwarzer Tee
+    (1, 0.0, 0.2, 0.0),    # Grüner Tee
+    (1, 0.0, 0.2, 0.0),    # Pfefferminztee
+    (1, 0.0, 0.2, 0.0),    # Kamillentee
+    (2, 0.0, 0.3, 0.0),    # Früchtetee
+    (2, 0.3, 0.0, 0.0),    # Kaffee schwarz
+    (27, 1.3, 2.7, 1.1),   # Cappuccino
+    (40, 1.5, 3.0, 1.5),   # Latte Macchiato
+    (40, 1.0, 6.0, 1.5),   # Eiskaffee
+    (45, 1.0, 7.5, 1.2),   # Chai Latte
+
+    # Milch & Alternativen
+    (64, 3.3, 4.8, 3.6),   # Vollmilch
+    (47, 3.4, 4.9, 1.5),   # fettarme Milch
+    (39, 3.3, 0.3, 2.1),   # Sojamilch
+    (24, 0.5, 0.3, 1.8),   # Mandelmilch
+    (45, 0.9, 6.8, 1.0),   # Hafermilch
+    (48, 0.1, 9.5, 1.0),   # Reismilch
+    (188, 1.8, 2.6, 19.0), # Kokosmilch (ungesüßt)
+    (35, 3.5, 4.0, 0.5),   # Buttermilch
+    (40, 3.4, 4.0, 1.0),   # Kefir
+    (65, 2.9, 8.5, 1.0),   # Trinkjoghurt
+
+    # Energy & Isotonisch
+    (45, 0.0, 11.0, 0.0),  # Red Bull
+    (47, 0.0, 12.0, 0.0),  # Monster Energy
+    (47, 0.0, 12.0, 0.0),  # Rockstar Energy
+    (25, 0.0, 6.0, 0.0),   # Powerade
+    (24, 0.0, 6.0, 0.0),   # Gatorade
+    (26, 0.0, 6.3, 0.0),   # Isostar
+    (20, 0.0, 5.0, 0.0),   # Vitaminwasser
+    (21, 0.0, 5.2, 0.0),   # Sportgetränk Zitrone
+    (23, 0.0, 5.8, 0.0),   # Sportgetränk Orange
+    (22, 0.0, 5.5, 0.0),   # Elektrolytgetränk
+
+    # Wasser
+    (0, 0.0, 0.0, 0.0),    # Leitungswasser
+    (0, 0.0, 0.0, 0.0),    # Stillwasser
+    (0, 0.0, 0.0, 0.0),    # Sprudelwasser
+    (1, 0.0, 0.2, 0.0),    # Mineralwasser mit Zitrone
+    (1, 0.0, 0.3, 0.0),    # Mineralwasser mit Apfel
+    (1, 0.0, 0.3, 0.0),    # Mineralwasser mit Orange
+    (1, 0.0, 0.3, 0.0),    # Mineralwasser mit Limette
+    (1, 0.0, 0.3, 0.0),    # Mineralwasser mit Grapefruit
+    (1, 0.0, 0.3, 0.0),    # Mineralwasser mit Himbeere
+    (1, 0.0, 0.3, 0.0),    # Mineralwasser mit Kirsche
+
+    # Sonstige
+    (45, 0.5, 10.5, 0.0),  # Malzbier
+    (25, 0.4, 5.5, 0.0),   # Alkoholfreies Weizenbier
+    (40, 0.2, 9.5, 0.0),   # Kinderpunsch
+    (28, 0.0, 6.8, 0.0),   # Eistee Pfirsich
+    (27, 0.0, 6.7, 0.0),   # Eistee Zitrone
+    (58, 0.8, 13.0, 0.5),  # Smoothie Erdbeere-Banane
+    (60, 0.7, 14.0, 0.4),  # Smoothie Mango-Ananas
+    (74, 10.0, 3.0, 1.0),  # Proteinshake Vanille
+    (78, 9.5, 4.0, 1.5),   # Proteinshake Schokolade
+    (67, 2.0, 9.0, 2.0),   # Trinkschokolade
+]
+
+food_tagsGetränke = [
+    # Fruchtsäfte
+    (0, [1, 5, 13]),         # Apfelsaft
+    (1, [1, 5, 13]),         # Orangensaft
+    (2, [1, 5, 13]),         # Multivitaminsaft
+    (3, [1, 5, 6, 13]),      # Traubensaft
+    (4, [1, 5, 13]),         # Ananassaft
+
+    # Gemüsesäfte
+    (5, [0, 1, 5, 13, 15]),  # Tomatensaft
+    (6, [0, 1, 5, 13, 17]),  # Karottensaft
+    (7, [0, 1, 5, 13, 21]),  # Rote-Bete-Saft
+    (8, [0, 1, 5, 13, 22]),  # Sauerkrautsaft
+    (9, [0, 1, 5, 13]),      # Gemüsesaft
+
+    # Softdrinks
+    (10, [36]),              # Coca-Cola
+    (11, [36]),              # Fanta Orange
+    (12, [36]),              # Sprite
+    (13, [36]),              # Mezzo Mix
+    (14, [36]),              # Spezi
+    (15, [36]),              # Zitronenlimonade
+    (16, [36]),              # Orangenlimonade
+
+    # Diätgetränke
+    (17, [2, 7, 8, 13]),     # Cola Light
+    (18, [2, 7, 8, 13]),     # Cola Zero
+    (19, [2, 7, 8, 13]),     # Fanta Zero
+
+    # Tee & Kaffee
+    (20, [1, 6, 13, 37]),    # Schwarzer Tee
+    (21, [1, 6, 13, 37]),    # Grüner Tee
+    (22, [1, 13, 16]),       # Pfefferminztee
+    (23, [1, 16, 13]),       # Kamillentee
+    (24, [1, 5, 13]),        # Früchtetee
+    (25, [36, 37]),          # Kaffee schwarz
+    (26, [36, 37]),          # Cappuccino
+    (27, [36, 37]),          # Latte Macchiato
+    (28, [36, 37]),          # Eiskaffee
+    (29, [1, 13]),           # Chai Latte
+
+    # Milch & Alternativen
+    (30, [12, 33]),          # Vollmilch
+    (31, [12, 25, 33]),      # fettarme Milch
+    (32, [7, 8, 12, 27]),    # Sojamilch
+    (33, [7, 8, 12, 27]),    # Mandelmilch
+    (34, [7, 8, 12, 27]),    # Hafermilch
+    (35, [7, 8, 12, 27]),    # Reismilch
+    (36, [7, 8, 27]),        # Kokosmilch
+    (37, [12, 27]),          # Buttermilch
+    (38, [12, 27]),          # Kefir
+    (39, [12, 27]),          # Trinkjoghurt
+
+    # Energy & Isotonisch
+    (40, [36, 13, 37]),      # Red Bull
+    (41, [36, 13, 37]),      # Monster Energy
+    (42, [36, 13, 37]),      # Rockstar Energy
+    (43, [13, 12, 14]),      # Powerade
+    (44, [13, 12, 14]),      # Gatorade
+    (45, [13, 12, 14]),      # Isostar
+    (46, [13, 5, 14]),       # Vitaminwasser
+    (47, [13, 5, 14]),       # Sportgetränk Zitrone
+    (48, [13, 5, 14]),       # Sportgetränk Orange
+    (49, [13, 5, 14]),       # Elektrolytgetränk
+
+    # Wasser
+    (50, [13]),              # Leitungswasser
+    (51, [13]),              # Stillwasser
+    (52, [13]),              # Sprudelwasser
+    (53, [13]),              # Mineralwasser mit Zitrone
+    (54, [13]),              # Mineralwasser mit Apfel
+    (55, [13]),              # Mineralwasser mit Orange
+    (56, [13]),              # Mineralwasser mit Limette
+    (57, [13]),              # Mineralwasser mit Grapefruit
+    (58, [13]),              # Mineralwasser mit Himbeere
+    (59, [13]),              # Mineralwasser mit Kirsche
+
+    # Sonstige
+    (60, [36]),              # Malzbier
+    (61, [36]),              # Alkoholfreies Weizenbier
+    (62, [5, 13]),           # Kinderpunsch
+    (63, [13]),              # Eistee Pfirsich
+    (64, [13]),              # Eistee Zitrone
+    (65, [1, 5, 6]),         # Smoothie Erdbeere-Banane
+    (66, [1, 5, 6]),         # Smoothie Mango-Ananas
+    (67, [11, 12, 27, 28]),  # Proteinshake Vanille
+    (68, [11, 12, 27, 28]),  # Proteinshake Schokolade
+    (69, [36]),              # Trinkschokolade
+]
+
+setDatabase(tags= tags, foods= foodsGetränke, nutrition_facts= nutrition_factsGetränke, food_tags= food_tagsGetränke, densities= densitiesGetränke) 
+
+foodbaked_goods_and_wraps = [
+    # Brote
+    ("Roggenmischbrot", "Brot", "Mischung aus Roggen- und Weizenmehl"),
+    ("Vollkornbrot", "Brot", "Aus vollem Korn, ballaststoffreich"),
+    ("Dinkelbrot", "Brot", "Hergestellt aus Dinkelmehl, nussig"),
+    ("Mehrkornbrot", "Brot", "Enthält verschiedene Getreidearten"),
+    ("Sonnenblumenkernbrot", "Brot", "Mit Sonnenblumenkernen verfeinert"),
+    ("Kürbiskernbrot", "Brot", "Mit aromatischen Kürbiskernen"),
+    ("Eiweißbrot", "Brot", "Proteinreich, kohlenhydratreduziert"),
+    ("Pumpernickel", "Brot", "Dunkles Brot aus Roggenschrot"),
+    ("Toastbrot", "Brot", "Weiches Brot, ideal zum Toasten"),
+    ("Bauernbrot", "Brot", "Rustikales Brot mit kräftiger Kruste"),
+
+    # Brötchen
+    ("Weizenbrötchen", "Brötchen", "Klassisches helles Brötchen"),
+    ("Roggenbrötchen", "Brötchen", "Dunkleres Brötchen mit Roggenmehl"),
+    ("Mehrkornbrötchen", "Brötchen", "Mit mehreren Getreidesorten"),
+    ("Laugenbrötchen", "Brötchen", "Laugengebäck in Brötchenform"),
+    ("Sesambrötchen", "Brötchen", "Mit Sesam bestreut"),
+    ("Mohnbrötchen", "Brötchen", "Mit Mohn bestreut"),
+    ("Käsebrötchen", "Brötchen", "Mit überbackenem Käse"),
+    ("Schokobrötchen", "Brötchen", "Mit Schokostückchen im Teig"),
+    ("Rosinenbrötchen", "Brötchen", "Mit süßen Rosinen"),
+    ("Dinkelbrötchen", "Brötchen", "Aus Dinkelmehl, mild-nussig"),
+
+    # Laugengebäck
+    ("Laugenbrezel", "Laugengebäck", "Salziges Gebäck in Brezelform"),
+    ("Laugenstange", "Laugengebäck", "Längliches Laugengebäck"),
+    ("Laugenzopf", "Laugengebäck", "Geflochtenes Laugengebäck"),
+    ("Laugenkonfekt", "Laugengebäck", "Kleine Stücke, snackartig"),
+    ("Laugenbaguette", "Laugengebäck", "Laugenvariante des Baguettes"),
+    ("Laugenkringel", "Laugengebäck", "Kringelförmiges Laugengebäck"),
+    ("Laugenbrötchen", "Laugengebäck", "Rundes Laugengebäck"),
+    ("Laugenknoten", "Laugengebäck", "Geknotete Laugenform"),
+    ("Laugenherz", "Laugengebäck", "In Herzform gebacken"),
+    ("Laugenstange mit Käse", "Laugengebäck", "Mit Käse überbacken"),
+
+    # Baguettes & Ciabatta
+    ("Baguette", "Baguette", "Französisches Weißbrot"),
+    ("Baguette mit Kräutern", "Baguette", "Mit Kräutermischung im Teig"),
+    ("Baguette mit Käse", "Baguette", "Mit Käse überbacken"),
+    ("Baguette mit Oliven", "Baguette", "Mit Oliven verfeinert"),
+    ("Ciabatta", "Ciabatta", "Italienisches Weißbrot, grobporig"),
+    ("Ciabatta mit Tomaten", "Ciabatta", "Mit getrockneten Tomaten"),
+    ("Ciabatta mit Oliven", "Ciabatta", "Mit Olivenstückchen"),
+    ("Ciabatta mit Kräutern", "Ciabatta", "Mit italienischen Kräutern"),
+    ("Ciabatta mit Käse", "Ciabatta", "Mit Käse im oder auf dem Teig"),
+    ("Ciabatta mit Zwiebeln", "Ciabatta", "Mit Zwiebeln gebacken"),
+
+    # Pfannkuchen & Waffeln
+    ("Pfannkuchen", "Pfannkuchen", "Klassisch, in der Pfanne gebraten"),
+    ("Eierkuchen", "Pfannkuchen", "Etwas dicker als Crêpes"),
+    ("Crêpes", "Pfannkuchen", "Sehr dünn und zart"),
+    ("Waffeln", "Waffeln", "Klassisch im Waffeleisen gebacken"),
+    ("Belgische Waffeln", "Waffeln", "Dicke, weiche Waffeln"),
+    ("Herzwaffeln", "Waffeln", "In Herzform gebacken"),
+    ("Schokowaffeln", "Waffeln", "Mit Schokolade im Teig"),
+    ("Vanillewaffeln", "Waffeln", "Mit Vanillearoma"),
+    ("Butterwaffeln", "Waffeln", "Mit viel Butter für Aroma"),
+    ("Zimtwaffeln", "Waffeln", "Mit Zimt gewürzt"),
+
+    # Kuchen & Torten
+    ("Apfelkuchen", "Kuchen", "Mit frischen Äpfeln gebacken"),
+    ("Käsekuchen", "Kuchen", "Mit Quark- oder Frischkäsefüllung"),
+    ("Schokoladenkuchen", "Kuchen", "Mit Kakao oder Schokolade"),
+    ("Zitronenkuchen", "Kuchen", "Mit Zitronensaft oder -schale"),
+    ("Marmorkuchen", "Kuchen", "Aus heller und dunkler Masse"),
+    ("Donauwelle", "Kuchen", "Mit Kirschen, Buttercreme, Schoko"),
+    ("Bienenstich", "Kuchen", "Mit Mandelkruste und Vanillecreme"),
+    ("Erdbeerkuchen", "Kuchen", "Mit frischen Erdbeeren"),
+    ("Schwarzwälder Kirschtorte", "Torten", "Mit Kirschen, Sahne, Schokolade"),
+    ("Sachertorte", "Torten", "Österreichische Schokotorte"),
+
+    # Kekse & Plätzchen
+    ("Butterkekse", "Kekse", "Knusprig und buttrig"),
+    ("Schokokekse", "Kekse", "Mit Schokostückchen"),
+    ("Haferkekse", "Kekse", "Mit Haferflocken gebacken"),
+    ("Vanillekipferl", "Plätzchen", "Halbmondform, mit Vanille"),
+    ("Zimtsterne", "Plätzchen", "Mit Zimt und Mandeln"),
+    ("Makronen", "Plätzchen", "Meist auf Eiweißbasis"),
+    ("Spekulatius", "Plätzchen", "Mit typischen Gewürzen"),
+    ("Lebkuchen", "Plätzchen", "Weihnachtliches Gebäck"),
+    ("Nussecken", "Plätzchen", "Mit Nüssen und Schokolade"),
+    ("Mandelhörnchen", "Plätzchen", "Mit Mandeln umhüllt"),
+
+    # Sonstige Backwaren
+    ("Bagel", "Sonstige", "Rundes Gebäck mit Loch"),
+    ("Donut", "Sonstige", "Frittiert und glasiert"),
+    ("Croissant", "Sonstige", "Blätterteig, buttrig"),
+    ("Schokocroissant", "Sonstige", "Gefüllt mit Schokolade"),
+    ("Rosinenschnecke", "Sonstige", "Mit Rosinen und Zuckerguss"),
+    ("Zimtschnecke", "Sonstige", "Mit Zimt und Zuckerfüllung"),
+    ("Berliner", "Sonstige", "Gefüllt mit Marmelade"),
+    ("Amerikaner", "Sonstige", "Flaches Gebäck mit Zuckerguss"),
+    ("Milchhörnchen", "Sonstige", "Süßes, weiches Gebäck"),
+    ("Hefezopf", "Sonstige", "Geflochten und leicht süß"),
+
+    # Wraps
+    ("Weizen-Wrap", "Wraps", "Klassisch, meist für mexikanische Gerichte"),
+    ("Vollkorn-Wrap", "Wraps", "Ballaststoffreicher, sättigender"),
+    ("Dinkel-Wrap", "Wraps", "Leicht nussiger Geschmack"),
+    ("Protein-Wrap", "Wraps", "Eiweißreich, oft mit Erbsen-/Sojaprotein"),
+    ("Low-Carb-Wrap", "Wraps", "Wenig Kohlenhydrate, oft mit Eiklar"),
+    ("Spinat-Wrap", "Wraps", "Grün eingefärbt, leichte Spinatnote"),
+    ("Tomaten-Wrap", "Wraps", "Rötlich gefärbt, fruchtiger Geschmack"),
+    ("Mais-Wrap (Tortilla)", "Wraps", "Traditionell für Tacos/Fajitas"),
+    ("Hafer-Wrap", "Wraps", "Mild, ballaststoffreich"),
+    ("Kichererbsen-Wrap", "Wraps", "Glutenfrei, mit leichtem Eigengeschmack"),
+    ("Reismehl-Wrap", "Wraps", "Glutenfrei, weich und elastisch"),
+    ("Buchweizen-Wrap", "Wraps", "Glutenfrei, herzhafter Geschmack"),
+    ("Kokos-Wrap", "Wraps", "Leicht süßlich, exotischer Geschmack"),
+    ("Leinsamen-Wrap", "Wraps", "Sehr ballaststoffreich, oft Low-Carb"),
+    ("Gemüse-Wrap (Gemüseanteil im Teig)", "Wraps", "z. B. Karotten-, Rote-Bete-, Zucchini-Wrap"),
+]
+
+densities_baked = [
+    # Brote
+    0.43,  # Roggenmischbrot
+    0.45,  # Vollkornbrot
+    0.44,  # Dinkelbrot
+    0.46,  # Mehrkornbrot
+    0.47,  # Sonnenblumenkernbrot
+    0.48,  # Kürbiskernbrot
+    0.42,  # Eiweißbrot
+    0.50,  # Pumpernickel
+    0.26,  # Toastbrot
+    0.46,  # Bauernbrot
+
+    # Brötchen
+    0.27,  # Weizenbrötchen
+    0.30,  # Roggenbrötchen
+    0.32,  # Mehrkornbrötchen
+    0.29,  # Laugenbrötchen
+    0.30,  # Sesambrötchen
+    0.30,  # Mohnbrötchen
+    0.33,  # Käsebrötchen
+    0.35,  # Schokobrötchen
+    0.34,  # Rosinenbrötchen
+    0.32,  # Dinkelbrötchen
+
+    # Laugengebäck
+    0.33,  # Laugenbrezel
+    0.34,  # Laugenstange
+    0.34,  # Laugenzopf
+    0.35,  # Laugenkonfekt
+    0.35,  # Laugenbaguette
+    0.34,  # Laugenkringel
+    0.34,  # Laugenbrötchen
+    0.34,  # Laugenknoten
+    0.34,  # Laugenherz
+    0.35,  # Laugenstange mit Käse
+
+    # Baguette & Ciabatta
+    0.29,  # Baguette
+    0.30,  # Baguette mit Kräutern
+    0.31,  # Baguette mit Käse
+    0.31,  # Baguette mit Oliven
+    0.30,  # Ciabatta
+    0.31,  # Ciabatta mit Tomaten
+    0.31,  # Ciabatta mit Oliven
+    0.31,  # Ciabatta mit Kräutern
+    0.32,  # Ciabatta mit Käse
+    0.32,  # Ciabatta mit Zwiebeln
+
+    # Pfannkuchen & Waffeln
+    0.52,  # Pfannkuchen
+    0.53,  # Eierkuchen
+    0.50,  # Crêpes
+    0.55,  # Waffeln
+    0.58,  # Belgische Waffeln
+    0.54,  # Herzwaffeln
+    0.56,  # Schokowaffeln
+    0.56,  # Vanillewaffeln
+    0.56,  # Butterwaffeln
+    0.56,  # Zimtwaffeln
+
+    # Kuchen & Torten
+    0.54,  # Apfelkuchen
+    0.58,  # Käsekuchen
+    0.59,  # Schokoladenkuchen
+    0.53,  # Zitronenkuchen
+    0.55,  # Marmorkuchen
+    0.60,  # Donauwelle
+    0.61,  # Bienenstich
+    0.54,  # Erdbeerkuchen
+    0.62,  # Schwarzwälder Kirschtorte
+    0.64,  # Sachertorte
+
+    # Kekse & Plätzchen
+    0.90,  # Butterkekse
+    0.92,  # Schokokekse
+    0.88,  # Haferkekse
+    0.85,  # Vanillekipferl
+    0.86,  # Zimtsterne
+    0.84,  # Makronen
+    0.87,  # Spekulatius
+    0.88,  # Lebkuchen
+    0.90,  # Nussecken
+    0.89,  # Mandelhörnchen
+
+    # Sonstige Backwaren
+    0.35,  # Bagel
+    0.36,  # Donut
+    0.33,  # Croissant
+    0.35,  # Schokocroissant
+    0.34,  # Rosinenschnecke
+    0.34,  # Zimtschnecke
+    0.34,  # Berliner
+    0.36,  # Amerikaner
+    0.34,  # Milchhörnchen
+    0.35,  # Hefezopf
+
+    # Wraps
+    0.42,  # Weizen-Wrap
+    0.45,  # Vollkorn-Wrap
+    0.44,  # Dinkel-Wrap
+    0.48,  # Protein-Wrap
+    0.46,  # Low-Carb-Wrap
+    0.44,  # Spinat-Wrap
+    0.44,  # Tomaten-Wrap
+    0.43,  # Mais-Wrap (Tortilla)
+    0.45,  # Hafer-Wrap
+    0.46,  # Kichererbsen-Wrap
+    0.46,  # Reismehl-Wrap
+    0.47,  # Buchweizen-Wrap
+    0.43,  # Kokos-Wrap
+    0.48,  # Leinsamen-Wrap
+    0.46,  # Gemüse-Wrap
+]
+
+# Nährwerte (pro 100g) basierend auf typischen Yazio-Daten
+# Format: (Kalorien, Protein, Kohlenhydrate, Fett)
+nutrition_baked = [
+    # Brote
+    (221, 5.7, 41.0, 1.4),  # Roggenmischbrot
+    (212, 6.8, 34.0, 2.0),  # Vollkornbrot
+    (229, 7.1, 38.0, 2.1),  # Dinkelbrot
+    (250, 8.0, 39.0, 3.0),  # Mehrkornbrot
+    (270, 9.0, 37.0, 4.5),  # Sonnenblumenkernbrot
+    (280, 8.8, 36.0, 5.0),  # Kürbiskernbrot
+    (195, 13.0, 8.0, 6.0),  # Eiweißbrot
+    (175, 4.6, 30.5, 1.1),  # Pumpernickel
+    (265, 7.3, 46.5, 3.5),  # Toastbrot
+    (233, 6.2, 40.0, 2.6),  # Bauernbrot
+
+    # Brötchen
+    (275, 8.4, 52.0, 2.1),  # Weizenbrötchen
+    (245, 7.9, 45.0, 1.8),  # Roggenbrötchen
+    (260, 8.5, 42.0, 3.5),  # Mehrkornbrötchen
+    (300, 9.0, 54.0, 4.0),  # Laugenbrötchen
+    (310, 8.5, 53.0, 4.8),  # Sesambrötchen
+    (308, 8.3, 52.0, 4.7),  # Mohnbrötchen
+    (330, 9.5, 48.0, 6.2),  # Käsebrötchen
+    (360, 7.0, 45.0, 13.0), # Schokobrötchen
+    (320, 6.0, 52.0, 7.0),  # Rosinenbrötchen
+    (255, 7.5, 42.0, 3.2),  # Dinkelbrötchen
+
+    # Laugengebäck
+    (337, 10.0, 55.0, 5.0), # Laugenbrezel
+    (345, 9.8, 56.0, 5.2),  # Laugenstange
+    (340, 9.5, 55.0, 5.0),  # Laugenzopf
+    (342, 10.2, 55.5, 5.3), # Laugenkonfekt
+    (348, 10.0, 57.0, 5.5), # Laugenbaguette
+    (340, 10.0, 56.0, 5.0), # Laugenkringel
+    (343, 10.0, 56.0, 5.1), # Laugenbrötchen
+    (344, 10.1, 56.0, 5.3), # Laugenknoten
+    (345, 9.9, 56.0, 5.2),  # Laugenherz
+    (370, 10.5, 54.0, 7.0), # Laugenstange mit Käse
+
+    # Baguette & Ciabatta
+    (270, 9.0, 50.0, 2.0),  # Baguette
+    (285, 9.0, 48.0, 3.0),  # Baguette mit Kräutern
+    (320, 10.0, 47.0, 6.0), # Baguette mit Käse
+    (300, 9.5, 45.0, 4.5),  # Baguette mit Oliven
+    (260, 8.0, 48.0, 2.5),  # Ciabatta
+    (275, 8.2, 46.0, 3.0),  # Ciabatta mit Tomaten
+    (280, 8.2, 44.0, 4.0),  # Ciabatta mit Oliven
+    (275, 8.0, 45.0, 3.2),  # Ciabatta mit Kräutern
+    (310, 8.5, 42.0, 6.0),  # Ciabatta mit Käse
+    (290, 8.2, 43.0, 5.0),  # Ciabatta mit Zwiebeln
+
+    # Pfannkuchen & Waffeln
+    (220, 6.0, 27.0, 9.0),  # Pfannkuchen
+    (230, 6.5, 26.0, 10.0), # Eierkuchen
+    (210, 6.0, 24.0, 8.0),  # Crêpes
+    (310, 6.5, 30.0, 17.0), # Waffeln
+    (370, 6.0, 34.0, 22.0), # Belgische Waffeln
+    (300, 6.0, 29.0, 16.0), # Herzwaffeln
+    (350, 6.0, 34.0, 19.0), # Schokowaffeln
+    (320, 6.0, 33.0, 18.0), # Vanillewaffeln
+    (325, 6.0, 31.0, 19.0), # Butterwaffeln
+    (330, 6.0, 32.0, 18.0), # Zimtwaffeln
+
+    # Kuchen & Torten
+    (240, 3.0, 35.0, 10.0), # Apfelkuchen
+    (270, 6.0, 24.0, 15.0), # Käsekuchen
+    (390, 5.0, 42.0, 22.0), # Schokoladenkuchen
+    (310, 4.0, 38.0, 14.0), # Zitronenkuchen
+    (320, 4.5, 36.0, 16.0), # Marmorkuchen
+    (360, 5.5, 33.0, 21.0), # Donauwelle
+    (370, 6.0, 34.0, 22.0), # Bienenstich
+    (220, 3.0, 30.0, 8.0),  # Erdbeerkuchen
+    (370, 4.0, 32.0, 24.0), # Schwarzwälder Kirschtorte
+    (410, 5.0, 38.0, 24.0), # Sachertorte
+
+    # Kekse & Plätzchen
+    (470, 6.0, 68.0, 20.0), # Butterkekse
+    (480, 6.0, 65.0, 23.0), # Schokokekse
+    (440, 7.0, 60.0, 19.0), # Haferkekse
+    (510, 6.0, 56.0, 28.0), # Vanillekipferl
+    (490, 5.5, 55.0, 25.0), # Zimtsterne
+    (430, 6.0, 48.0, 22.0), # Makronen
+    (470, 5.5, 60.0, 20.0), # Spekulatius
+    (450, 5.5, 58.0, 18.0), # Lebkuchen
+    (490, 6.0, 55.0, 27.0), # Nussecken
+    (500, 7.0, 50.0, 30.0), # Mandelhörnchen
+
+    # Sonstige Backwaren
+    (270, 9.0, 47.0, 2.0),  # Bagel
+    (330, 5.0, 40.0, 17.0), # Donut
+    (370, 7.0, 40.0, 22.0), # Croissant
+    (400, 6.0, 42.0, 24.0), # Schokocroissant
+    (350, 5.0, 45.0, 18.0), # Rosinenschnecke
+    (360, 5.0, 44.0, 19.0), # Zimtschnecke
+    (330, 4.0, 42.0, 15.0), # Berliner
+    (320, 4.0, 43.0, 14.0), # Amerikaner
+    (330, 5.0, 42.0, 16.0), # Milchhörnchen
+    (290, 7.0, 42.0, 8.0),  # Hefezopf
+
+    # Wraps
+    (300, 9.0, 45.0, 7.0),   # Weizen-Wrap
+    (290, 9.5, 40.0, 6.5),   # Vollkorn-Wrap
+    (295, 9.2, 41.0, 6.0),   # Dinkel-Wrap
+    (210, 20.0, 8.0, 7.0),   # Protein-Wrap
+    (180, 15.0, 5.0, 5.0),   # Low-Carb-Wrap
+    (250, 8.0, 35.0, 6.0),   # Spinat-Wrap
+    (260, 8.0, 37.0, 6.5),   # Tomaten-Wrap
+    (280, 7.5, 42.0, 5.0),   # Mais-Wrap
+    (270, 8.0, 38.0, 5.5),   # Hafer-Wrap
+    (260, 9.0, 34.0, 6.0),   # Kichererbsen-Wrap
+    (240, 5.0, 40.0, 2.0),   # Reismehl-Wrap
+    (230, 7.0, 34.0, 2.5),   # Buchweizen-Wrap
+    (250, 5.0, 30.0, 12.0),  # Kokos-Wrap
+    (220, 10.0, 12.0, 8.0),  # Leinsamen-Wrap
+    (240, 7.0, 30.0, 6.0),   # Gemüse-Wrap
+]
+
+tags_baked = [
+    # Brote
+    (0, [1, 4, 8]),      # Roggenmischbrot
+    (1, [1, 4, 8]),      # Vollkornbrot
+    (2, [1, 4, 8]),      # Dinkelbrot
+    (3, [1, 4, 8]),      # Mehrkornbrot
+    (4, [1, 4, 8]),      # Sonnenblumenkernbrot
+    (5, [1, 4, 8]),      # Kürbiskernbrot
+    (6, [1, 7, 8, 11]),  # Eiweißbrot
+    (7, [1, 4]),         # Pumpernickel
+    (8, [1]),            # Toastbrot
+    (9, [1, 4]),         # Bauernbrot
+
+    # Brötchen
+    (10, [1]),           # Weizenbrötchen
+    (11, [1, 4]),        # Roggenbrötchen
+    (12, [1, 4]),        # Mehrkornbrötchen
+    (13, [1]),           # Laugenbrötchen
+    (14, [1]),           # Sesambrötchen
+    (15, [1]),           # Mohnbrötchen
+    (16, [1, 25]),       # Käsebrötchen
+    (17, [1, 36]),       # Schokobrötchen
+    (18, [1, 36]),       # Rosinenbrötchen
+    (19, [1, 4]),        # Dinkelbrötchen
+
+    # Laugengebäck
+    (20, [1]),           # Laugenbrezel
+    (21, [1]),           # Laugenstange
+    (22, [1]),           # Laugenzopf
+    (23, [1]),           # Laugenkonfekt
+    (24, [1]),           # Laugenbaguette
+    (25, [1]),           # Laugenkringel
+    (26, [1]),           # Laugenbrötchen
+    (27, [1]),           # Laugenknoten
+    (28, [1]),           # Laugenherz
+    (29, [1, 25]),       # Laugenstange mit Käse
+
+    # Baguette & Ciabatta
+    (30, [1]),           # Baguette
+    (31, [1]),           # Baguette mit Kräutern
+    (32, [1, 25]),       # Baguette mit Käse
+    (33, [1]),           # Baguette mit Oliven
+    (34, [1]),           # Ciabatta
+    (35, [1]),           # Ciabatta mit Tomaten
+    (36, [1]),           # Ciabatta mit Oliven
+    (37, [1]),           # Ciabatta mit Kräutern
+    (38, [1, 25]),       # Ciabatta mit Käse
+    (39, [1]),           # Ciabatta mit Zwiebeln
+
+    # Pfannkuchen & Waffeln
+    (40, [36]),          # Pfannkuchen
+    (41, [36]),          # Eierkuchen
+    (42, [36]),          # Crêpes
+    (43, [36]),          # Waffeln
+    (44, [36]),          # Belgische Waffeln
+    (45, [36]),          # Herzwaffeln
+    (46, [36]),          # Schokowaffeln
+    (47, [36]),          # Vanillewaffeln
+    (48, [36]),          # Butterwaffeln
+    (49, [36]),          # Zimtwaffeln
+
+    # Kuchen & Torten
+    (50, [36]),          # Apfelkuchen
+    (51, [36]),          # Käsekuchen
+    (52, [36]),          # Schokoladenkuchen
+    (53, [36]),          # Zitronenkuchen
+    (54, [36]),          # Marmorkuchen
+    (55, [36]),          # Donauwelle
+    (56, [36]),          # Bienenstich
+    (57, [36]),          # Erdbeerkuchen
+    (58, [36]),          # Schwarzwälder Kirschtorte
+    (59, [36]),          # Sachertorte
+
+    # Kekse & Plätzchen
+    (60, [36]),          # Butterkekse
+    (61, [36]),          # Schokokekse
+    (62, [36]),          # Haferkekse
+    (63, [36]),          # Vanillekipferl
+    (64, [36]),          # Zimtsterne
+    (65, [36]),          # Makronen
+    (66, [36]),          # Spekulatius
+    (67, [36]),          # Lebkuchen
+    (68, [36]),          # Nussecken
+    (69, [36]),          # Mandelhörnchen
+
+    # Sonstige Backwaren
+    (70, [1]),           # Bagel
+    (71, [36]),          # Donut
+    (72, [36]),          # Croissant
+    (73, [36]),          # Schokocroissant
+    (74, [36]),          # Rosinenschnecke
+    (75, [36]),          # Zimtschnecke
+    (76, [36]),          # Berliner
+    (77, [36]),          # Amerikaner
+    (78, [36]),          # Milchhörnchen
+    (79, [36]),          # Hefezopf
+
+    # Wraps
+    (80, [4]),                   # Weizen-Wrap
+    (81, [4, 8]),                # Vollkorn-Wrap
+    (82, [4, 8]),                # Dinkel-Wrap
+    (83, [7, 11, 27, 28]),       # Protein-Wrap
+    (84, [2, 7, 27]),            # Low-Carb-Wrap
+    (85, [0, 1, 4]),             # Spinat-Wrap
+    (86, [1, 4]),                # Tomaten-Wrap
+    (87, [4]),                   # Mais-Wrap (Tortilla)
+    (88, [4]),                   # Hafer-Wrap
+    (89, [7, 8]),                # Kichererbsen-Wrap
+    (90, [7, 8]),                # Reismehl-Wrap
+    (91, [7, 8]),                # Buchweizen-Wrap
+    (92, [7, 8]),                # Kokos-Wrap
+    (93, [4, 8, 27]),            # Leinsamen-Wrap
+    (94, [0, 1, 4, 8]),          # Gemüse-Wrap
+]
+
+setDatabase( tags= tags, foods= foodbaked_goods_and_wraps, nutrition_facts= nutrition_baked, food_tags= tags_baked, densities= densities_baked)

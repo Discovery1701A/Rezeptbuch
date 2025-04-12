@@ -1,5 +1,9 @@
 import Foundation
+import SwiftUICore
 import CoreData
+import UIKit
+import SQLite3
+
 /// `CoreDataManager` ist eine Singleton-Klasse, die für die Verwaltung der Core Data-Persistenzschicht zuständig ist.
 class CoreDataManager {
     static let shared = CoreDataManager() // Singleton-Instanz
@@ -247,77 +251,135 @@ class CoreDataManager {
         }
     }
     
+    func fetchExistingFoodIDs() -> Set<UUID> {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Food.fetchRequest()
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.propertiesToFetch = ["id"]
+        
+        do {
+            let results = try managedContext.fetch(fetchRequest) as! [[String: UUID]]
+            return Set(results.compactMap { $0["id"] })
+        } catch {
+            print("❌ Fehler beim Abrufen der Food-UUIDs: \(error)")
+            return []
+        }
+    }
+
+    func fetchExistingTagIDs() -> Set<UUID> {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Tag.fetchRequest()
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.propertiesToFetch = ["id"]
+        
+        do {
+            let results = try managedContext.fetch(fetchRequest) as! [[String: UUID]]
+            return Set(results.compactMap { $0["id"] })
+        } catch {
+            print("❌ Fehler beim Abrufen der Tag-UUIDs: \(error)")
+            return []
+        }
+    }
+
+    func fetchExistingRecipeIDs() -> Set<UUID> {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Recipes.fetchRequest()
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.propertiesToFetch = ["id"]
+        
+        do {
+            let results = try managedContext.fetch(fetchRequest) as! [[String: UUID]]
+            return Set(results.compactMap { $0["id"] })
+        } catch {
+            print("❌ Fehler beim Abrufen der Rezept-UUIDs: \(error)")
+            return []
+        }
+    }
+    
     /// Prüft, ob die Core Data-Datenbank leer ist, und fügt initiale Datensätze hinzu.
     func insertInitialDataIfNeeded() {
-        // Prüft und lädt die vorgefertigte SQLite-Datenbank (falls vorhanden).
+        // 1. Kopiere ggf. die Datenbank
         setupPreloadedDatabase()
-        
-        // Überprüft, ob bereits Rezepte in der Datenbank existieren.
-        let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
-        let count = try? managedContext.count(for: fetchRequest)
-        
-        guard let recipeCount = count, recipeCount == 0 else {
-            print("ℹ️ Die Datenbank enthält bereits Datensätze. Keine Aktion erforderlich.")
-            return
-        }
-        
-        // Lade die SQLite-Datenbank, falls sie existiert.
+
         let fileManager = FileManager.default
         let containerURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let dbURL = containerURL.appendingPathComponent("Rezeptbuch.sqlite")
-        let databaseService = DatabaseService(databasePath: dbURL.absoluteString)
-        
-        // Lade Lebensmittel & Tags aus der SQLite-Datenbank
+
+        var didMerge = false
+
+        if let bundlePath = Bundle.main.path(forResource: "Rezeptbuch", ofType: "sqlite"),
+           fileManager.fileExists(atPath: dbURL.path) {
+            didMerge = mergeSQLiteDatabases(existingDBPath: dbURL.path, newDBPath: bundlePath)
+        }
+
+        // 2. Prüfen, ob Core Data leer ist (nur Rezepte!)
+        let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
+        let recipeCount = (try? managedContext.count(for: fetchRequest)) ?? 0
+        let isCoreDataEmpty = (recipeCount == 0)
+
+        // 3. Nur fortfahren, wenn Merge stattfand oder Core Data leer ist
+        guard didMerge || isCoreDataEmpty else {
+            print("ℹ️ Kein Merge und Core Data enthält bereits Daten. Keine Aktion nötig.")
+            return
+        }
+
+        // 4. SQLite-Daten laden
+        let databaseService = DatabaseService(databasePath: dbURL.path)
         let foodsFromDatabase = databaseService.loadFoods()
         let tagsFromDatabase = databaseService.loadTags()
-        
-        // Tags speichern
-        for tag in tagsFromDatabase {
+
+        // 5. Core Data: vorhandene UUIDs abrufen
+        let existingFoodIDs = fetchExistingFoodIDs()
+        let existingTagIDs = fetchExistingTagIDs()
+
+        // 6. Tags & Lebensmittel importieren (nur neue)
+        for tag in tagsFromDatabase where !existingTagIDs.contains(tag.id) {
             _ = findOrCreateTag(tagStruct: tag)
         }
-        
-        // Lebensmittel speichern
-        for food in foodsFromDatabase {
+
+        for food in foodsFromDatabase where !existingFoodIDs.contains(food.id) {
             _ = findOrCreateFood(foodStruct: food)
         }
-        
-        // Initialrezepte speichern
-        let recipesToInsert = [pastaRecipe, brownieRecipe]
-        for recipe in recipesToInsert {
-            let recipeEntity = Recipes(context: managedContext)
-            recipeEntity.titel = recipe.title
-            recipeEntity.id = recipe.id
-            recipeEntity.image = recipe.image
-            recipeEntity.instructions = recipe.instructions
-            
-            // Falls das Rezept Zutaten hat, füge sie hinzu.
-            if !recipe.ingredients.isEmpty {
+
+        // 7. Nur wenn Core Data leer ist → Initialrezepte anlegen
+        if isCoreDataEmpty {
+            print("📦 Core Data ist leer. Initialrezepte werden hinzugefügt.")
+            let recipesToInsert = [pastaRecipe, brownieRecipe]
+
+            for recipe in recipesToInsert {
+                let recipeEntity = Recipes(context: managedContext)
+                recipeEntity.titel = recipe.title
+                recipeEntity.id = recipe.id
+                if let uiImage = UIImage(named: recipe.image ?? "") {
+                    recipeEntity.image = saveImageLocally(image: uiImage, id: recipe.id)
+                }
+                recipeEntity.instructions = recipe.instructions
+
                 for foodItemStruct in recipe.ingredients {
                     let foodItemEntity = findOrCreateFoodItem(foodItemStruct)
                     recipeEntity.addToIngredients(foodItemEntity)
                 }
-            }
-            
-            recipeEntity.portion = recipe.portion?.stringValue()
-            recipeEntity.cake = recipe.cake?.stringValue()
-            
-            // Falls das Rezept Tags hat, füge sie hinzu.
-            if let tags = recipe.tags {
-                for tagName in tags {
-                    let tag = findOrCreateTag(tagName)
-                    recipeEntity.addToTags(tag)
+
+                recipeEntity.portion = recipe.portion?.stringValue()
+                recipeEntity.cake = recipe.cake?.stringValue()
+
+                if let tags = recipe.tags {
+                    for tagName in tags {
+                        let tag = findOrCreateTag(tagName)
+                        recipeEntity.addToTags(tag)
+                    }
                 }
             }
+        } else {
+            print("ℹ️ Core Data enthält bereits Rezepte. Initialrezepte werden nicht angelegt.")
         }
-        
-        // Speichert die initialen Daten in Core Data
+
+        // 8. Core Data speichern
         do {
             try managedContext.save()
-            print("✅ Initiale Daten erfolgreich in der Datenbank gespeichert.")
+            print("✅ Neue Daten erfolgreich in Core Data gespeichert.")
         } catch {
-            print("❌ Fehler beim Speichern der initialen Daten: \(error)")
+            print("❌ Fehler beim Speichern der Daten: \(error)")
         }
     }
+    
     
     /// Prüft, ob eine vorgefertigte SQLite-Datenbank bereits existiert, und kopiert sie falls nötig.
     func setupPreloadedDatabase() {
@@ -359,6 +421,56 @@ class CoreDataManager {
         } catch {
             print("❌ Fehler beim Kopieren der SQLite-Datei: \(error)")
         }
+    }
+    
+    func mergeSQLiteDatabases(existingDBPath: String, newDBPath: String) -> Bool {
+        var db: OpaquePointer?
+        var newDataInserted = false
+
+        guard sqlite3_open(existingDBPath, &db) == SQLITE_OK else {
+            print("❌ Fehler beim Öffnen der bestehenden Datenbank.")
+            return false
+        }
+
+        defer { sqlite3_close(db) }
+
+        let attachQuery = "ATTACH DATABASE '\(newDBPath)' AS bundleDB;"
+        guard sqlite3_exec(db, attachQuery, nil, nil, nil) == SQLITE_OK else {
+            print("❌ Fehler beim Anhängen der Bundle-Datenbank.")
+            return false
+        }
+
+        print("✅ Bundle-Datenbank erfolgreich angehängt.")
+
+        let copyQueries = [
+            // Tags
+            "INSERT INTO Tag (id, name) SELECT id, name FROM bundleDB.Tag WHERE id NOT IN (SELECT id FROM Tag);",
+
+            // Lebensmittel
+            "INSERT INTO Food (id, name, category, info, density) SELECT id, name, category, info, density FROM bundleDB.Food WHERE id NOT IN (SELECT id FROM Food);",
+
+            // Nährwerte
+            "INSERT INTO NutritionFacts (food_id, calories, protein, carbohydrates, fat) SELECT food_id, calories, protein, carbohydrates, fat FROM bundleDB.NutritionFacts WHERE food_id NOT IN (SELECT food_id FROM NutritionFacts);",
+
+            // FoodTag-Zuordnung
+            "INSERT INTO FoodTag (foodId, tagId) SELECT foodId, tagId FROM bundleDB.FoodTag WHERE (foodId, tagId) NOT IN (SELECT foodId, tagId FROM FoodTag);"
+        ]
+
+        for query in copyQueries {
+            let changesBefore = sqlite3_total_changes(db)
+            let result = sqlite3_exec(db, query, nil, nil, nil)
+            let changesAfter = sqlite3_total_changes(db)
+
+            if result == SQLITE_OK && changesAfter > changesBefore {
+                newDataInserted = true
+            }
+        }
+
+        // Trennen
+        _ = sqlite3_exec(db, "DETACH DATABASE bundleDB;", nil, nil, nil)
+
+        print("📦 Merge abgeschlossen. Neue Daten eingefügt: \(newDataInserted)")
+        return newDataInserted
     }
     
     /// Sucht nach einem vorhandenen Tag oder erstellt einen neuen, falls keiner existiert.

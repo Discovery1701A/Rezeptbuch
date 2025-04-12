@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 /// Leere Lebensmittel-Struktur als Platzhalter.
 let emptyFood = FoodStruct(id: UUID(), name: "")
@@ -116,3 +117,36 @@ let brownieRecipe = Recipe(
     cake: .cake(form: .eckig, size: .rectangular(length: 35, width: 40)),  // Der Brownie hat eine rechteckige Form
     tags: createTags(["Dessert", "Schokoladenkuchen", "Süßigkeit"])  // Tags zur Kategorisierung
 )
+
+func saveImageLocally(image: UIImage, id :UUID) -> String? {
+    guard let data = image.jpegData(compressionQuality: 0.8) else { return nil }
+    let fileManager = FileManager.default
+    guard let applicationSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+        print("Konnte Application Support-Ordner nicht finden")
+        return nil
+    }
+
+    // Sicherstellen, dass der Ordner existiert
+    if !fileManager.fileExists(atPath: applicationSupport.path) {
+        do {
+            try fileManager.createDirectory(at: applicationSupport, withIntermediateDirectories: true, attributes: nil)
+            print("Application Support-Ordner erstellt: \(applicationSupport.path)")
+        } catch {
+            print("Fehler beim Erstellen des Application Support-Ordners: \(error)")
+            return nil
+        }
+    }
+
+    let fileName = "\(id).jpeg" // Rezept-ID als Dateiname
+    let fileURL = applicationSupport.appendingPathComponent(fileName)
+
+    do {
+        try data.write(to: fileURL)
+        UserDefaults.standard.set(fileName, forKey: "savedImageName") // ❗ Nur den Dateinamen speichern!
+        print("Bild gespeichert unter: \(fileURL.path)")
+        return fileName // Nur den Dateinamen zurückgeben, nicht den ganzen Pfad
+    } catch {
+        print("Fehler beim Speichern des Bildes: \(error)")
+        return nil
+    }
+}
