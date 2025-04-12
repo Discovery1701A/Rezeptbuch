@@ -128,7 +128,7 @@ class CoreDataManager {
     
     /// Speichert ein Rezept mit optionalem Überschreiben.
     /// Wenn `overwrite == false` und ein Rezept mit gleicher ID existiert, wird stattdessen ein neues Rezept mit neuer UUID erstellt.
-    func saveRecipe(_ recipe: Recipe, overwrite: Bool) {
+    func saveRecipe(_ recipe: Recipe, overwrite: Bool) -> Recipe {
         var finalRecipe = recipe
         print(finalRecipe.id)
         if !overwrite && recipeExists(id: recipe.id) {
@@ -165,6 +165,7 @@ class CoreDataManager {
             let recipeEntity = Recipes(context: managedContext)
             recipeEntity.id = finalRecipe.id
             populateRecipeEntityWithNewIngredients(recipeEntity, from: finalRecipe)
+            saveContext()
             print("✅ Rezept gespeichert: \(recipeEntity)")
         } else if overwrite && recipeExists(id: recipe.id) {
            
@@ -174,6 +175,7 @@ class CoreDataManager {
         }
         
      //bücher
+        return finalRecipe
 
         
     }

@@ -70,12 +70,12 @@ struct ContentView: View {
                 },
                 secondaryButton: .default(Text("Als neues speichern")) {
                     if let recipe = pendingRecipe {
-                        CoreDataManager.shared.saveRecipe(recipe, overwrite: false)
-                        modelView.updateAll()
-                      print(  modelView.recipes.count)
-//                        selectedRecipe = recipe.id
-                        deleteImage(id: "\(recipe.id)_import")
-                    }
+                        let savedRecipe = CoreDataManager.shared.saveRecipe(recipe, overwrite: false)
+                           modelView.updateAll()
+                           selectedRecipe = savedRecipe.id
+                           deleteImage(id: "\(recipe.id)_import")
+                        print(modelView.recipes.count)
+                       }
                 }
             )
         }
