@@ -201,7 +201,7 @@ func deserializePlistToRecipe(plistData: Data) -> Recipe? {
                                 if let image = UIImage(data: imageData) {
                                     let fileManager = FileManager.default
                                     let applicationSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-                                    let imageFileURL = applicationSupport.appendingPathComponent("\(id).jpeg")
+                                    let imageFileURL = applicationSupport.appendingPathComponent("\(id)_import.jpeg")
 
                                     do {
                                         // Erstelle das Verzeichnis falls es nicht existiert
@@ -637,11 +637,11 @@ func setFileAttributes(for url: URL) {
 
 
 func deleteRecipeImage(recipe: Recipe) {
-    deleteImage(id: recipe.id)
+    deleteImage(id: recipe.id.uuidString)
 }
 
 
-func deleteImage(id : UUID) {
+func deleteImage(id : String) {
     let fileManager = FileManager.default
     let applicationSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
     let imageFileURL = applicationSupport.appendingPathComponent("\(id).jpg")

@@ -11,6 +11,9 @@ struct RecipeListView: View {
     @ObservedObject var modelView: ViewModel
     @Binding var selectedTab: Int  // Binding für Tab-Wechsel
     @Binding var UUIDOfSelectedRecipe: UUID?
+    @State private var isNavigationActive = false
+    @State private var selectedRecipeForNavigation: Recipe? = nil
+
     @State private var searchText = ""
     @State private var selectedIngredients: [FoodStruct] = []
     @State private var selectedTags: [TagStruct] = []
@@ -41,107 +44,124 @@ struct RecipeListView: View {
         #if os(iOS)
      
         NavigationView {
-            if let selectedID = UUIDOfSelectedRecipe,
-               let selectedRecipe = modelView.recipes.first(where: { $0.id == selectedID }) {
-                NavigationLink(
-                    destination: RecipeView(recipe: selectedRecipe, modelView: modelView),
-                    tag: selectedID,
-                    selection: $UUIDOfSelectedRecipe
-                ) {
-                    EmptyView() // Unsichtbarer NavigationLink
-                   
-                }
-                .onAppear {
-                    DispatchQueue.main.async {
-                        UUIDOfSelectedRecipe = nil
+            ZStack{
+                VStack {
+                    HStack {
+                        TextField("Rezept suchen", text: $searchText)
+                            .padding()
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        
+                        // Clear Button für das Hauptsuchfeld
+                        if !searchText.isEmpty {
+                            Button(action: {
+                                searchText = ""
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.gray)
+                            }
+                            .padding(.trailing, 8)
+                        }
                     }
-                }
-            }
-            VStack {
-                HStack {
-                    TextField("Rezept suchen", text: $searchText)
-                        .padding()
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
                     
-                    // Clear Button für das Hauptsuchfeld
-                    if !searchText.isEmpty {
+                    HStack {
                         Button(action: {
-                            searchText = ""
+                            withAnimation {
+                                isFilterExpanded.toggle()
+                            }
                         }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.gray)
+                            HStack {
+                                Text("Filter")
+                                Image(systemName: isFilterExpanded ? "chevron.up" : "chevron.down")
+                            }
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
                         }
-                        .padding(.trailing, 8)
-                    }
-                }
-                
-                HStack {
-                    Button(action: {
-                        withAnimation {
-                            isFilterExpanded.toggle()
+                        
+                        Spacer()
+                        
+                        Button("Alle Filter entfernen") {
+                            clearAllFilters()
                         }
-                    }) {
-                        HStack {
-                            Text("Filter")
-                            Image(systemName: isFilterExpanded ? "chevron.up" : "chevron.down")
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
+                        .foregroundColor(.red)
+                        .padding(.horizontal)
                     }
                     
-                    Spacer()
-                    
-                    Button("Alle Filter entfernen") {
-                        clearAllFilters()
-                    }
-                    .foregroundColor(.red)
-                    .padding(.horizontal)
-                }
-                
-                if isFilterExpanded {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 12) {
-                            if !modelView.foods.isEmpty {
-                                FilterSection(
-                                    title: "Zutaten auswählen:",
-                                    items: modelView.foods,
-                                    selectedItems: $selectedIngredients,
-                                    clearAction: { selectedIngredients.removeAll() }
-                                )
+                    if isFilterExpanded {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 12) {
+                                if !modelView.foods.isEmpty {
+                                    FilterSection(
+                                        title: "Zutaten auswählen:",
+                                        items: modelView.foods,
+                                        selectedItems: $selectedIngredients,
+                                        clearAction: { selectedIngredients.removeAll() }
+                                    )
+                                }
+                                
+                                if !modelView.tags.isEmpty {
+                                    FilterSection(
+                                        title: "Tags auswählen:",
+                                        items: modelView.tags,
+                                        selectedItems: $selectedTags,
+                                        clearAction: { selectedTags.removeAll() }
+                                    )
+                                }
+                                
+                                if !modelView.recipeBooks.isEmpty {
+                                    FilterSection(
+                                        title: "Rezeptbücher auswählen:",
+                                        items: modelView.recipeBooks,
+                                        selectedItems: $selectedRecipeBooks,
+                                        clearAction: { selectedRecipeBooks.removeAll() }
+                                    )
+                                }
                             }
-                            
-                            if !modelView.tags.isEmpty {
-                                FilterSection(
-                                    title: "Tags auswählen:",
-                                    items: modelView.tags,
-                                    selectedItems: $selectedTags,
-                                    clearAction: { selectedTags.removeAll() }
-                                )
-                            }
-                            
-                            if !modelView.recipeBooks.isEmpty {
-                                FilterSection(
-                                    title: "Rezeptbücher auswählen:",
-                                    items: modelView.recipeBooks,
-                                    selectedItems: $selectedRecipeBooks,
-                                    clearAction: { selectedRecipeBooks.removeAll() }
-                                )
-                            }
+                            .padding(.top, 8)
                         }
-                        .padding(.top, 8)
+                        .frame(maxHeight: 300)
                     }
-                    .frame(maxHeight: 300)
+                    
+                    List(filteredRecipes, id: \.id) { recipe in
+                        NavigationLink(destination: RecipeView(recipe: recipe, modelView: modelView)) {
+                            Text(recipe.title)
+                        }
+                    }
+                    .navigationBarTitle("Alle Rezepte")
                 }
-                
-                List(filteredRecipes, id: \.id) { recipe in
-                    NavigationLink(destination: RecipeView(recipe: recipe, modelView: modelView)) {
-                        Text(recipe.title)
+                .padding()
+                // Neuer NavigationLink, unabhängig von UUID direkt
+                NavigationLink(
+                    destination: Group {
+                        if let recipe = selectedRecipeForNavigation {
+                            RecipeView(recipe: recipe, modelView: modelView)
+                        }
+                    },
+                    isActive: $isNavigationActive
+                ) {
+                    EmptyView()
+                }
+                .onChange(of: isNavigationActive) { active in
+                    if !active {
+                        // Beim Zurücknavigieren auf nil setzen
+                        print("sssssssssssss")
+                        UUIDOfSelectedRecipe = nil
+                        selectedRecipeForNavigation = nil
                     }
                 }
-                .navigationBarTitle("Alle Rezepte")
+                .onChange(of: UUIDOfSelectedRecipe) { newValue in
+                    guard
+                        let id = newValue,
+                        let recipe = modelView.recipes.first(where: { $0.id == id })
+                            
+                    else {
+                        return
+                    }
+                    print("dddddddddd")
+                    selectedRecipeForNavigation = recipe
+                    isNavigationActive = true
+                }
             }
-            .padding()
         }
         .navigationViewStyle(StackNavigationViewStyle())
         #elseif os(macOS)

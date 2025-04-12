@@ -69,7 +69,30 @@ class CoreDataManager {
             return []
         }
     }
-    
+    func removeCoreDataFiles() {
+        let fileManager = FileManager.default
+        let urls = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+        
+        guard let appSupportURL = urls.first else { return }
+        
+        let filesToDelete = [
+            "Model.sqlite",
+            "Model.sqlite-wal",
+            "Model.sqlite-shm"
+        ]
+        
+        for filename in filesToDelete {
+            let fileURL = appSupportURL.appendingPathComponent(filename)
+            if fileManager.fileExists(atPath: fileURL.path) {
+                do {
+                    try fileManager.removeItem(at: fileURL)
+                    print("🧹 Datei gelöscht: \(filename)")
+                } catch {
+                    print("❌ Fehler beim Löschen von \(filename): \(error)")
+                }
+            }
+        }
+    }
     
     func recipeExists(id: UUID) -> Bool {
         let request = Recipes.fetchRequest()
@@ -107,10 +130,20 @@ class CoreDataManager {
     /// Wenn `overwrite == false` und ein Rezept mit gleicher ID existiert, wird stattdessen ein neues Rezept mit neuer UUID erstellt.
     func saveRecipe(_ recipe: Recipe, overwrite: Bool) {
         var finalRecipe = recipe
-
+        print(finalRecipe.id)
         if !overwrite && recipeExists(id: recipe.id) {
             // Neue UUID vergeben, um Duplikate zu vermeiden
             finalRecipe.id = UUID()
+            // Neue IDs für Zutaten vergeben
+            finalRecipe.ingredients = finalRecipe.ingredients.map { ingredient in
+                var newIngredient = ingredient
+               print( newIngredient.id)
+                newIngredient.id = UUID()
+                print(newIngredient.id)
+                return newIngredient
+            }
+            
+            print(finalRecipe.id)
             // 📸 Bild verschieben/umbenennen (falls vorhanden)
             if let oldPath = finalRecipe.image {
                 let oldURL = URL(fileURLWithPath: oldPath)
@@ -129,8 +162,9 @@ class CoreDataManager {
                 }
             }
             
-            let recipeEntity = findOrCreateRecipeEntity(from: finalRecipe)
-            populateRecipeEntity(recipeEntity, from: finalRecipe)
+            let recipeEntity = Recipes(context: managedContext)
+            recipeEntity.id = finalRecipe.id
+            populateRecipeEntityWithNewIngredients(recipeEntity, from: finalRecipe)
             print("✅ Rezept gespeichert: \(recipeEntity)")
         } else if overwrite && recipeExists(id: recipe.id) {
            
@@ -208,11 +242,43 @@ class CoreDataManager {
         
         // Falls ein Rezept mit der ID existiert, verwende es; sonst erstelle ein neues.
         if let existing = try? managedContext.fetch(fetchRequest).first {
+            print("existirt")
             return existing
         } else {
             let new = Recipes(context: managedContext)
             new.id = recipe.id // Direktes Setzen der UUID
             return new
+        }
+    }
+    
+    /// Füllt eine `Recipes`-Entität mit Daten aus einem `Recipe`-Struct.
+    /// Erstellt für jedes FoodItem eine neue FoodItem-Entität (ohne Suche), ideal für duplizierte Rezepte.
+    func populateRecipeEntityWithNewIngredients(_ entity: Recipes, from recipe: Recipe) {
+        entity.titel = recipe.title
+        entity.instructions = recipe.instructions
+        entity.image = recipe.image
+        entity.portion = recipe.portion?.stringValue()
+        entity.cake = recipe.cake?.stringValue()
+        entity.videoLink = recipe.videoLink
+        entity.info = recipe.info
+        entity.id = recipe.id
+
+        // 🍎 Zutaten: Neue FoodItem-Entities erstellen
+        for item in recipe.ingredients {
+            let newFoodItem = FoodItem(context: managedContext)
+            newFoodItem.food = findOrCreateFood(foodStruct: item.food)
+            newFoodItem.unit = Unit.toString(item.unit)
+            newFoodItem.quantity = item.quantity
+            newFoodItem.id = item.id
+            entity.addToIngredients(newFoodItem)
+        }
+
+        // 🏷 Tags hinzufügen
+        if let tags = recipe.tags {
+            for tag in tags {
+                let tagEntity = findOrCreateTag(tag)
+                entity.addToTags(tagEntity)
+            }
         }
     }
     
@@ -295,7 +361,10 @@ class CoreDataManager {
     
     /// Prüft, ob die Core Data-Datenbank leer ist, und fügt initiale Datensätze hinzu.
     func insertInitialDataIfNeeded() {
+        
+//        removeCoreDataFiles()
         // 1. Kopiere ggf. die Datenbank
+
         setupPreloadedDatabase()
 
         let fileManager = FileManager.default

@@ -183,7 +183,7 @@ struct FoodCreationView: View {
                 nutritionFacts: nutritionFacts,
                 tags: tags
             )
-            CoreDataManager().updateFood(foodStruct: updatedFood)
+            CoreDataManager.shared.updateFood(foodStruct: updatedFood)
         } else {
             // Neues Lebensmittel speichern
             let newFood = FoodStruct(
@@ -195,7 +195,7 @@ struct FoodCreationView: View {
                 nutritionFacts: nutritionFacts,
                 tags: tags
             )
-            CoreDataManager().saveFood(foodStruct: newFood)
+            CoreDataManager.shared.saveFood(foodStruct: newFood)
         }
 
         modelView.updateFood()  // Aktualisiert die Liste der Lebensmittel im ViewModel

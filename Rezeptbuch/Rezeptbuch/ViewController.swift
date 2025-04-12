@@ -151,7 +151,7 @@ struct FoodItemStruct: Hashable, Equatable, Identifiable {
     var food: FoodStruct  // Lebensmittel
     var unit: Unit  // Einheit der Menge (z. B. Gramm, Liter)
     var quantity: Double  // Menge des Lebensmittels
-    let id: UUID  // Eindeutige Identifikation des Lebensmittels in diesem Kontext
+    var id: UUID  // Eindeutige Identifikation des Lebensmittels in diesem Kontext
 
     /// Vergleichsoperator für `FoodItemStruct`
     static func == (lhs: FoodItemStruct, rhs: FoodItemStruct) -> Bool {

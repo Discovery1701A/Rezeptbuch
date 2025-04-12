@@ -38,20 +38,21 @@ struct ContentView: View {
         .sheet(item: $importedRecipe) { recipe in
             RecipePreviewView(recipe: recipe, onSave: {
                 
-                if CoreDataManager().recipeExists(id: recipe.id) {
+                if CoreDataManager.shared.recipeExists(id: recipe.id) {
                     pendingRecipe = recipe
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         showDuplicateAlert = true
                     }
                     print("bfnbjfdnkbjfdnbjkfdnkbnfbjfd")
                 } else {
                     print("jnknknjknnkjnkjn")
-                    CoreDataManager().saveRecipe(recipe)
+                    CoreDataManager.shared.saveRecipe(recipe)
                     modelView.updateAll()
+                    selectedRecipe = recipe.id
                 }
                 importedRecipe = nil
             }, onCancel: {
-                deleteImage(id: recipe.id)
+                deleteImage(id: "\(recipe.id)_import")
                 importedRecipe = nil
             })
         }
@@ -61,14 +62,19 @@ struct ContentView: View {
                 message: Text("Es existiert bereits ein Rezept mit dieser ID. Möchtest du es überschreiben oder als neues speichern?"),
                 primaryButton: .destructive(Text("Überschreiben")) {
                     if let recipe = pendingRecipe {
-                        CoreDataManager().saveRecipe(recipe, overwrite: true)
+                        CoreDataManager.shared.saveRecipe(recipe, overwrite: true)
                         modelView.updateAll()
+                        selectedRecipe = recipe.id
+                        deleteImage(id: "\(recipe.id)_import")
                     }
                 },
                 secondaryButton: .default(Text("Als neues speichern")) {
-                    if var recipe = pendingRecipe {
-                        CoreDataManager().saveRecipe(recipe, overwrite: false)
+                    if let recipe = pendingRecipe {
+                        CoreDataManager.shared.saveRecipe(recipe, overwrite: false)
                         modelView.updateAll()
+                      print(  modelView.recipes.count)
+//                        selectedRecipe = recipe.id
+                        deleteImage(id: "\(recipe.id)_import")
                     }
                 }
             )

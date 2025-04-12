@@ -25,14 +25,14 @@ class ViewModel: ObservableObject {
   
     /// Initialisiert das ViewModel und lädt die Daten aus CoreData.
     init() {
-        CoreDataManager().insertInitialDataIfNeeded()  // Falls nötig, werden Anfangsdaten eingefügt
+        CoreDataManager.shared.insertInitialDataIfNeeded()  // Falls nötig, werden Anfangsdaten eingefügt
 
         // Lädt die gespeicherten Daten aus Core Data
-        let load = CoreDataManager().fetchRecipes()
+        let load = CoreDataManager.shared.fetchRecipes()
         recipes = load  // Rezepte aus CoreData übernehmen
-        recipeBooks = CoreDataManager().fetchRecipebooks()
-        tags = CoreDataManager().fetchTags()
-        foods = CoreDataManager().fetchFoods()
+        recipeBooks = CoreDataManager.shared.fetchRecipebooks()
+        tags = CoreDataManager.shared.fetchTags()
+        foods = CoreDataManager.shared.fetchFoods()
     }
     
     
@@ -54,22 +54,22 @@ class ViewModel: ObservableObject {
     
     /// Aktualisiert die Liste der Rezepte durch erneutes Abrufen aus CoreData.
     func updateRecipe() {
-        recipes = CoreDataManager().fetchRecipes()
+        recipes = CoreDataManager.shared.fetchRecipes()
 //        print("rezepteModelView:", recipes)
     }
     
     /// Aktualisiert die Liste der Lebensmittel.
     func updateFood() {
-        foods = CoreDataManager().fetchFoods()
+        foods = CoreDataManager.shared.fetchFoods()
     }
     
     /// Aktualisiert die Liste der Tags.
     func updateTags() {
-        tags = CoreDataManager().fetchTags()
+        tags = CoreDataManager.shared.fetchTags()
     }
     
     /// Aktualisiert die Liste der Rezeptbücher.
     func updateBooks() {
-        recipeBooks = CoreDataManager().fetchRecipebooks()
+        recipeBooks = CoreDataManager.shared.fetchRecipebooks()
     }
 }

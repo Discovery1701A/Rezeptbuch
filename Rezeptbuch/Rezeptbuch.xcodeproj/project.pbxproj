@@ -29,7 +29,6 @@
 		588222A62D05BC9E0011FFFE /* TagsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588222A52D05BC9E0011FFFE /* TagsSectionView.swift */; };
 		588251D12B99E106009370CF /* RezeptbuchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588251D02B99E106009370CF /* RezeptbuchApp.swift */; };
 		588251D32B99E106009370CF /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588251D22B99E106009370CF /* Persistence.swift */; };
-		588251D62B99E106009370CF /* Rezeptbuch.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 588251D42B99E106009370CF /* Rezeptbuch.xcdatamodeld */; };
 		588251D82B99E106009370CF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588251D72B99E106009370CF /* ContentView.swift */; };
 		588251DA2B99E10A009370CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 588251D92B99E10A009370CF /* Assets.xcassets */; };
 		588251DE2B99E10A009370CF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 588251DD2B99E10A009370CF /* Preview Assets.xcassets */; };
@@ -69,7 +68,6 @@
 		588251CD2B99E106009370CF /* Rezeptbuch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rezeptbuch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		588251D02B99E106009370CF /* RezeptbuchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RezeptbuchApp.swift; sourceTree = "<group>"; };
 		588251D22B99E106009370CF /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
-		588251D52B99E106009370CF /* Rezeptbuch.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Rezeptbuch.xcdatamodel; sourceTree = "<group>"; };
 		588251D72B99E106009370CF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		588251D92B99E10A009370CF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		588251DB2B99E10A009370CF /* Rezeptbuch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Rezeptbuch.entitlements; sourceTree = "<group>"; };
@@ -146,7 +144,6 @@
 				58C765F22B9F0385001E6068 /* Buttons.swift */,
 				588251D92B99E10A009370CF /* Assets.xcassets */,
 				588251DB2B99E10A009370CF /* Rezeptbuch.entitlements */,
-				588251D42B99E106009370CF /* Rezeptbuch.xcdatamodeld */,
 				588251DC2B99E10A009370CF /* Preview Content */,
 			);
 			path = Rezeptbuch;
@@ -276,7 +273,6 @@
 				585ED80A2D16D78F0038C464 /* Food+CoreDataProperties.swift in Sources */,
 				58A204042BB709F800659D63 /* Model.swift in Sources */,
 				588222A62D05BC9E0011FFFE /* TagsSectionView.swift in Sources */,
-				588251D62B99E106009370CF /* Rezeptbuch.xcdatamodeld in Sources */,
 				585ED7F92D16D4AD0038C464 /* FoodItem+CoreDataClass.swift in Sources */,
 				585ED7FA2D16D4AD0038C464 /* FoodItem+CoreDataProperties.swift in Sources */,
 				585ED7FB2D16D4AD0038C464 /* NutritionFacts+CoreDataClass.swift in Sources */,
@@ -539,16 +535,6 @@
 			currentVersion = 586AC7972BDA4D480060B08D /* Model.xcdatamodel */;
 			name = Model.xcdatamodeld;
 			path = /Users/annarieckmann/Documents/GitHub/Rezeptbuch/Rezeptbuch/Rezeptbuch/Model.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-		588251D42B99E106009370CF /* Rezeptbuch.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				588251D52B99E106009370CF /* Rezeptbuch.xcdatamodel */,
-			);
-			currentVersion = 588251D52B99E106009370CF /* Rezeptbuch.xcdatamodel */;
-			path = Rezeptbuch.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

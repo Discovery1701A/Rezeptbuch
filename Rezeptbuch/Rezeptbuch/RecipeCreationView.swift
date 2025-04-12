@@ -415,15 +415,15 @@ struct RecipeCreationView: View {
         
         print(recipe)
         if newRecipe {
-            CoreDataManager().saveRecipe(recipe)
+            CoreDataManager.shared.saveRecipe(recipe)
         } else {
             print("updatteeeee")
-            CoreDataManager().updateRecipe(recipe)
+            CoreDataManager.shared.updateRecipe(recipe)
             print("perfekt")
         }
         
         for book in bookSav {
-            CoreDataManager().addRecipe(recipe, toRecipeBook: book)
+            CoreDataManager.shared.addRecipe(recipe, toRecipeBook: book)
         }
         
         modelView.updateRecipe()
@@ -440,7 +440,7 @@ struct RecipeCreationView: View {
         modelView.recipeBooks.append(newBook)
         selectedRecipeBookIDs.insert(newBook.id) // Optional: automatisch auswählen
         newRecipeBookName = "" // Reset
-        CoreDataManager().createNewRecipeBook(recipeBookStruct: newBook)
+        CoreDataManager.shared.createNewRecipeBook(recipeBookStruct: newBook)
         modelView.updateBooks()
         filteredRecipeBooks = modelView.recipeBooks
         showingNewRecipeBookDialog = false
