@@ -902,6 +902,7 @@ struct IngredientSearchView: View {
     @State private var showingFoodCreation = false // Zustand für FoodCreationView
     @State private var editingFood: FoodStruct? // Die Zutat, die bearbeitet wird
     @State private var showingEditSheet = false // Zeigt die Bearbeitungsansicht
+    @State private var lastCreatedOrEditedFood: FoodStruct? = nil
 
     @State var allFoods: [FoodStruct]
 
@@ -927,6 +928,35 @@ struct IngredientSearchView: View {
                 (selectedTag == nil || food.tags?.contains(where: { $0.name == selectedTag }) == true)
         }
     }
+    var sortedFoodsWithSelectedFirst: [FoodStruct] {
+        var sorted = filteredFoods.sorted {
+            let categoryA = $0.category ?? ""
+            let categoryB = $1.category ?? ""
+            
+            if categoryA != categoryB {
+                return categoryA.localizedCaseInsensitiveCompare(categoryB) == .orderedAscending
+            } else {
+                return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
+        }
+        
+        // Prüfe zuerst lastCreatedOrEditedFood
+        if let last = lastCreatedOrEditedFood,
+           let index = sorted.firstIndex(where: { $0.id == last.id }) {
+            let item = sorted.remove(at: index)
+            sorted.insert(item, at: 0)
+            return sorted
+        }
+        
+        // Sonst fallback auf selectedFood
+        if let index = sorted.firstIndex(where: { $0.id == selectedFood.id }) {
+            let selected = sorted.remove(at: index)
+            sorted.insert(selected, at: 0)
+        }
+        
+        return sorted
+    }
+    
 
     var body: some View {
         NavigationView {
@@ -995,7 +1025,7 @@ struct IngredientSearchView: View {
                         }
                     }
                     
-                    List(filteredFoods) { food in
+                    List(sortedFoodsWithSelectedFirst) { food in
                         Button(action: {
                             selectedFood = food
                             dismiss()
@@ -1040,10 +1070,11 @@ struct IngredientSearchView: View {
             .sheet(isPresented: $showingFoodCreation) {
                 FoodCreationView(
                     modelView: modelView,
-                    onSave: {
+                    onSave: { newFood in
                         showingFoodCreation = false
                         modelView.updateFood()
                         updateFoods()
+                        lastCreatedOrEditedFood = newFood
                     }
                 )
             }
@@ -1052,10 +1083,11 @@ struct IngredientSearchView: View {
                     FoodCreationView(
                         modelView: modelView,
                         existingFood: foodToEdit,
-                        onSave: {
+                        onSave: { updatedFood in
                             showingEditSheet = false
                             modelView.updateFood()
                             updateFoods()
+                            lastCreatedOrEditedFood = updatedFood
                         }
                     )
                 }

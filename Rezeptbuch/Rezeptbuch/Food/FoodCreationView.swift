@@ -10,7 +10,7 @@ import SwiftUI
 /// Ansicht zur Erstellung oder Bearbeitung eines Lebensmittels.
 struct FoodCreationView: View {
     @ObservedObject var modelView: ViewModel  // Das ViewModel zur Datenverwaltung
-    var onSave: () -> Void  // Callback, der nach dem Speichern aufgerufen wird
+    var onSave: (FoodStruct) -> Void  // statt () -> Void // Callback, der nach dem Speichern aufgerufen wird
     
     // Zustandsvariablen für die Eingabefelder
     @State private var foodName = ""
@@ -29,7 +29,7 @@ struct FoodCreationView: View {
     var existingFood: FoodStruct? = nil  // Optionales bestehendes Lebensmittel zur Bearbeitung
 
     /// Initialisiert die Ansicht mit optionalen bestehenden Lebensmitteln zur Bearbeitung.
-    init(modelView: ViewModel, existingFood: FoodStruct? = nil, onSave: @escaping () -> Void) {
+    init(modelView: ViewModel, existingFood: FoodStruct? = nil, onSave: @escaping (FoodStruct) -> Void) {
         self.modelView = modelView
         self.existingFood = existingFood
         self.onSave = onSave
@@ -152,9 +152,8 @@ struct FoodCreationView: View {
 
     /// Speichert oder aktualisiert das Lebensmittel in Core Data.
     func saveFood() {
-        guard !foodName.isEmpty else { return }  // Stellt sicher, dass der Name nicht leer ist
+        guard !foodName.isEmpty else { return }
 
-        // Falls ein optionales Feld leer ist, setze es auf nil
         let info = foodInfo.isEmpty ? nil : foodInfo
         let category = foodCategory.isEmpty ? nil : foodCategory
         let density = fooddensity.isEmpty ? nil : Double(fooddensity)
@@ -164,17 +163,17 @@ struct FoodCreationView: View {
         let fatValue = fat.isEmpty ? nil : Double(fat)
         let tags = selectedTags.isEmpty ? nil : allTags.filter { selectedTags.contains($0.id) }
 
-        // Nährwertangaben als Struktur speichern
         let nutritionFacts = NutritionFactsStruct(
             calories: caloriesValue,
             protein: proteinValue,
             carbohydrates: carbohydratesValue,
             fat: fatValue
         )
-     
+
+        let savedFood: FoodStruct
+
         if let existingFood = existingFood {
-            // Aktualisierung eines bestehenden Lebensmittels
-            let updatedFood = FoodStruct(
+            savedFood = FoodStruct(
                 id: existingFood.id,
                 name: foodName,
                 category: category,
@@ -183,10 +182,9 @@ struct FoodCreationView: View {
                 nutritionFacts: nutritionFacts,
                 tags: tags
             )
-            CoreDataManager.shared.updateFood(foodStruct: updatedFood)
+            CoreDataManager.shared.updateFood(foodStruct: savedFood)
         } else {
-            // Neues Lebensmittel speichern
-            let newFood = FoodStruct(
+            savedFood = FoodStruct(
                 id: UUID(),
                 name: foodName,
                 category: category,
@@ -195,10 +193,10 @@ struct FoodCreationView: View {
                 nutritionFacts: nutritionFacts,
                 tags: tags
             )
-            CoreDataManager.shared.saveFood(foodStruct: newFood)
+            CoreDataManager.shared.saveFood(foodStruct: savedFood)
         }
 
-        modelView.updateFood()  // Aktualisiert die Liste der Lebensmittel im ViewModel
-        onSave()  // Ruft die onSave-Closure auf, um die übergeordnete Ansicht zu informieren
+        modelView.updateFood()
+        onSave(savedFood)
     }
 }

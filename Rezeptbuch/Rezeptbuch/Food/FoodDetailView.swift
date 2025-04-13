@@ -98,7 +98,7 @@ struct FoodDetailView: View {
         .navigationTitle("Lebensmittel Details")
         .sheet(isPresented: $isEditing) {
             // Öffnet die Bearbeitungsansicht in einem Modal-Fenster
-            FoodCreationView(modelView: modelView, existingFood: food) {
+            FoodCreationView(modelView: modelView, existingFood: food) {_ in 
                 isEditing = false  // Schließt die Bearbeitungsansicht
                 
                 // Aktualisiert die Lebensmittel- und Rezeptdaten im ViewModel
