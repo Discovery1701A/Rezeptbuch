@@ -1081,11 +1081,10 @@ struct RecipeIngredientsView: View {
 
 /// Stellt die Kochanweisungen für ein Rezept dar.
 struct RecipeInstructionsView: View {
-    var instructions: [String]  // Liste der Anweisungen
+    var instructions: [InstructionItem]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            // Titel der Anleitungssektion
             Text("Anleitung")
                 .font(.title2)
                 .fontWeight(.bold)
@@ -1093,21 +1092,28 @@ struct RecipeInstructionsView: View {
                 .padding(.bottom, 5)
 
             VStack(alignment: .leading, spacing: 8) {
-                // Iteriert über die Anweisungen und fügt eine Nummerierung hinzu
-                ForEach(Array(instructions.enumerated()), id: \.element) { index, instruction in
-                    HStack(alignment: .top, spacing: 8) {
-                        // Nummerierung der Anweisungen
-                        Text("\(index + 1).")
-                            .fontWeight(.bold)
-                            .foregroundColor(.accentColor)
-                        
-                        // Anweisungstext
-                        Text(instruction)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                let sortedInstructions = instructions.sorted { ($0.number ?? 0) < ($1.number ?? 0) }
+
+                ForEach(Array(sortedInstructions.enumerated()), id: \.1.id) { index, item in
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(alignment: .top, spacing: 8) {
+                            Text("\(index + 1).")
+                                .fontWeight(.bold)
+                                .foregroundColor(.accentColor)
+
+                            Text(item.text)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+
+                        if !item.uuids.isEmpty {
+                            Text("Verknüpfte UUIDs: \(item.uuids.map { $0.uuidString.prefix(8) }.joined(separator: ", "))")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                     }
                     .padding()
-                    .background(Color(.systemGray6)) // Hintergrund für bessere Lesbarkeit
-                    .cornerRadius(8) // Abgerundete Ecken für modernes Design
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
                 }
             }
         }

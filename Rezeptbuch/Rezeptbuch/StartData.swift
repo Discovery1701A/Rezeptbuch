@@ -66,7 +66,11 @@ let schokostücke = FoodStruct(
     category: "Süßwaren",
     nutritionFacts: NutritionFactsStruct(calories: 484, protein: 7.9, carbohydrates: 23, fat: 36.2)
 )
-
+func instructionList(_ steps: [String]) -> [InstructionItem] {
+    steps.enumerated().map { index, text in
+        InstructionItem(number: index + 1, text: text, uuids: [])
+    }
+}
 
 /// Beispielhaftes Rezept für Spaghetti Bolognese.
 let pastaRecipe = Recipe(
@@ -79,12 +83,12 @@ let pastaRecipe = Recipe(
         FoodItemStruct(food: FoodStruct(id: UUID(), name: "Tomatensoße", category: "Saucen"), unit: .milliliter, quantity: 500, id: UUID()),
         FoodItemStruct(food: FoodStruct(id: UUID(), name: "Spaghetti", category: "Nudeln & Teigwaren"), unit: .gram, quantity: 250, id: UUID())
     ],
-    instructions: [
-        "Hackfleisch anbraten",
-        "Zwiebel und Knoblauch hinzufügen",
-        "Tomatensoße dazugeben",
-        "Spaghetti kochen"
-    ],
+    instructions: instructionList([
+           "Hackfleisch anbraten",
+           "Zwiebel und Knoblauch hinzufügen",
+           "Tomatensoße dazugeben",
+           "Spaghetti kochen"
+       ]),
     image: "spaghetti-mit-schneller-tomatensosse",  // Bildname für die Darstellung
     portion: .Portion(4),  // Das Rezept ist für 4 Portionen
     cake: .notCake,  // Kein Kuchen
@@ -104,7 +108,7 @@ let brownieRecipe = Recipe(
         FoodItemStruct(food: mehl, unit: .gram, quantity: 150, id: UUID()),
         FoodItemStruct(food: schokostücke, unit: .gram, quantity: 200, id: UUID())
     ],
-    instructions: [
+    instructions: instructionList([
         "Ofen auf 180°C vorheizen",
         "Schokolade und Butter über einem Wasserbad schmelzen",
         "Eier mit Vanille-Extrakt und Zucker aufschlagen",
@@ -112,7 +116,7 @@ let brownieRecipe = Recipe(
         "Erst Mehl und dann die Schokostücke hinzugeben",
         "Teig in eine Form oder aufs Backblech geben",
         "30 Minuten in den Backofen"
-    ],
+    ]),
     image: "Brownie",  // Bildname für die Darstellung
     cake: .cake(form: .eckig, size: .rectangular(length: 35, width: 40)),  // Der Brownie hat eine rechteckige Form
     tags: createTags(["Dessert", "Schokoladenkuchen", "Süßigkeit"])  // Tags zur Kategorisierung

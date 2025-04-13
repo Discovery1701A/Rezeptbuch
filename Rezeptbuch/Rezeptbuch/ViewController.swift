@@ -72,13 +72,26 @@ struct FoodStruct: Hashable, Equatable, Identifiable {
         hasher.combine(tags)
     }
 }
+public struct InstructionItem: Codable, Identifiable, Hashable {
+    public var id = UUID()
+    public var number: Int?
+    public var text: String
+    public var uuids: [UUID]
+
+    public init(id: UUID = UUID(), number: Int? = nil, text: String, uuids: [UUID]) {
+        self.id = id
+        self.number = number
+        self.text = text
+        self.uuids = uuids
+    }
+}
 
 /// Struktur für ein Rezept mit Zutaten, Anweisungen und Metadaten.
 struct Recipe: Identifiable, Equatable {
     var id: UUID  // Eindeutige Identifikation des Rezepts
     var title: String  // Titel des Rezepts
     var ingredients: [FoodItemStruct]  // Liste der Zutaten
-    var instructions: [String]  // Kochanweisungen als Liste von Schritten
+    var instructions: [InstructionItem]  // Kochanweisungen als Liste von Schritten
     var image: String?  // Name oder Pfad zum Bild des Rezepts (optional)
     var portion: PortionsInfo?  // Portionsangaben (optional)
     var cake: CakeInfo?  // Spezielle Kucheninformationen (optional)

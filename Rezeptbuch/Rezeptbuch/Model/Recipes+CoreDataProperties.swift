@@ -9,7 +9,6 @@
 import Foundation
 import CoreData
 
-
 extension Recipes {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Recipes> {
@@ -20,7 +19,7 @@ extension Recipes {
     @NSManaged public var id: UUID?
     @NSManaged public var image: String?
     @NSManaged public var info: String?
-    @NSManaged public var instructions: [String]?
+    @NSManaged public var instructionsData: Data? // 🔄 Neu: Data für gespeicherte Instructions
     @NSManaged public var portion: String?
     @NSManaged public var titel: String?
     @NSManaged public var videoLink: String?
@@ -28,6 +27,16 @@ extension Recipes {
     @NSManaged public var recipesBooks: NSSet?
     @NSManaged public var tags: NSSet?
 
+    /// Komfortabler Zugriff auf gespeicherte Kochanweisungen
+    public var instructions: [InstructionItem] {
+        get {
+            guard let data = instructionsData else { return [] }
+            return (try? JSONDecoder().decode([InstructionItem].self, from: data)) ?? []
+        }
+        set {
+            instructionsData = try? JSONEncoder().encode(newValue)
+        }
+    }
 }
 
 // MARK: Generated accessors for ingredients
@@ -44,7 +53,6 @@ extension Recipes {
 
     @objc(removeIngredients:)
     @NSManaged public func removeFromIngredients(_ values: NSSet)
-
 }
 
 // MARK: Generated accessors for recipesBooks
@@ -61,7 +69,6 @@ extension Recipes {
 
     @objc(removeRecipesBooks:)
     @NSManaged public func removeFromRecipesBooks(_ values: NSSet)
-
 }
 
 // MARK: Generated accessors for tags
@@ -78,9 +85,6 @@ extension Recipes {
 
     @objc(removeTags:)
     @NSManaged public func removeFromTags(_ values: NSSet)
-
 }
 
-extension Recipes : Identifiable {
-
-}
+extension Recipes: Identifiable {}

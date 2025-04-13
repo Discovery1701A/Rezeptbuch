@@ -168,7 +168,7 @@ class CoreDataManager {
             saveContext()
             print("✅ Rezept gespeichert: \(recipeEntity)")
         } else if overwrite && recipeExists(id: recipe.id) {
-           
+            renameRecipeImage(for: &finalRecipe)
                         finalRecipe.image = "\(finalRecipe.id).jpeg"
                 
             updateRecipe(finalRecipe)
@@ -178,6 +178,27 @@ class CoreDataManager {
         return finalRecipe
 
         
+    }
+    
+    /// Versucht das Rezeptbild zur neuen ID umzubenennen
+    func renameRecipeImage(for recipe: inout Recipe) {
+        guard let oldPath = recipe.image else { return }
+
+        let oldURL = URL(fileURLWithPath: oldPath)
+        let newFileName = "\(recipe.id).jpeg"
+        let newURL = oldURL.deletingLastPathComponent().appendingPathComponent(newFileName)
+
+        do {
+            if FileManager.default.fileExists(atPath: oldURL.path) {
+                try FileManager.default.moveItem(at: oldURL, to: newURL)
+                recipe.image = newFileName
+                print("✅ Bild umbenannt zu: \(newFileName)")
+            } else {
+                print("⚠️ Bild nicht gefunden: \(oldURL.lastPathComponent)")
+            }
+        } catch {
+            print("❌ Fehler beim Verschieben/Umbennenen des Bildes: \(error)")
+        }
     }
     
     /// Fügt ein Rezept einem Rezeptbuch hinzu.
@@ -902,7 +923,7 @@ extension Recipe {
     init(from managedObject: Recipes) {
         self.id = managedObject.id ?? UUID()
         self.title = managedObject.titel ?? "Unbekanntes Rezept"
-        self.instructions = managedObject.instructions ?? []
+        self.instructions = managedObject.instructions
         self.image = managedObject.image
         self.portion = PortionsInfo.fromString(managedObject.portion ?? "")
         self.cake = CakeInfo.fromString(managedObject.cake ?? "")

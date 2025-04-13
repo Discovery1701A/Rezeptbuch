@@ -30,7 +30,7 @@ struct RecipeCreationView: View {
     @State private var recipeTitle = ""
     @State private var ingredients: [FoodItemStruct?] = []
     @State private var foods: [FoodStruct] = []
-    @State private var instructions: [String] = []
+    @State var instructions: [InstructionItem] = []
     @State private var quantity: [String] = []
     @State private var selectedUnit: [Unit] = []
     @State private var portionValue: String = ""
@@ -253,8 +253,8 @@ struct RecipeCreationView: View {
     }
     
     private func validateInputs() -> Bool {
-        var error: ValidationError? // Fehlerobjekt erstellen
-        
+        var error: ValidationError?
+
         if recipeTitle.isEmpty {
             error = ValidationError(message: "Bitte geben Sie einen Titel für das Rezept ein.")
         } else if isCake {
@@ -266,31 +266,39 @@ struct RecipeCreationView: View {
         } else if Double(portionValue) ?? 0.0 <= 0 {
             error = ValidationError(message: "Bitte geben Sie eine gültige Portionsgröße ein.")
         }
-        //        print(foods.count)
+
         if foods.isEmpty {
             error = ValidationError(message: "Bitte fügen Sie eine Zutate hinzu.")
         }
+
         for (index, ingredient) in foods.enumerated() {
             if ingredient == emptyFood {
-                //                print("neinnnn")
                 error = ValidationError(message: "Bitte füllen Sie alle Zutaten aus.")
             } else if quantity[index].isEmpty || Double(quantity[index]) == nil || Double(quantity[index])! <= 0 {
                 error = ValidationError(message: "Bitte geben Sie eine gültige Menge für alle Zutaten ein.")
             }
         }
+
         if instructions.isEmpty {
-            error = ValidationError(message: "Bitte fügen Sie eine Zutate hinzu.")
+            error = ValidationError(message: "Bitte fügen Sie mindestens einen Zubereitungsschritt hinzu.")
         }
+
+        // 🔍 Neue Validierung für die Anleitungsschritte
+        var seenKeys = Set<String>()
+
         for instruction in instructions {
-            if instruction.isEmpty {
+            if instruction.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 error = ValidationError(message: "Bitte füllen Sie alle Anweisungen aus.")
+                break
             }
+            if seenKeys.contains(instruction.text) {
+                error = ValidationError(message: "Doppelte Anweisung gefunden: '\(instruction.text)'. Bitte eindeutige Schritte verwenden.")
+                break
+            }
+            seenKeys.insert(instruction.text)
         }
-        
-        // Setze den Fehler in den Zustand
+
         validationError = error
-        
-        // Rückgabe, ob die Validierung erfolgreich war
         return error == nil
     }
     
@@ -396,18 +404,19 @@ struct RecipeCreationView: View {
             imagePath = Path
         }
            
-        recipe = Recipe(id: id,
-                        title: recipeTitle,
-                        ingredients: ingredients.compactMap { $0 },
-                        instructions: instructions,
-                        image: imagePath,
-                        portion: portionInfo,
-                        cake: cakeInfo,
-                        videoLink: videoLinkSav,
-                        info: infoSav,
-                        tags: tagsSav,
-                        recipeBookIDs: Array(selectedRecipeBookIDs))
-         
+        recipe = Recipe(
+            id: id,
+            title: recipeTitle,
+            ingredients: ingredients.compactMap { $0 },
+            instructions: instructions,
+            image: imagePath,
+            portion: portionInfo,
+            cake: cakeInfo,
+            videoLink: videoLinkSav,
+            info: infoSav,
+            tags: tagsSav,
+            recipeBookIDs: Array(selectedRecipeBookIDs)
+        )
         //        print("ja")
         // Speichern des Rezepts im Datenmanager
         
@@ -829,27 +838,50 @@ struct RecipeCreationView: View {
         }
     }
 
-    var insructionSection: some View {
+    var instructionSection: some View {
         Section(header: Text("Anleitung")) {
             List {
-                ForEach(instructions.indices, id: \.self) { index in
-                    HStack {
-                        Text("\(index + 1).")
-                        TextField("Schritt \(index + 1)", text: $instructions[index])
+                ForEach($instructions) { $item in
+                    VStack(alignment: .leading, spacing: 4) {
+                        if let number = item.number {
+                            Text("Schritt \(number)")
+                                .font(.subheadline)
+                                .foregroundColor(.accentColor)
+                        }
+
+                        TextField("Schrittbeschreibung", text: $item.text)
+
+                        if !item.uuids.isEmpty {
+                            Text("UUIDs: \(item.uuids.map { $0.uuidString }.joined(separator: ", "))")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                     }
+                    .padding(.vertical, 4)
                 }
                 .onDelete { indexSet in
                     instructions.remove(atOffsets: indexSet)
+                    updateInstructionNumbers()
                 }
                 .onMove { indices, newOffset in
                     instructions.move(fromOffsets: indices, toOffset: newOffset)
+                    updateInstructionNumbers()
                 }
             }
+
             Button(action: {
-                instructions.append("")
+                instructions.append(
+                    InstructionItem(number: instructions.count + 1, text: "", uuids: [])
+                )
             }) {
                 Label("Schritt hinzufügen", systemImage: "plus.circle")
             }
+        }
+    }
+    
+    func updateInstructionNumbers() {
+        for (index, _) in instructions.enumerated() {
+            instructions[index].number = index + 1
         }
     }
     
@@ -869,7 +901,7 @@ struct RecipeCreationView: View {
                
             ingriginsSection
 
-            insructionSection
+            instructionSection
         }
         .onAppear {
             self.editMode = .active
@@ -1171,3 +1203,5 @@ struct IngredientRow: View {
            }
        }
 }
+
+

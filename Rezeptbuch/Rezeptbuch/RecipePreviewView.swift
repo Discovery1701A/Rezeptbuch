@@ -53,19 +53,29 @@ struct RecipePreviewView: View {
                     }
 
                     // 👩‍🍳 Zubereitungsschritte
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("👩‍🍳 Zubereitung")
-                            .font(.headline)
-                            .padding(.horizontal)
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("👩‍🍳 Zubereitung")
+                                            .font(.headline)
+                                            .padding(.horizontal)
 
-                        // Alle Schritte nummeriert anzeigen
-                        ForEach(Array(recipe.instructions.enumerated()), id: \.offset) { index, step in
-                            Text("\(index + 1). \(step)")
-                                .padding(.horizontal)
-                        }
-                    }
-                }
-              
+                                        let sortedInstructions = recipe.instructions.sorted { ($0.number ?? 0) < ($1.number ?? 0) }
+
+                                        ForEach(Array(sortedInstructions.enumerated()), id: \.1.id) { index, step in
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text("\(index + 1). \(step.text)")
+                                                    .padding(.horizontal)
+
+                                                if !step.uuids.isEmpty {
+                                                    Text("↪ Verknüpfte IDs: \(step.uuids.map { $0.uuidString.prefix(8) }.joined(separator: ", "))")
+                                                        .font(.caption2)
+                                                        .foregroundColor(.secondary)
+                                                        .padding(.horizontal)
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
                 .padding(.vertical)
                 .padding(.horizontal) // ➕ fügt links und rechts Abstand hinzu
             }

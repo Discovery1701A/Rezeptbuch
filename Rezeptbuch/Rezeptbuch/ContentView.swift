@@ -46,7 +46,11 @@ struct ContentView: View {
 //                    print("bfnbjfdnkbjfdnbjkfdnkbnfbjfd")
                 } else {
 //                    print("jnknknjknnkjnkjn")
-                    CoreDataManager.shared.saveRecipe(recipe)
+                    var finalRecipe = recipe
+                    
+                    CoreDataManager.shared.renameRecipeImage(for: &finalRecipe)
+                    finalRecipe.image = "\(recipe.id).jpeg"
+                    CoreDataManager.shared.saveRecipe(finalRecipe)
                     modelView.updateAll()
                     selectedRecipe = recipe.id
                 }

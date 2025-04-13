@@ -186,7 +186,55 @@ func deserializePlistToRecipe(plistData: Data) -> Recipe? {
         if let dict = try PropertyListSerialization.propertyList(from: plistData, options: [], format: nil) as? [String: Any] {
             let id = UUID(uuidString: dict["id"] as? String ?? "") ?? UUID()
             let title = dict["title"] as? String ?? ""
-            let instructions = dict["instructions"] as? [String] ?? []
+            var instructions: [InstructionItem] = []
+
+            if let rawInstructions = dict["instructions"] {
+                
+                if let array = rawInstructions as? [String] {
+                    // 🔹 Alte Struktur: Nur Texte
+                    instructions = array.enumerated().map { index, text in
+                        InstructionItem(number: index + 1, text: text, uuids: [])
+                    }
+
+                } else if let dict = rawInstructions as? [String: [String]] {
+                    // 🔸 Frühere Dictionary-Struktur: Text → UUID-Strings
+                    var items: [InstructionItem] = []
+                    var index = 1
+                    for (text, uuidStrings) in dict {
+                        let uuids = uuidStrings.compactMap { UUID(uuidString: $0) }
+                        items.append(InstructionItem(number: index, text: text, uuids: uuids))
+                        index += 1
+                    }
+                    instructions = items.sorted { ($0.number ?? 0) < ($1.number ?? 0) }
+
+                } else if let arrayOfDicts = rawInstructions as? [[String: Any]] {
+                    // ✅ Neues Format: Vollständige Objekte
+                    instructions = arrayOfDicts.compactMap { entry in
+                        guard let text = entry["text"] as? String else { return nil }
+                        let number = entry["number"] as? Int
+                        let uuids = (entry["uuids"] as? [String])?.compactMap { UUID(uuidString: $0) } ?? []
+                        return InstructionItem(number: number, text: text, uuids: uuids)
+                    }.sorted { ($0.number ?? 0) < ($1.number ?? 0) }
+
+                } else {
+                    print("❌ 'instructions' hat ein unerwartetes Format: \(type(of: rawInstructions))")
+                }
+            }
+            
+            var tags: [TagStruct] = []
+
+            if let tagArray = dict["tags"] as? [[String: Any]] {
+                for tagDict in tagArray {
+                    if let idString = tagDict["id"] as? String,
+                       let id = UUID(uuidString: idString),
+                       let name = tagDict["name"] as? String {
+                        tags.append(TagStruct(name: name, id: id))
+                    } else {
+                        print("⚠️ Fehler beim Parsen eines Tags: \(tagDict)")
+                    }
+                }
+            }
+            
             let videoLink = dict["videoLink"] as? String
             let info = dict["info"] as? String
             let recipeBookIDs = (dict["recipeBookIDs"] as? [String])?.compactMap(UUID.init)
@@ -268,7 +316,7 @@ func deserializePlistToRecipe(plistData: Data) -> Recipe? {
                 }
             }
 
-            return Recipe(id: id, title: title, ingredients: ingredients, instructions: instructions, image: imagePath, portion: portion, cake: cake, videoLink: videoLink, info: info, tags: [], recipeBookIDs: recipeBookIDs)
+            return Recipe(id: id, title: title, ingredients: ingredients, instructions: instructions, image: imagePath, portion: portion, cake: cake, videoLink: videoLink, info: info, tags: tags, recipeBookIDs: recipeBookIDs)
         }
     } catch {
         print("Error parsing plist: \(error)")
@@ -340,8 +388,13 @@ func serializeRecipeToPlist(recipe: Recipe, completion: @escaping (URL?, URL?) -
     var dict: [String: Any] = [
         "id": recipe.id.uuidString,
         "title": recipe.title,
-        "instructions": recipe.instructions,
-        "videoLink": recipe.videoLink ?? "",
+        "instructions": recipe.instructions.map { item in
+            [
+                "number": item.number ?? 0,
+                "text": item.text,
+                "uuids": item.uuids.map { $0.uuidString }
+            ]
+        },        "videoLink": recipe.videoLink ?? "",
         "info": recipe.info ?? "",
         "recipeBookIDs": recipe.recipeBookIDs?.map { $0.uuidString } ?? [],
         "ingredients": serializeIngredients(ingredients: recipe.ingredients),

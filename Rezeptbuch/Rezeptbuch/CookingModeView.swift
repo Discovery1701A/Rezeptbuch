@@ -1,9 +1,3 @@
-//
-//  CookingModeView.swift
-//  Rezeptbuch
-//
-//  Created by Anna Rieckmann on 29.03.24.
-//
 import SwiftUI
 import Speech
 import AVFoundation
@@ -31,15 +25,17 @@ struct CookingModeView: View {
     @State private var stepText: String = ""
     @State private var offset: CGFloat = 0
 
+    // 🔁 Liste der Schritte
+    @State private var steps: [InstructionItem] = []
+
     var body: some View {
         VStack {
-        
-                 Text("Schritt \(currentStepIndex + 1) von \(recipe.instructions.count)")
-                     .font(.subheadline)
-                     .foregroundColor(.gray)
-                     .padding(.top, 20)
+            Text("Schritt \(currentStepIndex + 1) von \(steps.count)")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+                .padding(.top, 20)
 
-                 Spacer()
+            Spacer()
 
             Text(stepText)
                 .font(.title3)
@@ -81,7 +77,7 @@ struct CookingModeView: View {
                             .foregroundColor(.primary)
                             .cornerRadius(12)
                     }
-                    .disabled(currentStepIndex == recipe.instructions.count - 1)
+                    .disabled(currentStepIndex == steps.count - 1)
                 }
 
                 Button(action: {
@@ -101,7 +97,9 @@ struct CookingModeView: View {
         }
         .padding()
         .onAppear {
-            stepText = recipe.instructions[currentStepIndex]
+            // 🔁 Schritte laden & sortieren
+            self.steps = recipe.instructions.sorted { ($0.number ?? 0) < ($1.number ?? 0) }
+            self.stepText = steps.isEmpty ? "" : steps[currentStepIndex].text
         }
         .onDisappear {
             stopRecording()
@@ -111,19 +109,18 @@ struct CookingModeView: View {
     // MARK: - Animation
 
     func animateStepChange(to newIndex: Int, direction: SlideDirection) {
-        guard newIndex >= 0 && newIndex < recipe.instructions.count else { return }
+        guard newIndex >= 0 && newIndex < steps.count else { return }
         self.direction = direction
 
         let width = UIScreen.main.bounds.width
 
-        // Ausgangs-Animation
         withAnimation {
             offset = direction == .forward ? -width : width
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             currentStepIndex = newIndex
-            stepText = recipe.instructions[newIndex]
+            stepText = steps[newIndex].text
             offset = direction == .forward ? width : -width
 
             withAnimation {
