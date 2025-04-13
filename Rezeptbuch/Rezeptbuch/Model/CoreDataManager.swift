@@ -130,25 +130,25 @@ class CoreDataManager {
     /// Wenn `overwrite == false` und ein Rezept mit gleicher ID existiert, wird stattdessen ein neues Rezept mit neuer UUID erstellt.
     func saveRecipe(_ recipe: Recipe, overwrite: Bool) -> Recipe {
         var finalRecipe = recipe
-        print(finalRecipe.id)
+//        print(finalRecipe.id)
         if !overwrite && recipeExists(id: recipe.id) {
             // Neue UUID vergeben, um Duplikate zu vermeiden
             finalRecipe.id = UUID()
             // Neue IDs für Zutaten vergeben
             finalRecipe.ingredients = finalRecipe.ingredients.map { ingredient in
                 var newIngredient = ingredient
-               print( newIngredient.id)
+//               print( newIngredient.id)
                 newIngredient.id = UUID()
-                print(newIngredient.id)
+//                print(newIngredient.id)
                 return newIngredient
             }
             
-            print(finalRecipe.id)
+//            print(finalRecipe.id)
             // 📸 Bild verschieben/umbenennen (falls vorhanden)
             if let oldPath = finalRecipe.image {
                 let oldURL = URL(fileURLWithPath: oldPath)
                 let newFileName = "\(finalRecipe.id).jpeg"
-                print(newFileName)
+//                print(newFileName)
                 let newURL = oldURL.deletingLastPathComponent().appendingPathComponent(newFileName)
                 
                 do {
@@ -244,7 +244,7 @@ class CoreDataManager {
         
         // Falls ein Rezept mit der ID existiert, verwende es; sonst erstelle ein neues.
         if let existing = try? managedContext.fetch(fetchRequest).first {
-            print("existirt")
+//            print("existirt")
             return existing
         } else {
             let new = Recipes(context: managedContext)

@@ -38,7 +38,7 @@ class ViewModel: ObservableObject {
     
     func updateAll() {
        updateRecipe()
-        print(recipes.count)
+//        print(recipes.count)
         updateFood()
       updateBooks()
       updateTags()

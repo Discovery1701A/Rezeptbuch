@@ -470,134 +470,200 @@ func generatePDF(for recipe: Recipe) -> URL? {
                     yOffset = margin
                 }
             }
-            
+
             context.beginPage()
-            
-            // Titel des Rezepts
+
+            // Titel
             let titleStyle = NSMutableParagraphStyle()
             titleStyle.alignment = .center
             let titleAttributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.boldSystemFont(ofSize: 24),
-                .paragraphStyle: titleStyle
+                .paragraphStyle: titleStyle,
+                .foregroundColor: UIColor.systemRed
             ]
             let titleString = NSAttributedString(string: recipe.title, attributes: titleAttributes)
             titleString.draw(in: CGRect(x: margin, y: yOffset, width: contentWidth, height: 30))
-            
-            yOffset += 40
+            yOffset += 35
 
-            // Rezept-Bild (falls vorhanden)
+            // Trennlinie
+            context.cgContext.setStrokeColor(UIColor.systemGray.cgColor)
+            context.cgContext.setLineWidth(1.0)
+            context.cgContext.move(to: CGPoint(x: margin, y: yOffset))
+            context.cgContext.addLine(to: CGPoint(x: pageWidth - margin, y: yOffset))
+            context.cgContext.strokePath()
+            yOffset += 15
+
+            // Bild
             if let imagePath = recipe.image {
-                let fileManager = FileManager.default
-                let applicationSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+                let applicationSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
                 let imageFileURL = applicationSupport.appendingPathComponent(imagePath)
-                
-                if fileManager.fileExists(atPath: imageFileURL.path),
+
+                if FileManager.default.fileExists(atPath: imageFileURL.path),
                    let image = UIImage(contentsOfFile: imageFileURL.path) {
-                    
-                    let maxWidth: CGFloat = contentWidth
-                    let maxHeight: CGFloat = 200 // Begrenzte Höhe für das Bild
+
+                    let maxHeight: CGFloat = 200
                     let aspectRatio = image.size.height / image.size.width
-                    var imageWidth = maxWidth
-                    var imageHeight = maxWidth * aspectRatio
-                    
+                    var imageWidth = contentWidth
+                    var imageHeight = imageWidth * aspectRatio
+
                     if imageHeight > maxHeight {
                         imageHeight = maxHeight
                         imageWidth = maxHeight / aspectRatio
                     }
-                    
+
+                    checkPageSpace(imageHeight + 10)
                     let imageRect = CGRect(
                         x: margin + (contentWidth - imageWidth) / 2,
                         y: yOffset,
                         width: imageWidth,
                         height: imageHeight
                     )
-                    
-                    checkPageSpace(imageHeight + 10)
                     image.draw(in: imageRect)
-                    yOffset += imageHeight + 10
+                    yOffset += imageHeight + 15
                 }
             }
 
-            // Rezept-Infos
-            let infoStyle = NSMutableParagraphStyle()
-            infoStyle.alignment = .left
+            // Info-Abschnitt
+            let leftAlignStyle = NSMutableParagraphStyle()
+            leftAlignStyle.alignment = .left
+
             let infoAttributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 16, weight: .medium),
-                .paragraphStyle: infoStyle
+                .paragraphStyle: leftAlignStyle
             ]
-            var infoText = ""
 
-            if let portion = recipe.portion, portion != .notPortion {
-                infoText += "Portionen: \(portion.stringValue())\n"
+            var infoLines: [String] = []
+
+            if recipe.portion != .notPortion {
+                if case let .Portion(portionValue) = recipe.portion {
+                    infoLines.append("Portionen: \(portionValue)")
+                }
             }
 
             if case let .cake(_, size) = recipe.cake, recipe.cake != .notCake {
                 switch size {
                 case .rectangular(let length, let width):
-                    infoText += "Rechteckige Form: \(length) x \(width) cm\n"
+                    infoLines.append("Rechteckige Form: \(length) x \(width) cm")
                 case .round(let diameter):
-                    infoText += "Runde Form: \(diameter) cm\n"
+                    infoLines.append("Runde Form: \(diameter) cm")
                 }
             }
 
-            let tagsText = recipe.tags?.map { $0.name }.joined(separator: ", ") ?? "Keine Tags"
-            infoText += "Tags: \(tagsText)"
+            if let tags = recipe.tags, !tags.isEmpty {
+                let tagText = tags.map { $0.name }.joined(separator: ", ")
+                infoLines.append("Tags: \(tagText)")
+            }
 
-            let infoString = NSAttributedString(string: infoText, attributes: infoAttributes)
-            checkPageSpace(80)
-            infoString.draw(in: CGRect(x: margin, y: yOffset, width: contentWidth, height: 70))
-            yOffset += 80
+            if let extraInfo = recipe.info, !extraInfo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                infoLines.append("Info: \(extraInfo)")
+            }
 
-            // Zutaten
+            var videoLinkString: NSAttributedString?
+            if let link = recipe.videoLink, let url = URL(string: link), !link.isEmpty {
+                let linkAttributes: [NSAttributedString.Key: Any] = [
+                    .font: UIFont.systemFont(ofSize: 16),
+                    .foregroundColor: UIColor.systemBlue,
+                    .underlineStyle: NSUnderlineStyle.single.rawValue,
+                    .paragraphStyle: leftAlignStyle,
+                    .link: url
+                ]
+                videoLinkString = NSAttributedString(string: "▶ Video ansehen: \(link)", attributes: linkAttributes)
+            }
+
+            if !infoLines.isEmpty || videoLinkString != nil {
+                // Hintergrundbox für Info
+                let infoText = infoLines.joined(separator: "\n")
+                let infoTextHeight = CGFloat(infoLines.count) * lineHeight + 10
+
+                if !infoLines.isEmpty {
+                    let boxRect = CGRect(x: margin - 5, y: yOffset - 5, width: contentWidth + 10, height: infoTextHeight + 10)
+                    context.cgContext.setFillColor(UIColor(white: 0.95, alpha: 1.0).cgColor)
+                    context.cgContext.fill(boxRect)
+
+                    let infoString = NSAttributedString(string: infoText, attributes: infoAttributes)
+                    checkPageSpace(infoTextHeight)
+                    infoString.draw(in: CGRect(x: margin, y: yOffset, width: contentWidth, height: infoTextHeight))
+                    yOffset += infoTextHeight + 10
+                }
+
+                if let videoLinkString = videoLinkString {
+                    let estimatedLinkHeight: CGFloat = 25
+                    checkPageSpace(estimatedLinkHeight)
+                    videoLinkString.draw(in: CGRect(x: margin, y: yOffset, width: contentWidth, height: estimatedLinkHeight))
+                    yOffset += estimatedLinkHeight + 10
+                }
+            }
+
+            // Abschnittsüberschrift "Zutaten"
+            let sectionTitleStyle = NSMutableParagraphStyle()
+            sectionTitleStyle.alignment = .left
             let sectionTitleAttributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.boldSystemFont(ofSize: 18),
-                .paragraphStyle: infoStyle
+                .paragraphStyle: sectionTitleStyle,
+                .foregroundColor: UIColor.systemBlue
             ]
-            let sectionTitle = NSAttributedString(string: "Zutaten:", attributes: sectionTitleAttributes)
+            let ingredientsTitle = NSAttributedString(string: "Zutaten:", attributes: sectionTitleAttributes)
             checkPageSpace(25)
-            sectionTitle.draw(at: CGPoint(x: margin, y: yOffset))
+            ingredientsTitle.draw(at: CGPoint(x: margin, y: yOffset))
             yOffset += 25
 
             let bodyAttributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 14),
-                .paragraphStyle: NSMutableParagraphStyle()
+                .paragraphStyle: sectionTitleStyle
             ]
-            
+
             for ingredient in recipe.ingredients {
-                let ingredientString = NSAttributedString(
-                    string: "- \(ingredient.food.name) \(ingredient.quantity) \(ingredient.unit.rawValue)",
-                    attributes: bodyAttributes
-                )
+                let text = "- \(ingredient.food.name) \(ingredient.quantity) \(ingredient.unit.rawValue)"
+                let ingredientString = NSAttributedString(string: text, attributes: bodyAttributes)
                 checkPageSpace(lineHeight)
                 ingredientString.draw(at: CGPoint(x: margin, y: yOffset))
                 yOffset += lineHeight
             }
-            
-            yOffset += 20
 
-            // Zubereitung
+            yOffset += 25
+
+            // Abschnitt "Zubereitung"
             let instructionsTitle = NSAttributedString(string: "Zubereitung:", attributes: sectionTitleAttributes)
             checkPageSpace(25)
             instructionsTitle.draw(at: CGPoint(x: margin, y: yOffset))
             yOffset += 25
-            
+
             for (index, step) in recipe.instructions.enumerated() {
-                let stepString = NSAttributedString(
-                    string: "\(index + 1). \(step)",
-                    attributes: bodyAttributes
-                )
-                checkPageSpace(50)
-                stepString.draw(in: CGRect(x: margin, y: yOffset, width: contentWidth, height: 50))
+                let stepText = "\(index + 1). \(step)"
+                let stepString = NSAttributedString(string: stepText, attributes: bodyAttributes)
+                let estimatedHeight: CGFloat = 50
+                checkPageSpace(estimatedHeight)
+                stepString.draw(in: CGRect(x: margin, y: yOffset, width: contentWidth, height: estimatedHeight))
                 yOffset += 40
             }
         })
-        
+
         return pdfURL
     } catch {
         print("Error generating PDF: \(error)")
         return nil
     }
 }
+
+
+
+extension UIColor {
+    func darker(by percentage: CGFloat = 20.0) -> UIColor {
+        return self.adjust(by: -abs(percentage))
+    }
+
+    func adjust(by percentage: CGFloat = 20.0) -> UIColor {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        if getRed(&r, green: &g, blue: &b, alpha: &a) {
+            return UIColor(red: min(r + percentage/100, 1.0),
+                           green: min(g + percentage/100, 1.0),
+                           blue: min(b + percentage/100, 1.0),
+                           alpha: a)
+        }
+        return self
+    }
+}
+
 
 extension Notification.Name {
     static let recipeOpened = Notification.Name("recipeOpened")

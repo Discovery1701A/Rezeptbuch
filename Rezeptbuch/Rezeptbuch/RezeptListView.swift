@@ -144,7 +144,7 @@ struct RecipeListView: View {
                 .onChange(of: isNavigationActive) { active in
                     if !active {
                         // Beim Zurücknavigieren auf nil setzen
-                        print("sssssssssssss")
+//                        print("sssssssssssss")
                         UUIDOfSelectedRecipe = nil
                         selectedRecipeForNavigation = nil
                     }
@@ -157,7 +157,7 @@ struct RecipeListView: View {
                     else {
                         return
                     }
-                    print("dddddddddd")
+//                    print("dddddddddd")
                     selectedRecipeForNavigation = recipe
                     isNavigationActive = true
                 }

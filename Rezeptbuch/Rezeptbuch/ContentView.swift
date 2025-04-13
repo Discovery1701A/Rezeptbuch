@@ -43,9 +43,9 @@ struct ContentView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         showDuplicateAlert = true
                     }
-                    print("bfnbjfdnkbjfdnbjkfdnkbnfbjfd")
+//                    print("bfnbjfdnkbjfdnbjkfdnkbnfbjfd")
                 } else {
-                    print("jnknknjknnkjnkjn")
+//                    print("jnknknjknnkjnkjn")
                     CoreDataManager.shared.saveRecipe(recipe)
                     modelView.updateAll()
                     selectedRecipe = recipe.id
@@ -74,7 +74,7 @@ struct ContentView: View {
                            modelView.updateAll()
                            selectedRecipe = savedRecipe.id
                            deleteImage(id: "\(recipe.id)_import")
-                        print(modelView.recipes.count)
+//                        print(modelView.recipes.count)
                        }
                 }
             )
@@ -127,7 +127,7 @@ struct ContentView: View {
                     // Rezept wird temporär im Modal-Fenster geöffnet
                     DispatchQueue.main.async {
                         importedRecipe = recipe
-                        print(importedRecipe?.ingredients.count)
+//                        print(importedRecipe?.ingredients.count)
                     }
                 } else {
                     print("❌ Fehler: Konnte Rezept nicht deserialisieren.")

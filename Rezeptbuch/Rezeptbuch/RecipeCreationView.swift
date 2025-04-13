@@ -413,13 +413,13 @@ struct RecipeCreationView: View {
         
         // Zuordnen des Rezepts zum ausgewählten Rezeptbuch
         
-        print(recipe)
+//        print(recipe)
         if newRecipe {
             CoreDataManager.shared.saveRecipe(recipe)
         } else {
-            print("updatteeeee")
+//            print("updatteeeee")
             CoreDataManager.shared.updateRecipe(recipe)
-            print("perfekt")
+//            print("perfekt")
         }
         
         for book in bookSav {
@@ -432,7 +432,7 @@ struct RecipeCreationView: View {
         modelView.updateBooks()
         resetFormFields()
         
-        print("durch")
+//        print("durch")
     }
     
     func addNewRecipeBook() {

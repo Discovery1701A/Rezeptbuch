@@ -16,6 +16,7 @@ struct RecipeView: View {
     var originIngredients: [FoodItemStruct]  // Die ursprünglichen Zutaten des Rezepts
     
     // Zustände für die Zutaten- und Portionsanpassung
+    @State private var info: String? = ""
     @State private var ingredients: [FoodItemStruct] = []
     @State private var portion: Double = 0.0
     @State private var cakeFormSelection: Formen = .rund
@@ -67,7 +68,7 @@ struct RecipeView: View {
             } else {
                 self.portion = 0.0
             }
-            
+            self.info = recipe.info
             // Falls das Rezept ein Kuchen ist, wird die Form und Größe angepasst
             if case let .cake(form, size) = recipe.cake {
                 self.cakeFormSelection = form
@@ -159,6 +160,8 @@ struct RecipeView: View {
                     if let tags = recipe.tags, !tags.isEmpty {
                         RecipeTagsView(tags: tags)
                     }
+                    Divider().padding(.horizontal, 16)
+                    InfoView(info:info)
                     
                     Divider().padding(.horizontal, 16)
                     
@@ -1126,6 +1129,41 @@ struct YouTubeView: UIViewRepresentable {
         guard let url = URL(string: "https://www.youtube.com/embed/\(videoID)?playsinline=1") else { return }
         uiView.scrollView.isScrollEnabled = false  // Deaktiviert Scrollen
         uiView.load(URLRequest(url: url))
+    }
+}
+
+
+struct InfoView: View {
+    var info: String?
+    
+    var body: some View {
+        if let info = info, !info.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Label {
+                    Text(info)
+                } icon: {
+                    Image(systemName: "info.circle")
+                        .foregroundColor(.gray)
+                }
+                .font(.body)
+
+//                Text(info)
+//                    .font(.body)
+//                    .foregroundColor(.secondary)
+//                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.white)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color(.systemGray4), lineWidth: 1)
+            )
+            .shadow(color: Color(.black).opacity(0.05), radius: 3, x: 0, y: 1)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 4)
+        }
     }
 }
 

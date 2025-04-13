@@ -362,15 +362,15 @@ extension CakeInfo {
                 (stringValue as NSString).substring(with: match.range)
             }
             let components = [forme[0], size[0]]
-            print(components)
+//            print(components)
 
             if components.count == 2 {
                 let formString = String(components[0].trimmingCharacters(in: .whitespaces))
                 let sizeString = String(components[1].trimmingCharacters(in: .whitespaces))
-                print(formString)
+//                print(formString)
 
                 let form = Formen(rawValue: formString) ?? .rund
-                print(sizeString)
+//                print(sizeString)
 
                 // Falls es sich um eine rechteckige Form handelt
                 if sizeString.hasPrefix("size: rectangular(length:"), sizeString.hasSuffix(")") {
@@ -378,7 +378,7 @@ extension CakeInfo {
                         .replacingOccurrences(of: "size: rectangular(length: ", with: "")
                         .replacingOccurrences(of: ")", with: "")
                         .split(separator: ", width: ")
-                    print(sizeComponents)
+//                    print(sizeComponents)
 
                     if sizeComponents.count == 2 {
                         let lengthString = String(sizeComponents[0].trimmingCharacters(in: .whitespaces))
