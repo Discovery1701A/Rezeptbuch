@@ -52,7 +52,7 @@ struct RecipeView: View {
         self.recipe = recipe
         self.modelView = modelView
         self.originIngredients = recipe.ingredients
-        _ingredients = State(initialValue: recipe.ingredients)
+        _ingredients = State(initialValue: recipe.ingredients.sorted { $0.number ?? 0 < $1.number ?? 1 })
         loadRecipe(recipe)  // Lädt die Rezeptdaten direkt bei der Initialisierung
         summary.calculate(from: ingredients)  // Berechnet die Nährwerte basierend auf den Zutaten
     }
@@ -60,7 +60,7 @@ struct RecipeView: View {
     /// Lädt das Rezept und setzt die Werte für Portionen und Kuchenformen.
     private func loadRecipe(_ recipe: Recipe) {
         DispatchQueue.main.async {
-            self.ingredients = recipe.ingredients  // Zutaten aktualisieren
+            self.ingredients = recipe.ingredients.sorted { $0.number ?? 0 < $1.number ?? 1 }  // Zutaten aktualisieren
             
             // Setzt die Portionsgröße, falls vorhanden
             if case let .Portion(portionValue) = recipe.portion {

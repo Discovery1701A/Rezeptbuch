@@ -159,27 +159,33 @@ struct RecipebookStruct: Hashable, Identifiable {
     }
 }
 
-/// Struktur für eine Zutat in einem Rezept, einschließlich Menge und Einheit.
+/// Struktur für eine Zutat in einem Rezept, einschließlich Menge, Einheit, Rezeptkomponente und Positionsnummer.
 struct FoodItemStruct: Hashable, Equatable, Identifiable {
-    var food: FoodStruct  // Lebensmittel
-    var unit: Unit  // Einheit der Menge (z. B. Gramm, Liter)
-    var quantity: Double  // Menge des Lebensmittels
-    var id: UUID  // Eindeutige Identifikation des Lebensmittels in diesem Kontext
+    var food: FoodStruct                      // Lebensmittel
+    var unit: Unit                            // Einheit der Menge (z. B. Gramm, Liter)
+    var quantity: Double                      // Menge
+    var id: UUID                              // Eindeutige ID
+    var recipeComponent: String?               // z. B. "CREME", "BODEN", "FRUCHTSPIEGEL"
+    var number: Int64?                        // Position innerhalb einer Rezeptkomponente
 
-    /// Vergleichsoperator für `FoodItemStruct`
+    /// Vergleichsoperator
     static func == (lhs: FoodItemStruct, rhs: FoodItemStruct) -> Bool {
         return lhs.food == rhs.food &&
                lhs.unit == rhs.unit &&
                lhs.quantity == rhs.quantity &&
-               lhs.id == rhs.id
+               lhs.id == rhs.id &&
+               lhs.recipeComponent == rhs.recipeComponent &&
+               lhs.number == rhs.number
     }
 
-    /// Hash-Funktion für `FoodItemStruct`
+    /// Hash-Funktion
     func hash(into hasher: inout Hasher) {
         hasher.combine(food)
         hasher.combine(unit)
         hasher.combine(quantity)
         hasher.combine(id)
+        hasher.combine(recipeComponent)
+        hasher.combine(number)
     }
 }
 

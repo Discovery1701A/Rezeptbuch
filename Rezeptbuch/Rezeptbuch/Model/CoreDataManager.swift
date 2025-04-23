@@ -164,7 +164,7 @@ class CoreDataManager {
             
             let recipeEntity = Recipes(context: managedContext)
             recipeEntity.id = finalRecipe.id
-            populateRecipeEntityWithNewIngredients(recipeEntity, from: finalRecipe)
+            populateRecipeEntity(recipeEntity, from: finalRecipe)
             saveContext()
             print("✅ Rezept gespeichert: \(recipeEntity)")
         } else if overwrite && recipeExists(id: recipe.id) {
@@ -275,35 +275,37 @@ class CoreDataManager {
     }
     
     /// Füllt eine `Recipes`-Entität mit Daten aus einem `Recipe`-Struct.
-    /// Erstellt für jedes FoodItem eine neue FoodItem-Entität (ohne Suche), ideal für duplizierte Rezepte.
-    func populateRecipeEntityWithNewIngredients(_ entity: Recipes, from recipe: Recipe) {
-        entity.titel = recipe.title
-        entity.instructions = recipe.instructions
-        entity.image = recipe.image
-        entity.portion = recipe.portion?.stringValue()
-        entity.cake = recipe.cake?.stringValue()
-        entity.videoLink = recipe.videoLink
-        entity.info = recipe.info
-        entity.id = recipe.id
-
-        // 🍎 Zutaten: Neue FoodItem-Entities erstellen
-        for item in recipe.ingredients {
-            let newFoodItem = FoodItem(context: managedContext)
-            newFoodItem.food = findOrCreateFood(foodStruct: item.food)
-            newFoodItem.unit = Unit.toString(item.unit)
-            newFoodItem.quantity = item.quantity
-            newFoodItem.id = item.id
-            entity.addToIngredients(newFoodItem)
-        }
-
-        // 🏷 Tags hinzufügen
-        if let tags = recipe.tags {
-            for tag in tags {
-                let tagEntity = findOrCreateTag(tag)
-                entity.addToTags(tagEntity)
-            }
-        }
-    }
+//    /// Erstellt für jedes FoodItem eine neue FoodItem-Entität (ohne Suche), ideal für duplizierte Rezepte.
+//    func populateRecipeEntityWithNewIngredients(_ entity: Recipes, from recipe: Recipe) {
+//        entity.titel = recipe.title
+//        entity.instructions = recipe.instructions
+//        entity.image = recipe.image
+//        entity.portion = recipe.portion?.stringValue()
+//        entity.cake = recipe.cake?.stringValue()
+//        entity.videoLink = recipe.videoLink
+//        entity.info = recipe.info
+//        entity.id = recipe.id
+//
+//        // 🍎 Zutaten: Neue FoodItem-Entities erstellen
+//        for item in recipe.ingredients {
+//            let newFoodItem = FoodItem(context: managedContext)
+//            newFoodItem.food = findOrCreateFood(foodStruct: item.food)
+//            newFoodItem.unit = Unit.toString(item.unit)
+//            newFoodItem.quantity = item.quantity
+//            newFoodItem.id = item.id
+//            newFoodItem.number = item.number
+//            newFoodItem.recipecomponent = item.recipeComponent
+//            entity.addToIngredients(newFoodItem)
+//        }
+//
+//        // 🏷 Tags hinzufügen
+//        if let tags = recipe.tags {
+//            for tag in tags {
+//                let tagEntity = findOrCreateTag(tag)
+//                entity.addToTags(tagEntity)
+//            }
+//        }
+//    }
     
     /// Füllt eine `Recipes`-Entität mit Daten aus einem `Recipe`-Struktur.
     func populateRecipeEntity(_ entity: Recipes, from recipe: Recipe) {
@@ -314,6 +316,7 @@ class CoreDataManager {
         entity.cake = recipe.cake?.stringValue()
         entity.videoLink = recipe.videoLink
         entity.id = recipe.id
+        entity.info = recipe.info
         
         // Zutaten hinzufügen
         recipe.ingredients.forEach { foodItemStruct in
@@ -612,6 +615,7 @@ class CoreDataManager {
         
         // Falls das Lebensmittel bereits existiert, wird es zurückgegeben; sonst wird ein neues erstellt.
         if let existingItem = try? managedContext.fetch(fetchRequest).first {
+            print("ssssss")
             return existingItem
         } else {
             let newFoodItem = FoodItem(context: managedContext)
@@ -619,6 +623,9 @@ class CoreDataManager {
             newFoodItem.unit = Unit.toString(item.unit)
             newFoodItem.quantity = item.quantity
             newFoodItem.id = item.id
+            print(item.number)
+            newFoodItem.number = item.number ?? 0
+            newFoodItem.recipecomponent = item.recipeComponent
             return newFoodItem
         }
     }
@@ -879,11 +886,19 @@ class CoreDataManager {
     /// Aktualisiert die Zutaten eines Rezepts (`Recipes`).
     private func updateIngredients(for entity: Recipes, with newIngredients: [FoodItemStruct]) {
         // Entferne bestehende Zutaten
-        entity.removeFromIngredients(entity.ingredients as! NSSet)
+        entity.removeFromIngredients(entity.ingredients!)
         
         // Neue Zutaten hinzufügen
         for foodItemStruct in newIngredients {
+            print(foodItemStruct.number)
             let foodItemEntity = findOrCreateFoodItem(foodItemStruct)
+            foodItemEntity.food = findOrCreateFood(foodStruct:foodItemStruct.food)
+            foodItemEntity.unit = Unit.toString(foodItemStruct.unit)
+            foodItemEntity.quantity = foodItemStruct.quantity
+            
+            print(foodItemStruct.number)
+            foodItemEntity.number = foodItemStruct.number ?? 0
+            foodItemEntity.recipecomponent = foodItemStruct.recipeComponent
             entity.addToIngredients(foodItemEntity)
         }
     }
@@ -900,6 +915,8 @@ extension FoodItemStruct {
         self.unit = Unit.fromString(managedObject.unit ?? "") ?? .gram
         self.quantity = managedObject.quantity
         self.id = managedObject.id ?? UUID()
+        self.number = managedObject.number
+        self.recipeComponent = managedObject.recipecomponent 
     }
 }
 

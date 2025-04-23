@@ -17,6 +17,53 @@ struct ValidationError: Identifiable {
     var message: String
 }
 
+struct IngredientBlock: Identifiable {
+    var id = UUID()
+    var component: String?
+    var items: [Binding<EditableIngredient>]
+}
+
+struct EditableIngredient: Identifiable, Equatable {
+    var id: UUID = UUID()
+    var food: FoodStruct = emptyFood
+    var unit: Unit = .gram
+    var quantity: String = ""
+    var component: String? = nil
+    var number: Int64? = nil
+
+    func toFoodItem() -> FoodItemStruct? {
+        guard let qty = Double(quantity.replacingOccurrences(of: ",", with: ".")) else {
+            return nil
+        }
+
+        return FoodItemStruct(
+            food: food,
+            unit: unit,
+            quantity: qty,
+            id: id,
+            recipeComponent: component,
+            number: number
+        )
+    }
+
+    init(from item: FoodItemStruct) {
+        self.id = item.id
+        self.food = item.food
+        self.unit = item.unit
+        self.quantity = String(item.quantity)
+        self.component = item.recipeComponent
+        self.number = item.number
+    }
+    init () {
+        id = UUID()
+        food = emptyFood
+        unit = .gram
+       quantity = ""
+       component = nil
+    number = nil
+    }
+}
+
 struct RecipeCreationView: View {
     @ObservedObject var modelView: ViewModel
     @Binding var selectedTab: Int // Binding für Tab-Wechsel
@@ -26,13 +73,34 @@ struct RecipeCreationView: View {
         
     
     @Environment(\.presentationMode) var presentationMode // Zugriff auf das PresentationMode Environment
-
+    @State private var editModeState: EditMode = .inactive
+    @State private var moveComponents = false
+    @State private var newComponentName: String = ""
     @State private var recipeTitle = ""
     @State private var ingredients: [FoodItemStruct?] = []
-    @State private var foods: [FoodStruct] = []
-    @State var instructions: [InstructionItem] = []
-    @State private var quantity: [String] = []
-    @State private var selectedUnit: [Unit] = []
+    @State private var editableIngredients : [EditableIngredient] = []
+    @State private var instructions: [InstructionItem] = []
+    @State private var componentOrder: [String?] = []
+    
+     private var groupedBlocks: [IngredientBlock] {
+        var result: [IngredientBlock] = []
+        var seen: Set<String?> = []
+
+        for component in editableIngredients.map({ $0.component }) {
+            if seen.contains(component) { continue }
+            seen.insert(component)
+
+            let group = editableIngredients
+                .enumerated()
+                .filter { $0.element.component == component }
+                .map { $editableIngredients[$0.offset] }
+
+            result.append(IngredientBlock(component: component, items: group))
+        }
+
+        return result
+    }
+    
     @State private var portionValue: String = ""
     @State private var isCake = false
     @State private var cakeForm: Formen = .rund
@@ -89,7 +157,12 @@ struct RecipeCreationView: View {
             self.newRecipe = false
             _recipe = State(initialValue: recipe)
             _recipeTitle = State(initialValue: recipe.title)
-            _ingredients = State(initialValue: recipe.ingredients)
+            _ingredients = State(initialValue: recipe.ingredients.sorted { $0.number ?? 0 < $1.number ?? 1 })
+            _editableIngredients = State(initialValue:
+                                            recipe.ingredients
+                    .sorted { ($0.number ?? 0) < ($1.number ?? 1) }
+                    .map { EditableIngredient(from: $0) }
+            )
             _instructions = State(initialValue: recipe.instructions)
             if case .Portion(let portionValue) = recipe.portion {
                 self._portionValue = State(initialValue: String(portionValue))
@@ -103,16 +176,9 @@ struct RecipeCreationView: View {
             _videoLink = State(initialValue: recipe.videoLink ?? "")
             _id = State(initialValue: recipe.id)
             
-            _foods = State(initialValue: ingredients.compactMap { $0?.food })
-            _quantity = State(initialValue: ingredients.compactMap { ingredient in
-                if let quantity = ingredient?.quantity {
-                    return String(quantity)
-                } else {
-                    return nil
-                }
-            })
-            _selectedUnit = State(initialValue: ingredients.compactMap { $0?.unit })
-            
+         
+            _componentOrder = State(initialValue: ingredients.compactMap { $0?.recipeComponent})
+        
             switch recipe.cake?.size {
             case .round(diameter: let dia):
                 self._size = State(initialValue: [String(dia), "0.0", "0.0"])
@@ -206,10 +272,9 @@ struct RecipeCreationView: View {
     private func resetFormFields() {
         recipeTitle = ""
         ingredients = []
-        foods = []
+       editableIngredients = []
         instructions = []
-        quantity = []
-        selectedUnit = []
+       
         portionValue = ""
         isCake = false
         cakeForm = .rund
@@ -253,55 +318,57 @@ struct RecipeCreationView: View {
     }
     
     private func validateInputs() -> Bool {
-        var error: ValidationError?
+          var error: ValidationError?
 
-        if recipeTitle.isEmpty {
-            error = ValidationError(message: "Bitte geben Sie einen Titel für das Rezept ein.")
-        } else if isCake {
-            if cakeForm == .rund && Double(size[0])! <= 0 {
-                error = ValidationError(message: "Bitte geben Sie einen gültigen Durchmesser für den Kuchen ein.")
-            } else if cakeForm == .eckig && (Double(size[1])! <= 0 || Double(size[2])! <= 0) {
-                error = ValidationError(message: "Bitte geben Sie eine gültige Länge und Breite für den Kuchen ein.")
-            }
-        } else if Double(portionValue) ?? 0.0 <= 0 {
-            error = ValidationError(message: "Bitte geben Sie eine gültige Portionsgröße ein.")
-        }
+          if recipeTitle.isEmpty {
+              error = ValidationError(message: "Bitte geben Sie einen Titel für das Rezept ein.")
+          } else if isCake {
+              if cakeForm == .rund && Double(size[0]) ?? 0.0 <= 0 {
+                  error = ValidationError(message: "Bitte geben Sie einen gültigen Durchmesser für den Kuchen ein.")
+              } else if cakeForm == .eckig && (Double(size[1]) ?? 0.0 <= 0 || Double(size[2]) ?? 0.0 <= 0) {
+                  error = ValidationError(message: "Bitte geben Sie eine gültige Länge und Breite für den Kuchen ein.")
+              }
+          } else if Double(portionValue) ?? 0.0 <= 0 {
+              error = ValidationError(message: "Bitte geben Sie eine gültige Portionsgröße ein.")
+          }
 
-        if foods.isEmpty {
-            error = ValidationError(message: "Bitte fügen Sie eine Zutate hinzu.")
-        }
+          if editableIngredients.isEmpty {
+              error = ValidationError(message: "Bitte fügen Sie eine Zutat hinzu.")
+          }
 
-        for (index, ingredient) in foods.enumerated() {
-            if ingredient == emptyFood {
-                error = ValidationError(message: "Bitte füllen Sie alle Zutaten aus.")
-            } else if quantity[index].isEmpty || Double(quantity[index]) == nil || Double(quantity[index])! <= 0 {
-                error = ValidationError(message: "Bitte geben Sie eine gültige Menge für alle Zutaten ein.")
-            }
-        }
+          for ingredient in editableIngredients {
+              if ingredient.food == nil {
+                  error = ValidationError(message: "Bitte füllen Sie alle Zutaten aus.")
+                  break
+              } else if ingredient.quantity.isEmpty || Double(ingredient.quantity.replacingOccurrences(of: ",", with: ".")) == nil || Double(ingredient.quantity.replacingOccurrences(of: ",", with: "."))! <= 0 {
+                  error = ValidationError(message: "Bitte geben Sie eine gültige Menge für alle Zutaten ein.")
+                  break
+              }
+          }
 
-        if instructions.isEmpty {
-            error = ValidationError(message: "Bitte fügen Sie mindestens einen Zubereitungsschritt hinzu.")
-        }
+          if instructions.isEmpty {
+              error = ValidationError(message: "Bitte fügen Sie mindestens einen Zubereitungsschritt hinzu.")
+          }
 
-        // 🔍 Neue Validierung für die Anleitungsschritte
-        var seenKeys = Set<String>()
+          var seenKeys = Set<String>()
+          for instruction in instructions {
+              let trimmed = instruction.text.trimmingCharacters(in: .whitespacesAndNewlines)
+              if trimmed.isEmpty {
+                  error = ValidationError(message: "Bitte füllen Sie alle Anweisungen aus.")
+                  break
+              }
+              if seenKeys.contains(trimmed) {
+                  error = ValidationError(message: "Doppelte Anweisung gefunden: '\(trimmed)'. Bitte eindeutige Schritte verwenden.")
+                  break
+              }
+              seenKeys.insert(trimmed)
+          }
 
-        for instruction in instructions {
-            if instruction.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                error = ValidationError(message: "Bitte füllen Sie alle Anweisungen aus.")
-                break
-            }
-            if seenKeys.contains(instruction.text) {
-                error = ValidationError(message: "Doppelte Anweisung gefunden: '\(instruction.text)'. Bitte eindeutige Schritte verwenden.")
-                break
-            }
-            seenKeys.insert(instruction.text)
-        }
+          validationError = error
+          return error == nil
+      }
 
-        validationError = error
-        return error == nil
-    }
-    
+ 
 #if os(iOS)
 //    private func saveImageLocally(image: UIImage) -> String? {
 //        guard let data = image.jpegData(compressionQuality: 0.8) else { return nil }
@@ -373,76 +440,66 @@ struct RecipeCreationView: View {
 #endif
     
     private func saveRecipe() {
-        // Vorbereitung der Zutaten und Prüfung des Rezepts wie bisher
-        for i in 0 ..< ingredients.count {
-            if foods[i] != emptyFood {
-                ingredients[i] = FoodItemStruct(food: foods[i],
-                                                unit: selectedUnit[i],
-                                                quantity: Double(quantity[i])!,
-                                                id: UUID())
-            }
-        }
-        
-        let videoLinkSav: String? = videoLink.isEmpty ? nil : videoLink
-        let infoSav: String? = info.isEmpty ? nil : info
-        
-        let cakeInfo: CakeInfo = isCake ? .cake(form: cakeForm, size: cakeSize) : .notCake
-        let portionInfo: PortionsInfo = isCake ? .notPortion : .Portion(Double(portionValue) ?? 0.0)
-        
-        var tagsSav: [TagStruct] = []
-        for tagID in selectedTags {
-            let filteredTags = allTags.filter { $0.id == tagID }
-            tagsSav.append(contentsOf: filteredTags)
-        }
-        var bookSav: [RecipebookStruct] = []
-        for bookID in selectedRecipeBookIDs {
-            let filteredBooks = filteredRecipeBooks.filter { $0.id == bookID }
-            bookSav.append(contentsOf: filteredBooks)
-        }
-        var imagePath: String? = nil
-        if let image = recipeImage, let Path = saveImageLocally(image: image, id: id) {
-            imagePath = Path
-        }
-           
-        recipe = Recipe(
-            id: id,
-            title: recipeTitle,
-            ingredients: ingredients.compactMap { $0 },
-            instructions: instructions,
-            image: imagePath,
-            portion: portionInfo,
-            cake: cakeInfo,
-            videoLink: videoLinkSav,
-            info: infoSav,
-            tags: tagsSav,
-            recipeBookIDs: Array(selectedRecipeBookIDs)
-        )
-        //        print("ja")
-        // Speichern des Rezepts im Datenmanager
-        
-        // Zuordnen des Rezepts zum ausgewählten Rezeptbuch
-        
-//        print(recipe)
-        if newRecipe {
-            CoreDataManager.shared.saveRecipe(recipe)
-        } else {
-//            print("updatteeeee")
-            CoreDataManager.shared.updateRecipe(recipe)
-//            print("perfekt")
-        }
-        
-        for book in bookSav {
-            CoreDataManager.shared.addRecipe(recipe, toRecipeBook: book)
-        }
-        
-        modelView.updateRecipe()
-        modelView.updateFood()
-        modelView.updateTags()
-        modelView.updateBooks()
-        resetFormFields()
-        
-//        print("durch")
-    }
+           let convertedIngredients = editableIngredients.enumerated().compactMap { index, item -> FoodItemStruct? in
+               var updated = item
+               updated.number = Int64(index)
+               print(updated.number)
+               return updated.toFoodItem()
+           }
+
+           let videoLinkSav: String? = videoLink.isEmpty ? nil : videoLink
+           let infoSav: String? = info.isEmpty ? nil : info
+
+           let cakeInfo: CakeInfo = isCake ? .cake(form: cakeForm, size: cakeSize) : .notCake
+           let portionInfo: PortionsInfo = isCake ? .notPortion : .Portion(Double(portionValue) ?? 0.0)
+
+           var tagsSav: [TagStruct] = []
+           for tagID in selectedTags {
+               let filteredTags = allTags.filter { $0.id == tagID }
+               tagsSav.append(contentsOf: filteredTags)
+           }
+
+           var bookSav: [RecipebookStruct] = []
+           for bookID in selectedRecipeBookIDs {
+               let filteredBooks = filteredRecipeBooks.filter { $0.id == bookID }
+               bookSav.append(contentsOf: filteredBooks)
+           }
+
+           var imagePath: String? = nil
+           if let image = recipeImage, let Path = saveImageLocally(image: image, id: id) {
+               imagePath = Path
+           }
+
+           recipe = Recipe(
+               id: id,
+               title: recipeTitle,
+               ingredients: convertedIngredients,
+               instructions: instructions,
+               image: imagePath,
+               portion: portionInfo,
+               cake: cakeInfo,
+               videoLink: videoLinkSav,
+               info: infoSav,
+               tags: tagsSav,
+               recipeBookIDs: Array(selectedRecipeBookIDs)
+           )
+
+           if newRecipe {
+               CoreDataManager.shared.saveRecipe(recipe)
+           } else {
+               CoreDataManager.shared.updateRecipe(recipe)
+           }
+
+           for book in bookSav {
+               CoreDataManager.shared.addRecipe(recipe, toRecipeBook: book)
+           }
+
+           modelView.updateRecipe()
+           modelView.updateFood()
+           modelView.updateTags()
+           modelView.updateBooks()
+           resetFormFields()
+       }
     
     func addNewRecipeBook() {
         let newBook = RecipebookStruct(name: newRecipeBookName, recipes: [])
@@ -792,52 +849,39 @@ struct RecipeCreationView: View {
             }
         }
     }
-    
-    var ingriginsSection: some View {
+  
+    var ingredientsSection: some View {
         Section(header: Text("Zutaten")) {
             List {
-                ForEach(ingredients.indices, id: \.self) { index in
+                ForEach(Array(editableIngredients.enumerated()), id: \.element.id) { index, ingredient in
                     IngredientRow(
                         index: index,
-                        food: $foods[index],
-                        quantity: $quantity[index],
-                        selectedUnit: $selectedUnit[index],
+                        food: $editableIngredients[index].food,
+                        quantity: $editableIngredients[index].quantity,
+                        selectedUnit: $editableIngredients[index].unit,
                         allFoods: modelView.foods,
                         modelView: modelView,
-                        
                         onDelete: {
-                            ingredients.remove(at: index)
-                            foods.remove(at: index)
-                            quantity.remove(at: index)
-                            selectedUnit.remove(at: index)
+                            editableIngredients.remove(at: index)
                         }
                     )
                 }
                 .onDelete { indexSet in
-                    ingredients.remove(atOffsets: indexSet)
-                    foods.remove(atOffsets: indexSet)
-                    quantity.remove(atOffsets: indexSet)
-                    selectedUnit.remove(atOffsets: indexSet)
+                    editableIngredients.remove(atOffsets: indexSet)
                 }
                 .onMove { indices, newOffset in
-                    ingredients.move(fromOffsets: indices, toOffset: newOffset)
-                    foods.move(fromOffsets: indices, toOffset: newOffset)
-                    quantity.move(fromOffsets: indices, toOffset: newOffset)
-                    selectedUnit.move(fromOffsets: indices, toOffset: newOffset)
+                    editableIngredients.move(fromOffsets: indices, toOffset: newOffset)
                 }
-            }
-
-            Button(action: {
-                ingredients.append(nil)
-                foods.append(emptyFood)
-                quantity.append("")
-                selectedUnit.append(.gram)
-            }) {
-                Label("Zutat hinzufügen", systemImage: "plus.circle")
+                
+                Button(action: {
+                    editableIngredients.append(EditableIngredient())
+                }) {
+                    Label("Zutat hinzufügen", systemImage: "plus.circle")
+                }
             }
         }
     }
-
+  
     var instructionSection: some View {
         Section(header: Text("Anleitung")) {
             List {
@@ -899,7 +943,7 @@ struct RecipeCreationView: View {
                
             imagePickerSection
                
-            ingriginsSection
+            ingredientsSection
 
             instructionSection
         }
@@ -1134,6 +1178,7 @@ struct IngredientRow: View {
     @Binding var food: FoodStruct
     @Binding var quantity: String
     @Binding var selectedUnit: Unit
+  
 
     let allFoods: [FoodStruct]
     var modelView: ViewModel
@@ -1205,3 +1250,9 @@ struct IngredientRow: View {
 }
 
 
+
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
+}
