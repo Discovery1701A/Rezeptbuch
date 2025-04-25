@@ -189,6 +189,52 @@ struct FoodItemStruct: Hashable, Equatable, Identifiable {
     }
 }
 
+struct EditableIngredient: Identifiable, Equatable, Hashable {
+    var id: UUID = UUID()
+    var food: FoodStruct = emptyFood
+    var unit: Unit = .gram
+    var quantity: String = ""
+    var component: String? = nil
+    var number: Int64? = nil
+
+    func toFoodItem() -> FoodItemStruct? {
+        guard let qty = Double(quantity.replacingOccurrences(of: ",", with: ".")) else {
+            return nil
+        }
+
+        return FoodItemStruct(
+            food: food,
+            unit: unit,
+            quantity: qty,
+            id: id,
+            recipeComponent: component,
+            number: number
+        )
+    }
+
+    init(from item: FoodItemStruct) {
+        self.id = item.id
+        self.food = item.food
+        self.unit = item.unit
+        self.quantity = String(item.quantity)
+        self.component = item.recipeComponent
+        self.number = item.number
+    }
+
+    init() {
+        id = UUID()
+        food = emptyFood
+        unit = .gram
+        quantity = ""
+        component = nil
+        number = nil
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
 /// Aufzählung der möglichen Maßeinheiten für Lebensmittel.
 enum Unit: String, CaseIterable, Hashable {
     case gram = "g"
