@@ -6,13 +6,12 @@
 //
 
 import SwiftUI
-
 /// Ansicht zur Erstellung oder Bearbeitung eines Lebensmittels.
 struct FoodCreationView: View {
-    @ObservedObject var modelView: ViewModel  // Das ViewModel zur Datenverwaltung
-    var onSave: (FoodStruct) -> Void  // statt () -> Void // Callback, der nach dem Speichern aufgerufen wird
-    
-    // Zustandsvariablen für die Eingabefelder
+    @ObservedObject var modelView: ViewModel  // ViewModel zur Verwaltung aller Lebensmittel und Tags
+    var onSave: (FoodStruct) -> Void  // Callback, der aufgerufen wird, wenn das Lebensmittel gespeichert wurde
+
+    // 🧾 Eingabefelder für allgemeine Daten
     @State private var foodName = ""
     @State private var foodCategory = ""
     @State private var foodInfo = ""
@@ -21,14 +20,14 @@ struct FoodCreationView: View {
     @State private var carbohydrates = ""
     @State private var fat = ""
     @State private var fooddensity: String = ""
-    
-    // Alle verfügbaren Tags und die ausgewählten Tags
+
+    // 📎 Alle Tags aus dem Modell + aktuell ausgewählte Tags
     @State private var allTags: [TagStruct]
     @State private var selectedTags: Set<UUID>
-    
-    var existingFood: FoodStruct? = nil  // Optionales bestehendes Lebensmittel zur Bearbeitung
 
-    /// Initialisiert die Ansicht mit optionalen bestehenden Lebensmitteln zur Bearbeitung.
+    var existingFood: FoodStruct? = nil  // Optional: Wenn ein vorhandenes Lebensmittel editiert werden soll
+
+    /// Initialisierung der View mit oder ohne bestehendem Lebensmittel
     init(modelView: ViewModel, existingFood: FoodStruct? = nil, onSave: @escaping (FoodStruct) -> Void) {
         self.modelView = modelView
         self.existingFood = existingFood
@@ -36,7 +35,7 @@ struct FoodCreationView: View {
         self.allTags = modelView.tags
         self.selectedTags = []
 
-        // Falls ein bestehendes Lebensmittel übergeben wurde, lade dessen Daten
+        // Falls ein bestehendes Lebensmittel übergeben wurde, Felder damit füllen
         if let existingFood = existingFood {
             _foodName = State(initialValue: existingFood.name)
             _foodCategory = State(initialValue: existingFood.category ?? "")
@@ -47,7 +46,7 @@ struct FoodCreationView: View {
             _carbohydrates = State(initialValue: "\(existingFood.nutritionFacts?.carbohydrates ?? 0.0)")
             _fat = State(initialValue: "\(existingFood.nutritionFacts?.fat ?? 0.0)")
             
-            let tagStructs = existingFood.tags?.compactMap { $0 } ?? []
+            let tagStructs = existingFood.tags ?? []
             _selectedTags = State(initialValue: Set(tagStructs.map(\.id)))
         }
     }
@@ -57,14 +56,13 @@ struct FoodCreationView: View {
             content
                 .navigationBarTitle("Lebensmittel erstellen")
         }
-        .navigationViewStyle(StackNavigationViewStyle())  // Stellt sicher, dass es auf iPads gut funktioniert
+        .navigationViewStyle(StackNavigationViewStyle()) // Gute Darstellung auf iPad
     }
 
-
-    /// Der Hauptinhalt der Ansicht, unabhängig vom Betriebssystem.
+    /// Der Hauptinhalt der Eingabemaske
     var content: some View {
         Form {
-            // Allgemeine Informationen des Lebensmittels
+            // MARK: Allgemeine Informationen
             Section(header: Text("Allgemeine Informationen")) {
                 HStack {
                     Text("Lebensmittelname:")
@@ -85,7 +83,7 @@ struct FoodCreationView: View {
                 }
             }
 
-            // Auswahl der Tags
+            // MARK: Tags
             Section(header: Text("Tags")) {
                 TagsSectionView(
                     allTags: $allTags,
@@ -93,9 +91,8 @@ struct FoodCreationView: View {
                 )
             }
 
-            // Nährwertangaben pro 100g
+            // MARK: Nährwertangaben
             Section(header: Text("Nährwertangaben pro 100g")) {
-           
                 HStack {
                     Text("Kalorien:")
                     TextField("Kalorien", text: $calories)
@@ -116,10 +113,9 @@ struct FoodCreationView: View {
                     TextField("Fett (g)", text: $fat)
                         .keyboardType(.decimalPad)
                 }
-        
             }
 
-            // Speichern-Button
+            // MARK: Speichern
             Section {
                 Button("Speichern") {
                     saveFood()
@@ -129,10 +125,11 @@ struct FoodCreationView: View {
         .navigationTitle("Lebensmittel erstellen")
     }
 
-    /// Speichert oder aktualisiert das Lebensmittel in Core Data.
+    /// Speichert oder aktualisiert das Lebensmittel in Core Data und gibt es per Callback zurück
     func saveFood() {
         guard !foodName.isEmpty else { return }
 
+        // Leere Felder in optionale Werte umwandeln
         let info = foodInfo.isEmpty ? nil : foodInfo
         let category = foodCategory.isEmpty ? nil : foodCategory
         let density = fooddensity.isEmpty ? nil : Double(fooddensity)
@@ -151,6 +148,7 @@ struct FoodCreationView: View {
 
         let savedFood: FoodStruct
 
+        // 🔄 Bestehendes Food aktualisieren oder neues anlegen
         if let existingFood = existingFood {
             savedFood = FoodStruct(
                 id: existingFood.id,
@@ -175,7 +173,7 @@ struct FoodCreationView: View {
             CoreDataManager.shared.saveFood(foodStruct: savedFood)
         }
 
-        modelView.updateFood()
-        onSave(savedFood)
+        modelView.updateFood() // ModelView aktualisieren
+        onSave(savedFood)      // Callback aufrufen (z. B. zum Schließen der Ansicht)
     }
 }

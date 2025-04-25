@@ -1,8 +1,8 @@
-import Foundation
-import SwiftUICore
 import CoreData
-import UIKit
+import Foundation
 import SQLite3
+import SwiftUICore
+import UIKit
 
 /// `CoreDataManager` ist eine Singleton-Klasse, die für die Verwaltung der Core Data-Persistenzschicht zuständig ist.
 class CoreDataManager {
@@ -69,6 +69,49 @@ class CoreDataManager {
             return []
         }
     }
+
+    func fetchExistingFoodIDs() -> Set<UUID> {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Food.fetchRequest()
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.propertiesToFetch = ["id"]
+        
+        do {
+            let results = try managedContext.fetch(fetchRequest) as! [[String: UUID]]
+            return Set(results.compactMap { $0["id"] })
+        } catch {
+            print("❌ Fehler beim Abrufen der Food-UUIDs: \(error)")
+            return []
+        }
+    }
+
+    func fetchExistingTagIDs() -> Set<UUID> {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Tag.fetchRequest()
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.propertiesToFetch = ["id"]
+        
+        do {
+            let results = try managedContext.fetch(fetchRequest) as! [[String: UUID]]
+            return Set(results.compactMap { $0["id"] })
+        } catch {
+            print("❌ Fehler beim Abrufen der Tag-UUIDs: \(error)")
+            return []
+        }
+    }
+
+    func fetchExistingRecipeIDs() -> Set<UUID> {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Recipes.fetchRequest()
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.propertiesToFetch = ["id"]
+        
+        do {
+            let results = try managedContext.fetch(fetchRequest) as! [[String: UUID]]
+            return Set(results.compactMap { $0["id"] })
+        } catch {
+            print("❌ Fehler beim Abrufen der Rezept-UUIDs: \(error)")
+            return []
+        }
+    }
+    
     func removeCoreDataFiles() {
         let fileManager = FileManager.default
         let urls = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)
@@ -92,6 +135,56 @@ class CoreDataManager {
                 }
             }
         }
+    }
+    
+    /// Erstellt ein neues Rezeptbuch und speichert es in Core Data.
+    func createNewRecipeBook(recipeBookStruct: RecipebookStruct) -> Recipebook {
+        let newBook = Recipebook(context: managedContext)
+        newBook.id = recipeBookStruct.id
+        newBook.name = recipeBookStruct.name
+        
+        do {
+            try managedContext.save()
+            print("✅ Neues Rezeptbuch erstellt: \(recipeBookStruct.name)")
+        } catch {
+            print("❌ Fehler beim Erstellen des Rezeptbuchs: \(error)")
+        }
+        return newBook
+    }
+  
+    func updateRecipeBookAssociation(for recipeEntity: Recipes, withNewBookIDs bookIDs: [UUID]?) {
+        guard let newBookIDs = bookIDs else { return }
+
+        // Holen der aktuellen Rezeptbücher
+        if let currentBooks = recipeEntity.recipesBooks as? Set<Recipebook> {
+            let currentBookIDs = currentBooks.compactMap { $0.id }
+
+            // Entfernen von Rezepten aus Rezeptbüchern, die nicht mehr zugewiesen sind
+            for book in currentBooks where !newBookIDs.contains(book.id ?? UUID()) {
+                book.removeFromRecipes(recipeEntity)
+            }
+        }
+
+        // Hinzufügen des Rezepts zu neuen Rezeptbüchern
+        for newBookID in newBookIDs {
+            let bookFetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
+            bookFetchRequest.predicate = NSPredicate(format: "id == %@", newBookID as CVarArg)
+
+            if let newBook = try? managedContext.fetch(bookFetchRequest).first {
+                // Falls Rezept noch nicht im Rezeptbuch ist, hinzufügen
+                if (newBook.recipes as? Set<Recipes>)?.contains(recipeEntity) == false {
+                    newBook.addToRecipes(recipeEntity)
+                }
+            } else {
+                // Neues Rezeptbuch erstellen, falls es noch nicht existiert
+                let newBook = Recipebook(context: managedContext)
+                newBook.id = newBookID
+                newBook.addToRecipes(recipeEntity)
+                print("📖 Neues Rezeptbuch erstellt für ID: \(newBookID)")
+            }
+        }
+
+        saveContext()
     }
     
     func recipeExists(id: UUID) -> Bool {
@@ -169,15 +262,41 @@ class CoreDataManager {
             print("✅ Rezept gespeichert: \(recipeEntity)")
         } else if overwrite && recipeExists(id: recipe.id) {
             renameRecipeImage(for: &finalRecipe)
-                        finalRecipe.image = "\(finalRecipe.id).jpeg"
+            finalRecipe.image = "\(finalRecipe.id).jpeg"
                 
             updateRecipe(finalRecipe)
         }
         
-     //bücher
+        // bücher
         return finalRecipe
+    }
 
+    /// Aktualisiert ein bestehendes Rezept (`Recipe`) in Core Data.
+    func updateRecipe(_ recipe: Recipe) {
+        let recipeEntity = findOrCreateRecipeEntity(from: recipe)
         
+        // Basisdaten aktualisieren
+        recipeEntity.titel = recipe.title
+        recipeEntity.instructions = recipe.instructions
+        recipeEntity.image = recipe.image
+        recipeEntity.portion = recipe.portion?.stringValue()
+        recipeEntity.cake = recipe.cake?.stringValue()
+        recipeEntity.videoLink = recipe.videoLink
+        recipeEntity.info = recipe.info
+        
+        // Zutaten aktualisieren
+        updateIngredients(for: recipeEntity, with: recipe.ingredients)
+        
+        // Falls das Rezept zu einem Rezeptbuch gehört, aktualisieren
+        updateRecipeBookAssociation(for: recipeEntity, withNewBookIDs: recipe.recipeBookIDs)
+        
+        // Tags aktualisieren
+        if let tags = recipe.tags {
+            updateTags(for: recipeEntity, with: tags)
+        }
+        
+        // Änderungen speichern
+        saveContext()
     }
     
     /// Versucht das Rezeptbild zur neuen ID umzubenennen
@@ -223,20 +342,6 @@ class CoreDataManager {
         }
     }
     
-    /// Erstellt ein neues Rezeptbuch und speichert es in Core Data.
-    func createNewRecipeBook(recipeBookStruct: RecipebookStruct) -> Recipebook {
-        let newBook = Recipebook(context: managedContext)
-        newBook.id = recipeBookStruct.id
-        newBook.name = recipeBookStruct.name
-        
-        do {
-            try managedContext.save()
-            print("✅ Neues Rezeptbuch erstellt: \(recipeBookStruct.name)")
-        } catch {
-            print("❌ Fehler beim Erstellen des Rezeptbuchs: \(error)")
-        }
-        return newBook
-    }
     /// Löscht ein Rezept aus Core Data anhand seiner ID.
     func deleteRecipe(by id: UUID) {
         let fetchRequest: NSFetchRequest<Recipes> = Recipes.fetchRequest()
@@ -274,39 +379,6 @@ class CoreDataManager {
         }
     }
     
-    /// Füllt eine `Recipes`-Entität mit Daten aus einem `Recipe`-Struct.
-//    /// Erstellt für jedes FoodItem eine neue FoodItem-Entität (ohne Suche), ideal für duplizierte Rezepte.
-//    func populateRecipeEntityWithNewIngredients(_ entity: Recipes, from recipe: Recipe) {
-//        entity.titel = recipe.title
-//        entity.instructions = recipe.instructions
-//        entity.image = recipe.image
-//        entity.portion = recipe.portion?.stringValue()
-//        entity.cake = recipe.cake?.stringValue()
-//        entity.videoLink = recipe.videoLink
-//        entity.info = recipe.info
-//        entity.id = recipe.id
-//
-//        // 🍎 Zutaten: Neue FoodItem-Entities erstellen
-//        for item in recipe.ingredients {
-//            let newFoodItem = FoodItem(context: managedContext)
-//            newFoodItem.food = findOrCreateFood(foodStruct: item.food)
-//            newFoodItem.unit = Unit.toString(item.unit)
-//            newFoodItem.quantity = item.quantity
-//            newFoodItem.id = item.id
-//            newFoodItem.number = item.number
-//            newFoodItem.recipecomponent = item.recipeComponent
-//            entity.addToIngredients(newFoodItem)
-//        }
-//
-//        // 🏷 Tags hinzufügen
-//        if let tags = recipe.tags {
-//            for tag in tags {
-//                let tagEntity = findOrCreateTag(tag)
-//                entity.addToTags(tagEntity)
-//            }
-//        }
-//    }
-    
     /// Füllt eine `Recipes`-Entität mit Daten aus einem `Recipe`-Struktur.
     func populateRecipeEntity(_ entity: Recipes, from recipe: Recipe) {
         entity.titel = recipe.title
@@ -343,51 +415,8 @@ class CoreDataManager {
         }
     }
     
-    func fetchExistingFoodIDs() -> Set<UUID> {
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Food.fetchRequest()
-        fetchRequest.resultType = .dictionaryResultType
-        fetchRequest.propertiesToFetch = ["id"]
-        
-        do {
-            let results = try managedContext.fetch(fetchRequest) as! [[String: UUID]]
-            return Set(results.compactMap { $0["id"] })
-        } catch {
-            print("❌ Fehler beim Abrufen der Food-UUIDs: \(error)")
-            return []
-        }
-    }
-
-    func fetchExistingTagIDs() -> Set<UUID> {
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Tag.fetchRequest()
-        fetchRequest.resultType = .dictionaryResultType
-        fetchRequest.propertiesToFetch = ["id"]
-        
-        do {
-            let results = try managedContext.fetch(fetchRequest) as! [[String: UUID]]
-            return Set(results.compactMap { $0["id"] })
-        } catch {
-            print("❌ Fehler beim Abrufen der Tag-UUIDs: \(error)")
-            return []
-        }
-    }
-
-    func fetchExistingRecipeIDs() -> Set<UUID> {
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Recipes.fetchRequest()
-        fetchRequest.resultType = .dictionaryResultType
-        fetchRequest.propertiesToFetch = ["id"]
-        
-        do {
-            let results = try managedContext.fetch(fetchRequest) as! [[String: UUID]]
-            return Set(results.compactMap { $0["id"] })
-        } catch {
-            print("❌ Fehler beim Abrufen der Rezept-UUIDs: \(error)")
-            return []
-        }
-    }
-    
     /// Prüft, ob die Core Data-Datenbank leer ist, und fügt initiale Datensätze hinzu.
     func insertInitialDataIfNeeded() {
-        
 //        removeCoreDataFiles()
         // 1. Kopiere ggf. die Datenbank
 
@@ -400,7 +429,8 @@ class CoreDataManager {
         var didMerge = false
 
         if let bundlePath = Bundle.main.path(forResource: "Rezeptbuch", ofType: "sqlite"),
-           fileManager.fileExists(atPath: dbURL.path) {
+           fileManager.fileExists(atPath: dbURL.path)
+        {
             didMerge = mergeSQLiteDatabases(existingDBPath: dbURL.path, newDBPath: bundlePath)
         }
 
@@ -474,7 +504,6 @@ class CoreDataManager {
             print("❌ Fehler beim Speichern der Daten: \(error)")
         }
     }
-    
     
     /// Prüft, ob eine vorgefertigte SQLite-Datenbank bereits existiert, und kopiert sie falls nötig.
     func setupPreloadedDatabase() {
@@ -566,68 +595,6 @@ class CoreDataManager {
 
         print("📦 Merge abgeschlossen. Neue Daten eingefügt: \(newDataInserted)")
         return newDataInserted
-    }
-    
-    /// Sucht nach einem vorhandenen Tag oder erstellt einen neuen, falls keiner existiert.
-    private func findOrCreateTag(tagStruct: TagStruct) -> Tag {
-        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "name == %@", tagStruct.name)
-        
-        // Falls der Tag existiert, wird er zurückgegeben; sonst wird ein neuer erstellt.
-        if let existingTag = try? managedContext.fetch(fetchRequest).first {
-            return existingTag
-        } else {
-            let newTag = Tag(context: managedContext)
-            newTag.name = tagStruct.name
-            newTag.id = tagStruct.id
-            return newTag
-        }
-    }
-    
-    /// Alternative Methode: Sucht oder erstellt einen Tag anhand des Namens.
-    private func findOrCreateTag(name: String) -> Tag {
-        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "name == %@", name)
-        
-        if let existingTag = try? managedContext.fetch(fetchRequest).first {
-            return existingTag
-        } else {
-            let newTag = Tag(context: managedContext)
-            newTag.name = name
-            newTag.id = UUID() // Neue UUID, falls noch nicht vorhanden
-            return newTag
-        }
-    }
-    
-    /// Sucht oder erstellt einen `FoodItem`, also eine Zutat innerhalb eines Rezepts.
-    private func findOrCreateFoodItem(_ item: FoodItemStruct) -> FoodItem {
-        let fetchRequest: NSFetchRequest<FoodItem> = FoodItem.fetchRequest()
-        
-        // Erstelle verschiedene Bedingungen für die Suche nach der Zutat
-        let predicateName = NSPredicate(format: "food.name == %@", item.food.name)
-        let predicateUnit = NSPredicate(format: "unit == %@", Unit.toString(item.unit))
-        let predicateQuantity = NSPredicate(format: "quantity == %lf", item.quantity)
-        let predictionID = NSPredicate(format: "id == %@", item.id as CVarArg)
-        
-        // Kombiniere alle Bedingungen in einem einzigen Prädikat
-        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicateName, predicateUnit, predicateQuantity, predictionID])
-        fetchRequest.predicate = compoundPredicate
-        
-        // Falls das Lebensmittel bereits existiert, wird es zurückgegeben; sonst wird ein neues erstellt.
-        if let existingItem = try? managedContext.fetch(fetchRequest).first {
-            print("ssssss")
-            return existingItem
-        } else {
-            let newFoodItem = FoodItem(context: managedContext)
-            newFoodItem.food = findOrCreateFood(foodStruct: item.food)
-            newFoodItem.unit = Unit.toString(item.unit)
-            newFoodItem.quantity = item.quantity
-            newFoodItem.id = item.id
-            print(item.number)
-            newFoodItem.number = item.number ?? 0
-            newFoodItem.recipecomponent = item.recipeComponent
-            return newFoodItem
-        }
     }
     
     /// Sucht oder erstellt ein `Food`-Objekt in Core Data.
@@ -769,51 +736,23 @@ class CoreDataManager {
         }
     }
 
-    
-    /// Aktualisiert ein bestehendes Rezept (`Recipe`) in Core Data.
-    func updateRecipe(_ recipe: Recipe) {
-        let recipeEntity = findOrCreateRecipeEntity(from: recipe)
-        
-        // Basisdaten aktualisieren
-        recipeEntity.titel = recipe.title
-        recipeEntity.instructions = recipe.instructions
-        recipeEntity.image = recipe.image
-        recipeEntity.portion = recipe.portion?.stringValue()
-        recipeEntity.cake = recipe.cake?.stringValue()
-        recipeEntity.videoLink = recipe.videoLink
-        recipeEntity.info = recipe.info
-        
-        // Zutaten aktualisieren
-        updateIngredients(for: recipeEntity, with: recipe.ingredients)
-        
-        // Falls das Rezept zu einem Rezeptbuch gehört, aktualisieren
-        updateRecipeBookAssociation(for: recipeEntity, withNewBookIDs: recipe.recipeBookIDs)
-        
-        // Tags aktualisieren
-        if let tags = recipe.tags {
-            updateTags(for: recipeEntity, with: tags)
-        }
-        
-        // Änderungen speichern
-        saveContext()
-    }
-    
-    /// Synchronisiert ein `TagStruct` mit Core Data.
-    func syncTag(with tagStruct: TagStruct) {
-        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", tagStruct.id as CVarArg)
-        
-        do {
-            let results = try managedContext.fetch(fetchRequest)
-            let tag = results.first ?? Tag(context: managedContext) // Falls nicht vorhanden, erstelle neuen Tag
-            tag.id = tagStruct.id
-            tag.name = tagStruct.name
-            
-            saveContext()
-        } catch {
-            print("❌ Fehler beim Abrufen oder Speichern des Tags: \(error)")
-        }
-    }
+//
+//    /// Synchronisiert ein `TagStruct` mit Core Data.
+//    func syncTag(with tagStruct: TagStruct) {
+//        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+//        fetchRequest.predicate = NSPredicate(format: "id == %@", tagStruct.id as CVarArg)
+//
+//        do {
+//            let results = try managedContext.fetch(fetchRequest)
+//            let tag = results.first ?? Tag(context: managedContext) // Falls nicht vorhanden, erstelle neuen Tag
+//            tag.id = tagStruct.id
+//            tag.name = tagStruct.name
+//
+//            saveContext()
+//        } catch {
+//            print("❌ Fehler beim Abrufen oder Speichern des Tags: \(error)")
+//        }
+//    }
     /// Aktualisiert die Tags eines Rezepts (`Recipes`).
     func updateTags(for recipeEntity: Recipes, with newTags: [TagStruct]) {
         let existingTags = (recipeEntity.tags as? Set<Tag>) ?? Set()
@@ -848,39 +787,66 @@ class CoreDataManager {
         }
     }
     
-    func updateRecipeBookAssociation(for recipeEntity: Recipes, withNewBookIDs bookIDs: [UUID]?) {
-        guard let newBookIDs = bookIDs else { return }
-
-        // Holen der aktuellen Rezeptbücher
-        if let currentBooks = recipeEntity.recipesBooks as? Set<Recipebook> {
-            let currentBookIDs = currentBooks.compactMap { $0.id }
-
-            // Entfernen von Rezepten aus Rezeptbüchern, die nicht mehr zugewiesen sind
-            for book in currentBooks where !newBookIDs.contains(book.id ?? UUID()) {
-                book.removeFromRecipes(recipeEntity)
-            }
+    /// Sucht nach einem vorhandenen Tag oder erstellt einen neuen, falls keiner existiert.
+    private func findOrCreateTag(tagStruct: TagStruct) -> Tag {
+        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", tagStruct.name)
+        
+        // Falls der Tag existiert, wird er zurückgegeben; sonst wird ein neuer erstellt.
+        if let existingTag = try? managedContext.fetch(fetchRequest).first {
+            return existingTag
+        } else {
+            let newTag = Tag(context: managedContext)
+            newTag.name = tagStruct.name
+            newTag.id = tagStruct.id
+            return newTag
         }
-
-        // Hinzufügen des Rezepts zu neuen Rezeptbüchern
-        for newBookID in newBookIDs {
-            let bookFetchRequest: NSFetchRequest<Recipebook> = Recipebook.fetchRequest()
-            bookFetchRequest.predicate = NSPredicate(format: "id == %@", newBookID as CVarArg)
-
-            if let newBook = try? managedContext.fetch(bookFetchRequest).first {
-                // Falls Rezept noch nicht im Rezeptbuch ist, hinzufügen
-                if (newBook.recipes as? Set<Recipes>)?.contains(recipeEntity) == false {
-                    newBook.addToRecipes(recipeEntity)
-                }
-            } else {
-                // Neues Rezeptbuch erstellen, falls es noch nicht existiert
-                let newBook = Recipebook(context: managedContext)
-                newBook.id = newBookID
-                newBook.addToRecipes(recipeEntity)
-                print("📖 Neues Rezeptbuch erstellt für ID: \(newBookID)")
-            }
+    }
+    
+    /// Alternative Methode: Sucht oder erstellt einen Tag anhand des Namens.
+    private func findOrCreateTag(name: String) -> Tag {
+        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", name)
+        
+        if let existingTag = try? managedContext.fetch(fetchRequest).first {
+            return existingTag
+        } else {
+            let newTag = Tag(context: managedContext)
+            newTag.name = name
+            newTag.id = UUID() // Neue UUID, falls noch nicht vorhanden
+            return newTag
         }
-
-        saveContext()
+    }
+    
+    /// Sucht oder erstellt einen `FoodItem`, also eine Zutat innerhalb eines Rezepts.
+    private func findOrCreateFoodItem(_ item: FoodItemStruct) -> FoodItem {
+        let fetchRequest: NSFetchRequest<FoodItem> = FoodItem.fetchRequest()
+        
+        // Erstelle verschiedene Bedingungen für die Suche nach der Zutat
+        let predicateName = NSPredicate(format: "food.name == %@", item.food.name)
+        let predicateUnit = NSPredicate(format: "unit == %@", Unit.toString(item.unit))
+        let predicateQuantity = NSPredicate(format: "quantity == %lf", item.quantity)
+        let predictionID = NSPredicate(format: "id == %@", item.id as CVarArg)
+        
+        // Kombiniere alle Bedingungen in einem einzigen Prädikat
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicateName, predicateUnit, predicateQuantity, predictionID])
+        fetchRequest.predicate = compoundPredicate
+        
+        // Falls das Lebensmittel bereits existiert, wird es zurückgegeben; sonst wird ein neues erstellt.
+        if let existingItem = try? managedContext.fetch(fetchRequest).first {
+            print("ssssss")
+            return existingItem
+        } else {
+            let newFoodItem = FoodItem(context: managedContext)
+            newFoodItem.food = findOrCreateFood(foodStruct: item.food)
+            newFoodItem.unit = Unit.toString(item.unit)
+            newFoodItem.quantity = item.quantity
+            newFoodItem.id = item.id
+            print(item.number)
+            newFoodItem.number = item.number ?? 0
+            newFoodItem.recipecomponent = item.recipeComponent
+            return newFoodItem
+        }
     }
     
     /// Aktualisiert die Zutaten eines Rezepts (`Recipes`).
@@ -892,7 +858,7 @@ class CoreDataManager {
         for foodItemStruct in newIngredients {
             print(foodItemStruct.number)
             let foodItemEntity = findOrCreateFoodItem(foodItemStruct)
-            foodItemEntity.food = findOrCreateFood(foodStruct:foodItemStruct.food)
+            foodItemEntity.food = findOrCreateFood(foodStruct: foodItemStruct.food)
             foodItemEntity.unit = Unit.toString(foodItemStruct.unit)
             foodItemEntity.quantity = foodItemStruct.quantity
             
@@ -912,70 +878,70 @@ extension FoodItemStruct {
         }
         
         self.food = FoodStruct(from: food)
-        self.unit = Unit.fromString(managedObject.unit ?? "") ?? .gram
-        self.quantity = managedObject.quantity
-        self.id = managedObject.id ?? UUID()
-        self.number = managedObject.number
-        self.recipeComponent = managedObject.recipecomponent 
+        unit = Unit.fromString(managedObject.unit ?? "") ?? .gram
+        quantity = managedObject.quantity
+        id = managedObject.id ?? UUID()
+        number = managedObject.number
+        recipeComponent = managedObject.recipecomponent
     }
 }
 
 // FoodStruct - Initialisierung aus Core Data Managed Object
 extension FoodStruct {
     init(from managedObject: Food) {
-        self.id = managedObject.id ?? UUID()
-        self.name = managedObject.name ?? "Unbekannt"
-        self.category = managedObject.category
-        self.density = managedObject.density as? Double
-        self.info = managedObject.info
-        self.nutritionFacts = NutritionFactsStruct(from: managedObject.nutritionFacts)
+        id = managedObject.id ?? UUID()
+        name = managedObject.name ?? "Unbekannt"
+        category = managedObject.category
+        density = managedObject.density as? Double
+        info = managedObject.info
+        nutritionFacts = NutritionFactsStruct(from: managedObject.nutritionFacts)
 
         // Lade Tags, falls vorhanden
-        self.tags = (managedObject.tags as? Set<Tag>)?.map(TagStruct.init) ?? []
+        tags = (managedObject.tags as? Set<Tag>)?.map(TagStruct.init) ?? []
     }
 }
 
 // Recipe - Initialisierung aus Core Data Managed Object
 extension Recipe {
     init(from managedObject: Recipes) {
-        self.id = managedObject.id ?? UUID()
-        self.title = managedObject.titel ?? "Unbekanntes Rezept"
-        self.instructions = managedObject.instructions
-        self.image = managedObject.image
-        self.portion = PortionsInfo.fromString(managedObject.portion ?? "")
-        self.cake = CakeInfo.fromString(managedObject.cake ?? "")
-        self.videoLink = managedObject.videoLink
-        self.info = managedObject.info
+        id = managedObject.id ?? UUID()
+        title = managedObject.titel ?? "Unbekanntes Rezept"
+        instructions = managedObject.instructions
+        image = managedObject.image
+        portion = PortionsInfo.fromString(managedObject.portion ?? "")
+        cake = CakeInfo.fromString(managedObject.cake ?? "")
+        videoLink = managedObject.videoLink
+        info = managedObject.info
         
         // Tags
-        self.tags = (managedObject.tags as? Set<Tag>)?.map(TagStruct.init) ?? []
+        tags = (managedObject.tags as? Set<Tag>)?.map(TagStruct.init) ?? []
 
         // Rezeptbuch-Zuordnung
-        self.recipeBookIDs = (managedObject.recipesBooks as? Set<Recipebook>)?.compactMap { $0.id } ?? []
+        recipeBookIDs = (managedObject.recipesBooks as? Set<Recipebook>)?.compactMap { $0.id } ?? []
 
         // Zutaten
-        self.ingredients = (managedObject.ingredients as? Set<FoodItem>)?.map(FoodItemStruct.init) ?? []
+        ingredients = (managedObject.ingredients as? Set<FoodItem>)?.map(FoodItemStruct.init) ?? []
     }
 }
 
 // NutritionFactsStruct - Initialisierung aus Core Data Managed Object
 extension NutritionFactsStruct {
     init(from managedObject: NutritionFacts?) {
-        self.calories = managedObject?.calories != nil ? Int(managedObject!.calories) : nil
-        self.protein = managedObject?.protein
-        self.carbohydrates = managedObject?.carbohydrates
-        self.fat = managedObject?.fat
+        calories = managedObject?.calories != nil ? Int(managedObject!.calories) : nil
+        protein = managedObject?.protein
+        carbohydrates = managedObject?.carbohydrates
+        fat = managedObject?.fat
     }
 }
 
 // RecipebookStruct - Initialisierung aus Core Data Managed Object
 extension RecipebookStruct {
     init(from managedObject: Recipebook) {
-        self.id = managedObject.id ?? UUID()
-        self.name = managedObject.name ?? "Unbenanntes Rezeptbuch"
+        id = managedObject.id ?? UUID()
+        name = managedObject.name ?? "Unbenanntes Rezeptbuch"
 
         // Rezepte und Tags sicher aus Core Data laden
-        self.recipes = (managedObject.recipes as? Set<Recipes>)?.map(Recipe.init) ?? []
-        self.tags = (managedObject.tag as? Set<Tag>)?.map(TagStruct.init) ?? []
+        recipes = (managedObject.recipes as? Set<Recipes>)?.map(Recipe.init) ?? []
+        tags = (managedObject.tag as? Set<Tag>)?.map(TagStruct.init) ?? []
     }
 }

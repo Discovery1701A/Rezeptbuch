@@ -111,21 +111,40 @@ class DatabaseService {
         }
     }
 
-    /// Lädt alle Lebensmittel aus der Datenbank.
+    /// Lädt alle Lebensmittel aus der SQLite-Datenbank und gibt sie als `FoodStruct`-Array zurück.
     /// - Returns: Ein Array von `FoodStruct`-Objekten.
     func loadFoods() -> [FoodStruct] {
-        print("Lade Lebensmittel...")
+        print("Lade Lebensmittel...") // Debug-Ausgabe zur Kontrolle
+
+        // SQL-Abfrage, um alle Lebensmittel mit Basisdaten zu laden
         let query = "SELECT id, name, category, info, density FROM Food;"
+
+        // Übergib die Abfrage an den dbHelper, der alle Zeilen durchläuft
         return dbHelper.fetchAllRows(query: query) { stmt in
+            // 📦 Extrahiere alle Spalten aus dem SQLite-Ergebnis
+
+            // 🆔 ID (als UUID)
             let id = UUID(uuidString: String(cString: sqlite3_column_text(stmt, 0))) ?? UUID()
+
+            // 📝 Name des Lebensmittels
             let name = String(cString: sqlite3_column_text(stmt, 1))
+
+            // 📂 Kategorie (z. B. "Getränk", "Obst", ...)
             let category = String(cString: sqlite3_column_text(stmt, 2))
+
+            // ℹ️ Zusatzinformationen
             let info = String(cString: sqlite3_column_text(stmt, 3))
+
+            // ⚖️ Dichte (z. B. g/ml)
             let density = Double(sqlite3_column_double(stmt, 4))
 
-            let nutritionFacts = self.loadNutritionFacts(for: id) // Lädt die zugehörigen Nährwerte
-            let tags = self.loadFoodTags(for: id) // Lädt die zugehörigen Tags
+            // 🔗 Lade die zugehörigen Nährwerte aus einer anderen Tabelle
+            let nutritionFacts = self.loadNutritionFacts(for: id)
 
+            // 🔖 Lade die zugehörigen Tags (z. B. "vegan", "leicht")
+            let tags = self.loadFoodTags(for: id)
+
+            // 🧱 Baue die Struktur mit allen geladenen Daten
             return FoodStruct(
                 id: id,
                 name: name,

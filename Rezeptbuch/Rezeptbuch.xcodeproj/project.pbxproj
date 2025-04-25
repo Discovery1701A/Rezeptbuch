@@ -26,7 +26,6 @@
 		586AC7982BDA4D480060B08D /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 586AC7962BDA4D480060B08D /* Model.xcdatamodeld */; };
 		588222A62D05BC9E0011FFFE /* TagsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588222A52D05BC9E0011FFFE /* TagsSectionView.swift */; };
 		588251D12B99E106009370CF /* RezeptbuchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588251D02B99E106009370CF /* RezeptbuchApp.swift */; };
-		588251D32B99E106009370CF /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588251D22B99E106009370CF /* Persistence.swift */; };
 		588251D82B99E106009370CF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588251D72B99E106009370CF /* ContentView.swift */; };
 		588251DA2B99E10A009370CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 588251D92B99E10A009370CF /* Assets.xcassets */; };
 		588251DE2B99E10A009370CF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 588251DD2B99E10A009370CF /* Preview Assets.xcassets */; };
@@ -62,7 +61,6 @@
 		588222A52D05BC9E0011FFFE /* TagsSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsSectionView.swift; sourceTree = "<group>"; };
 		588251CD2B99E106009370CF /* Rezeptbuch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rezeptbuch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		588251D02B99E106009370CF /* RezeptbuchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RezeptbuchApp.swift; sourceTree = "<group>"; };
-		588251D22B99E106009370CF /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		588251D72B99E106009370CF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		588251D92B99E10A009370CF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		588251DB2B99E10A009370CF /* Rezeptbuch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Rezeptbuch.entitlements; sourceTree = "<group>"; };
@@ -120,7 +118,6 @@
 				588BD3B52BC162AB0053904B /* Model */,
 				588251D02B99E106009370CF /* RezeptbuchApp.swift */,
 				58AF20962BB6D97000298B4A /* CookingModeView.swift */,
-				588251D22B99E106009370CF /* Persistence.swift */,
 				586AC7962BDA4D480060B08D /* Model.xcdatamodeld */,
 				588251D72B99E106009370CF /* ContentView.swift */,
 				58C765EE2B9E2510001E6068 /* ViewController.swift */,
@@ -279,7 +276,6 @@
 				58C765F52B9F0415001E6068 /* ViewModel.swift in Sources */,
 				58E3175E2DAD47C800499E7C /* FoodItem+CoreDataProperties.swift in Sources */,
 				58E3175F2DAD47C800499E7C /* FoodItem+CoreDataClass.swift in Sources */,
-				588251D32B99E106009370CF /* Persistence.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
