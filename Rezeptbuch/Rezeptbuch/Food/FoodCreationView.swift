@@ -52,13 +52,6 @@ struct FoodCreationView: View {
         }
     }
 
-    // macOS-Version der Ansicht
-    #if os(macOS)
-    var body: some View {
-        content
-    }
-    #else
-    // iOS-Version der Ansicht
     var body: some View {
         NavigationView {
             content
@@ -66,7 +59,7 @@ struct FoodCreationView: View {
         }
         .navigationViewStyle(StackNavigationViewStyle())  // Stellt sicher, dass es auf iPads gut funktioniert
     }
-    #endif
+
 
     /// Der Hauptinhalt der Ansicht, unabhängig vom Betriebssystem.
     var content: some View {
@@ -94,29 +87,15 @@ struct FoodCreationView: View {
 
             // Auswahl der Tags
             Section(header: Text("Tags")) {
-                TagsSectionView(allTags: $allTags, selectedTags: $selectedTags)
+                TagsSectionView(
+                    allTags: $allTags,
+                    selectedTags: $selectedTags
+                )
             }
 
             // Nährwertangaben pro 100g
             Section(header: Text("Nährwertangaben pro 100g")) {
-                #if os(macOS)
-                HStack {
-                    Text("Kalorien:")
-                    TextField("Kalorien", text: $calories)
-                }
-                HStack {
-                    Text("Protein (g):")
-                    TextField("Protein (g)", text: $protein)
-                }
-                HStack {
-                    Text("Kohlenhydrate (g):")
-                    TextField("Kohlenhydrate (g)", text: $carbohydrates)
-                }
-                HStack {
-                    Text("Fett (g):")
-                    TextField("Fett (g)", text: $fat)
-                }
-                #else
+           
                 HStack {
                     Text("Kalorien:")
                     TextField("Kalorien", text: $calories)
@@ -137,7 +116,7 @@ struct FoodCreationView: View {
                     TextField("Fett (g)", text: $fat)
                         .keyboardType(.decimalPad)
                 }
-                #endif
+        
             }
 
             // Speichern-Button

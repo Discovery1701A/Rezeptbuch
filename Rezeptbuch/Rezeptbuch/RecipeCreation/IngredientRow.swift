@@ -23,7 +23,7 @@ struct IngredientRow: View {
     // Liste aller verfügbaren Zutaten (für die Suche)
     let allFoods: [FoodStruct]
     
-    // ViewModel, vermutlich für globale Logik oder Datenzugriff
+
     var modelView: ViewModel
     
     // Callback-Funktion, um die Zutat zu löschen

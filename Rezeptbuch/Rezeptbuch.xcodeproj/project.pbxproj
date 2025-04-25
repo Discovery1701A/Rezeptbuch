@@ -32,11 +32,9 @@
 		588251DE2B99E10A009370CF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 588251DD2B99E10A009370CF /* Preview Assets.xcassets */; };
 		588BD3F72BC176610053904B /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588BD3F62BC176610053904B /* CoreDataManager.swift */; };
 		58A204042BB709F800659D63 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A204032BB709F800659D63 /* Model.swift */; };
-		58AF20722BA58CDA00298B4A /* MacOs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AF20712BA58CDA00298B4A /* MacOs.swift */; };
 		58AF20972BB6D97100298B4A /* CookingModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AF20962BB6D97000298B4A /* CookingModeView.swift */; };
 		58B8EA2E2CF3536A006F7CC3 /* DatabaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B8EA2D2CF3536A006F7CC3 /* DatabaseHelper.swift */; };
 		58C765EF2B9E2510001E6068 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765EE2B9E2510001E6068 /* ViewController.swift */; };
-		58C765F32B9F0385001E6068 /* Buttons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765F22B9F0385001E6068 /* Buttons.swift */; };
 		58C765F52B9F0415001E6068 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765F42B9F0415001E6068 /* ViewModel.swift */; };
 		58C765F72B9F185B001E6068 /* RezeptListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765F62B9F185B001E6068 /* RezeptListView.swift */; };
 		58E3175E2DAD47C800499E7C /* FoodItem+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E3175D2DAD47C800499E7C /* FoodItem+CoreDataProperties.swift */; };
@@ -71,12 +69,10 @@
 		588251DD2B99E10A009370CF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		588BD3F62BC176610053904B /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		58A204032BB709F800659D63 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
-		58AF20712BA58CDA00298B4A /* MacOs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacOs.swift; sourceTree = "<group>"; };
 		58AF20952BB4788A00298B4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		58AF20962BB6D97000298B4A /* CookingModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookingModeView.swift; sourceTree = "<group>"; };
 		58B8EA2D2CF3536A006F7CC3 /* DatabaseHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseHelper.swift; sourceTree = "<group>"; };
 		58C765EE2B9E2510001E6068 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		58C765F22B9F0385001E6068 /* Buttons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Buttons.swift; sourceTree = "<group>"; };
 		58C765F42B9F0415001E6068 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		58C765F62B9F185B001E6068 /* RezeptListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RezeptListView.swift; sourceTree = "<group>"; };
 		58E3175C2DAD47C800499E7C /* FoodItem+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FoodItem+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -138,9 +134,7 @@
 				58E317662DBA45BE00499E7C /* RecipeCreation */,
 				586AC7942BD9460E0060B08D /* textFieldArlert.swift */,
 				58A204032BB709F800659D63 /* Model.swift */,
-				58AF20712BA58CDA00298B4A /* MacOs.swift */,
 				5854E8922BD3E11300682265 /* iOS.swift */,
-				58C765F22B9F0385001E6068 /* Buttons.swift */,
 				588251D92B99E10A009370CF /* Assets.xcassets */,
 				588251DB2B99E10A009370CF /* Rezeptbuch.entitlements */,
 				588251DC2B99E10A009370CF /* Preview Content */,
@@ -257,7 +251,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58C765F32B9F0385001E6068 /* Buttons.swift in Sources */,
 				58245C782BE515BE00F4179E /* ShareSheet.swift in Sources */,
 				58C765EF2B9E2510001E6068 /* ViewController.swift in Sources */,
 				58C765F72B9F185B001E6068 /* RezeptListView.swift in Sources */,
@@ -286,7 +279,6 @@
 				58C765F52B9F0415001E6068 /* ViewModel.swift in Sources */,
 				58E3175E2DAD47C800499E7C /* FoodItem+CoreDataProperties.swift in Sources */,
 				58E3175F2DAD47C800499E7C /* FoodItem+CoreDataClass.swift in Sources */,
-				58AF20722BA58CDA00298B4A /* MacOs.swift in Sources */,
 				588251D32B99E106009370CF /* Persistence.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -448,7 +440,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -495,7 +488,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

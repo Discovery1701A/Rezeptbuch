@@ -7,44 +7,54 @@
 
 import SwiftUI
 
-/// Ansicht zur Verwaltung und Auswahl von Tags in einer horizontal scrollbaren Liste.
 struct TagsSectionView: View {
-    @State private var tagSearchText: String = ""  // Suchfeld für Tags
-    @Binding var allTags: [TagStruct]  // Alle verfügbaren Tags
-    @Binding var selectedTags: Set<UUID>  // Die aktuell ausgewählten Tags
+    // Immer notwendig
+    @Binding var allTags: [TagStruct]
+    @Binding var selectedTags: Set<UUID>
+    
+    // Optional, wenn du alles extern verwalten willst
+    var tagSearchText: Binding<String>? = nil
+    var filteredTags: Binding<[TagStruct]>? = nil
+    var showingAddTagField: Binding<Bool>? = nil
+    var newTagName: Binding<String>? = nil
 
-    @State private var filteredTags: [TagStruct] = []  // Gefilterte Tags basierend auf der Suche
-    @State private var showingAddTagField = false  // Status, ob das Eingabefeld für neue Tags sichtbar ist
-    @State private var newTagName = ""  // Name für einen neuen Tag
+    // Interne State-Fallbacks
+    @State private var internalSearchText = ""
+    @State private var internalFilteredTags: [TagStruct] = []
+    @State private var internalShowAdd = false
+    @State private var internalNewTag = ""
 
     var body: some View {
+        let searchText = tagSearchText ?? $internalSearchText
+        let filtered = filteredTags ?? $internalFilteredTags
+        let showAdd = showingAddTagField ?? $internalShowAdd
+        let newTag = newTagName ?? $internalNewTag
+
         Section(header: Text("Tags")) {
-            // Suchfeld zur Filterung der Tags
-            TextField("Tag suchen...", text: $tagSearchText)
+            TextField("Tag suchen...", text: searchText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onChange(of: tagSearchText) { newValue in
+                .onChange(of: searchText.wrappedValue) { newValue in
                     if newValue.isEmpty {
-                        filteredTags = allTags  // Wenn das Suchfeld leer ist, zeige alle Tags an
+                        filtered.wrappedValue = allTags
                     } else {
-                        // Filtere Tags nach Name (Groß-/Kleinschreibung wird ignoriert)
-                        filteredTags = allTags.filter { $0.name.lowercased().contains(newValue.lowercased()) }
+                        filtered.wrappedValue = allTags.filter {
+                            $0.name.lowercased().contains(newValue.lowercased())
+                        }
                     }
                 }
                 .onAppear {
-                    filteredTags = allTags  // Füllt die Liste beim Erscheinen der Ansicht
+                    filtered.wrappedValue = allTags
                 }
 
-            // Horizontale Liste mit Tags
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(filteredTags, id: \.id) { tag in
+                    ForEach(filtered.wrappedValue, id: \.id) { tag in
                         Text(tag.name)
                             .padding()
-                            .background(selectedTags.contains(tag.id) ? Color.blue : Color.gray) // Markiert ausgewählte Tags
+                            .background(selectedTags.contains(tag.id) ? Color.blue : Color.gray)
                             .foregroundColor(.white)
-                            .clipShape(Capsule())  // Runde Kapsel-Form für die Tags
+                            .clipShape(Capsule())
                             .onTapGesture {
-                                // Fügt einen Tag hinzu oder entfernt ihn aus der Auswahl
                                 if selectedTags.contains(tag.id) {
                                     selectedTags.remove(tag.id)
                                 } else {
@@ -55,27 +65,24 @@ struct TagsSectionView: View {
                 }
             }
 
-            // Button zum Hinzufügen eines neuen Tags
             Button("Neuen Tag hinzufügen") {
-                showingAddTagField = true
+                showAdd.wrappedValue = true
             }
         }
-        .sheet(isPresented: $showingAddTagField) {
+        .sheet(isPresented: showAdd) {
             VStack {
-                // Eingabefeld für neuen Tag
-                TextField("Neuen Tag eingeben", text: $newTagName)
+                TextField("Neuen Tag eingeben", text: newTag)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                
-                // Button zum Speichern des neuen Tags
+
                 Button("Tag hinzufügen") {
-                    let newTag = TagStruct(name: newTagName, id: UUID())
-                    allTags.append(newTag)  // Fügt den neuen Tag zur Liste hinzu
-                    selectedTags.insert(newTag.id)  // Markiert den neuen Tag als ausgewählt
-                    newTagName = ""  // Setzt das Eingabefeld zurück
-                    filteredTags = allTags  // Aktualisiert die gefilterte Liste
-                    showingAddTagField = false  // Schließt das Eingabefeld
+                    let tag = TagStruct(name: newTag.wrappedValue, id: UUID())
+                    allTags.append(tag)
+                    selectedTags.insert(tag.id)
+                    newTag.wrappedValue = ""
+                    filtered.wrappedValue = allTags
+                    showAdd.wrappedValue = false
                 }
-                .disabled(newTagName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)  // Deaktiviert den Button, wenn das Eingabefeld leer ist
+                .disabled(newTag.wrappedValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
             .padding()
         }
