@@ -35,7 +35,6 @@
 		58B8EA2E2CF3536A006F7CC3 /* DatabaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B8EA2D2CF3536A006F7CC3 /* DatabaseHelper.swift */; };
 		58C765EF2B9E2510001E6068 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765EE2B9E2510001E6068 /* ViewController.swift */; };
 		58C765F52B9F0415001E6068 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765F42B9F0415001E6068 /* ViewModel.swift */; };
-		58C765F72B9F185B001E6068 /* RezeptListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C765F62B9F185B001E6068 /* RezeptListView.swift */; };
 		58E3175E2DAD47C800499E7C /* FoodItem+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E3175D2DAD47C800499E7C /* FoodItem+CoreDataProperties.swift */; };
 		58E3175F2DAD47C800499E7C /* FoodItem+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E3175C2DAD47C800499E7C /* FoodItem+CoreDataClass.swift */; };
 /* End PBXBuildFile section */
@@ -72,7 +71,6 @@
 		58B8EA2D2CF3536A006F7CC3 /* DatabaseHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseHelper.swift; sourceTree = "<group>"; };
 		58C765EE2B9E2510001E6068 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		58C765F42B9F0415001E6068 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
-		58C765F62B9F185B001E6068 /* RezeptListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RezeptListView.swift; sourceTree = "<group>"; };
 		58E3175C2DAD47C800499E7C /* FoodItem+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FoodItem+CoreDataClass.swift"; sourceTree = "<group>"; };
 		58E3175D2DAD47C800499E7C /* FoodItem+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FoodItem+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -81,6 +79,7 @@
 		584C1FC72D7D9F6C0039F91E /* RecipeView */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = RecipeView; sourceTree = "<group>"; };
 		584C1FCF2D80596F0039F91E /* Food */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Food; sourceTree = "<group>"; };
 		58E317662DBA45BE00499E7C /* RecipeCreation */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = RecipeCreation; sourceTree = "<group>"; };
+		58E3178E2DBE3E0D00499E7C /* RecipeListView */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = RecipeListView; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,7 +126,7 @@
 				588222A52D05BC9E0011FFFE /* TagsSectionView.swift */,
 				58C765F42B9F0415001E6068 /* ViewModel.swift */,
 				584C1FC72D7D9F6C0039F91E /* RecipeView */,
-				58C765F62B9F185B001E6068 /* RezeptListView.swift */,
+				58E3178E2DBE3E0D00499E7C /* RecipeListView */,
 				58E317662DBA45BE00499E7C /* RecipeCreation */,
 				586AC7942BD9460E0060B08D /* textFieldArlert.swift */,
 				58A204032BB709F800659D63 /* Model.swift */,
@@ -188,6 +187,7 @@
 				584C1FC72D7D9F6C0039F91E /* RecipeView */,
 				584C1FCF2D80596F0039F91E /* Food */,
 				58E317662DBA45BE00499E7C /* RecipeCreation */,
+				58E3178E2DBE3E0D00499E7C /* RecipeListView */,
 			);
 			name = Rezeptbuch;
 			productName = Rezeptbuch;
@@ -250,7 +250,6 @@
 			files = (
 				58245C782BE515BE00F4179E /* ShareSheet.swift in Sources */,
 				58C765EF2B9E2510001E6068 /* ViewController.swift in Sources */,
-				58C765F72B9F185B001E6068 /* RezeptListView.swift in Sources */,
 				588BD3F72BC176610053904B /* CoreDataManager.swift in Sources */,
 				586AC7952BD9460E0060B08D /* textFieldArlert.swift in Sources */,
 				58009CBF2CE77A76005FE4A8 /* StartData.swift in Sources */,

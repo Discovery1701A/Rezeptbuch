@@ -6,20 +6,22 @@
 //
 
 import SwiftUI
-
+/// Zeigt eine Liste aller Rezepte an und ermöglicht die Suche und Filterung nach Zutaten, Tags und Rezeptbüchern.
 struct RecipeListView: View {
     @ObservedObject var modelView: ViewModel
-    @Binding var selectedTab: Int  // Binding für Tab-Wechsel
-    @Binding var UUIDOfSelectedRecipe: UUID?
-    @State private var isNavigationActive = false
-    @State private var selectedRecipeForNavigation: Recipe? = nil
+    @Binding var selectedTab: Int  // Aktueller Tab (für Navigation)
+    @Binding var UUIDOfSelectedRecipe: UUID?  // UUID für externes Öffnen eines Rezepts
+    @State private var isNavigationActive = false  // Steuert, ob ein Rezept aktiv angezeigt wird
+    @State private var selectedRecipeForNavigation: Recipe? = nil  // Das aktuell ausgewählte Rezept
 
+    // Such- und Filterzustände
     @State private var searchText = ""
     @State private var selectedIngredients: [FoodStruct] = []
     @State private var selectedTags: [TagStruct] = []
     @State private var selectedRecipeBooks: [RecipebookStruct] = []
-    @State private var isFilterExpanded = false // Steuert, ob die Filtersektion angezeigt wird
+    @State private var isFilterExpanded = false  // Steuerung der Filter-Sektion
 
+    /// Gibt die Rezepte zurück, die alle aktiven Filter und die Suche erfüllen.
     var filteredRecipes: [Recipe] {
         modelView.recipes.filter { recipe in
             let matchesSearchText = searchText.isEmpty || recipe.title.localizedCaseInsensitiveContains(searchText)
@@ -41,21 +43,17 @@ struct RecipeListView: View {
     }
 
     var body: some View {
-        #if os(iOS)
-     
         NavigationView {
-            ZStack{
+            ZStack {
                 VStack {
+                    // 🔎 Suchfeld
                     HStack {
                         TextField("Rezept suchen", text: $searchText)
                             .padding()
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                         
-                        // Clear Button für das Hauptsuchfeld
                         if !searchText.isEmpty {
-                            Button(action: {
-                                searchText = ""
-                            }) {
+                            Button(action: { searchText = "" }) {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundColor(.gray)
                             }
@@ -63,11 +61,10 @@ struct RecipeListView: View {
                         }
                     }
                     
+                    // 🔽 Filter-Umschalter und Zurücksetzen-Button
                     HStack {
                         Button(action: {
-                            withAnimation {
-                                isFilterExpanded.toggle()
-                            }
+                            withAnimation { isFilterExpanded.toggle() }
                         }) {
                             HStack {
                                 Text("Filter")
@@ -87,6 +84,7 @@ struct RecipeListView: View {
                         .padding(.horizontal)
                     }
                     
+                    // 📋 Filteroptionen (falls geöffnet)
                     if isFilterExpanded {
                         ScrollView {
                             VStack(alignment: .leading, spacing: 12) {
@@ -122,6 +120,7 @@ struct RecipeListView: View {
                         .frame(maxHeight: 300)
                     }
                     
+                    // 📜 Liste der gefilterten Rezepte
                     List(filteredRecipes, id: \.id) { recipe in
                         NavigationLink(destination: RecipeView(recipe: recipe, modelView: modelView)) {
                             Text(recipe.title)
@@ -130,7 +129,8 @@ struct RecipeListView: View {
                     .navigationBarTitle("Alle Rezepte")
                 }
                 .padding()
-                // Neuer NavigationLink, unabhängig von UUID direkt
+
+                // 🚀 Navigation zu einem bestimmten Rezept via UUID
                 NavigationLink(
                     destination: Group {
                         if let recipe = selectedRecipeForNavigation {
@@ -143,8 +143,6 @@ struct RecipeListView: View {
                 }
                 .onChange(of: isNavigationActive) { active in
                     if !active {
-                        // Beim Zurücknavigieren auf nil setzen
-//                        print("sssssssssssss")
                         UUIDOfSelectedRecipe = nil
                         selectedRecipeForNavigation = nil
                     }
@@ -153,113 +151,19 @@ struct RecipeListView: View {
                     guard
                         let id = newValue,
                         let recipe = modelView.recipes.first(where: { $0.id == id })
-                            
-                    else {
-                        return
-                    }
-//                    print("dddddddddd")
+                    else { return }
                     selectedRecipeForNavigation = recipe
                     isNavigationActive = true
                 }
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
-        #elseif os(macOS)
-        NavigationView {
-            VStack {
-                Text("Alle Rezepte")
-                    .font(.headline)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(NSColor.controlBackgroundColor))
-                
-                List(modelView.recipes, id: \.id) { recipe in
-                    NavigationLink(destination: RecipeView(recipe: recipe)) {
-                        Text(recipe.title)
-                    }
-                }
-                .frame(minWidth: 200, idealWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
-        #endif
+        .navigationViewStyle(StackNavigationViewStyle())  // iPhone/iPad kompatibel
     }
-    
+
+    /// Setzt alle aktiven Filter zurück.
     private func clearAllFilters() {
         selectedIngredients.removeAll()
         selectedTags.removeAll()
         selectedRecipeBooks.removeAll()
     }
 }
-
-struct FilterSection<Item: Hashable & Identifiable & Named>: View {
-    var title: String
-    var items: [Item]
-    @Binding var selectedItems: [Item]
-    var clearAction: () -> Void
-
-    @State private var filterText = ""
-
-    var filteredItems: [Item] {
-        if filterText.isEmpty {
-            return items
-        } else {
-            return items.filter { $0.name.localizedCaseInsensitiveContains(filterText) }
-        }
-    }
-
-    var body: some View {
-        Section(header: HStack {
-            Text(title)
-            Spacer()
-            Button("Alle entfernen", action: clearAction)
-                .font(.caption)
-                .foregroundColor(.red)
-        }) {
-            HStack {
-                TextField("Suche...", text: $filterText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-
-                if !filterText.isEmpty {
-                    Button(action: {
-                        filterText = ""
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray)
-                    }
-                }
-            }
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(filteredItems, id: \.id) { item in
-                        Text(item.name)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 16)
-                            .background(selectedItems.contains(item) ? Color.blue : Color.gray.opacity(0.3))
-                            .foregroundColor(selectedItems.contains(item) ? .white : .primary)
-                            .clipShape(Capsule())
-                            .onTapGesture {
-                                toggleSelection(for: item)
-                            }
-                    }
-                }
-            }
-        }
-    }
-
-    private func toggleSelection(for item: Item) {
-        if let index = selectedItems.firstIndex(of: item) {
-            selectedItems.remove(at: index)
-        } else {
-            selectedItems.append(item)
-        }
-    }
-}
-
-protocol Named {
-    var name: String { get }
-}
-
-extension FoodStruct: Named {}
-extension TagStruct: Named {}
-extension RecipebookStruct: Named {}

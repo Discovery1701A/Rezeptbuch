@@ -6,16 +6,15 @@
 //
 
 import SwiftUI
-
 /// Eine Detailansicht für ein Lebensmittel, das angezeigt und bearbeitet werden kann.
 struct FoodDetailView: View {
-    @State var food: FoodStruct  // Das anzuzeigende Lebensmittel
-    var modelView: ViewModel  // Das ViewModel zur Verwaltung der Daten
-    @State private var isEditing = false  // Status, ob sich die Ansicht im Bearbeitungsmodus befindet
+    @State var food: FoodStruct  // 📦 Das anzuzeigende Lebensmittel
+    var modelView: ViewModel     // 🔄 Das ViewModel zur Verwaltung aller Lebensmittel & Rezepte
+    @State private var isEditing = false  // ✏️ Status, ob Bearbeitungsansicht offen ist
 
     var body: some View {
         Form {
-            // Allgemeine Informationen über das Lebensmittel
+            // MARK: - Allgemeine Informationen
             Section(header: Text("Allgemeine Informationen")) {
                 HStack {
                     Text("Lebensmittelname:")
@@ -45,7 +44,7 @@ struct FoodDetailView: View {
                 }
             }
             
-            // Nährwertangaben des Lebensmittels
+            // MARK: - Nährwertangaben (pro 100g)
             if let nutrition = food.nutritionFacts {
                 Section(header: Text("Nährwertangaben pro 100g")) {
                     if let calories = nutrition.calories {
@@ -79,7 +78,7 @@ struct FoodDetailView: View {
                 }
             }
             
-            // Tags anzeigen, falls vorhanden
+            // MARK: - Tags
             if let tags = food.tags, !tags.isEmpty {
                 Section(header: Text("Tags")) {
                     ForEach(tags, id: \.id) { tag in
@@ -88,7 +87,7 @@ struct FoodDetailView: View {
                 }
             }
             
-            // Bearbeiten-Button
+            // MARK: - Bearbeiten Button
             Section {
                 Button("Bearbeiten") {
                     isEditing = true
@@ -97,15 +96,15 @@ struct FoodDetailView: View {
         }
         .navigationTitle("Lebensmittel Details")
         .sheet(isPresented: $isEditing) {
-            // Öffnet die Bearbeitungsansicht in einem Modal-Fenster
-            FoodCreationView(modelView: modelView, existingFood: food) {_ in 
-                isEditing = false  // Schließt die Bearbeitungsansicht
+            // Öffnet die Bearbeitungsansicht
+            FoodCreationView(modelView: modelView, existingFood: food) { _ in
+                isEditing = false  // Schließt das Modal nach dem Speichern
                 
-                // Aktualisiert die Lebensmittel- und Rezeptdaten im ViewModel
+                // ViewModel aktualisieren
                 modelView.updateFood()
                 modelView.updateRecipe()
                 
-                // Falls das Lebensmittel bearbeitet wurde, aktualisiere die Ansicht mit den neuen Daten
+                // Lade die neuen Daten, falls das Lebensmittel verändert wurde
                 if let updatedFood = modelView.foods.first(where: { $0.id == food.id }) {
                     food = updatedFood
                 }

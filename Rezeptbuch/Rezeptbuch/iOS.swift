@@ -5,7 +5,6 @@
 //  Created by Anna Rieckmann on 20.04.24.
 //
 
-#if os(iOS)
 import SwiftUI
 import AVFoundation
 import UIKit
@@ -52,5 +51,3 @@ extension Image {
         return nil
     }
 }
-
-#endif

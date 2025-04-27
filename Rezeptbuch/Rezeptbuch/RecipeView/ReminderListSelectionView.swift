@@ -1,7 +1,7 @@
 //
 //  ReminderListSelectionView.swift
 //  Rezeptbuch
-//
+// https://medium.com/@rohit.jankar/using-swift-a-guide-to-adding-reminders-in-the-ios-reminder-app-with-the-eventkit-api-020b2e6b38bb
 //  Created by Anna Rieckmann on 09.03.25.
 //
 
