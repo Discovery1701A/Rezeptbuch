@@ -377,9 +377,19 @@ struct RecipeCreationView: View {
         let infoSav: String? = info.isEmpty ? nil : info
 
         // 🍰 Kucheninfos oder nicht, je nach Auswahl
+    
+        if cakeForm == .rund{
+            cakeSize = .round(diameter: Double(size[0]) ?? 0)
+        } else if cakeForm == .eckig{
+            cakeSize = .rectangular(length: Double(size[1]) ?? 0, width: Double(size[2]) ?? 0)
+        }
+        
         let cakeInfo: CakeInfo = isCake
             ? .cake(form: cakeForm, size: cakeSize)
             : .notCake
+        
+        
+           
 
         // 🍽️ Portioneninfo, nur wenn es **kein** Kuchen ist
         let portionInfo: PortionsInfo = isCake

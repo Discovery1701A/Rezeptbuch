@@ -51,7 +51,7 @@ struct RecipeView: View {
     init(recipe: Recipe, modelView: ViewModel) {
         self.recipe = recipe
         self.modelView = modelView
-        self.originIngredients = recipe.ingredients
+        self.originIngredients = recipe.ingredients.sorted{ $0.number ?? 0 < $1.number ?? 1 }
         _ingredients = State(initialValue: recipe.ingredients.sorted { $0.number ?? 0 < $1.number ?? 1 })
         loadRecipe(recipe)  // Lädt die Rezeptdaten direkt bei der Initialisierung
         summary.calculate(from: ingredients)  // Berechnet die Nährwerte basierend auf den Zutaten

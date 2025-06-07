@@ -824,7 +824,7 @@ func generatePDF(for recipe: Recipe) -> URL? {
             yOffset += 25
 
             for (index, step) in recipe.instructions.enumerated() {
-                let stepText = "\(index + 1). \(step)"
+                let stepText = "\(index + 1). \(step.text)"
                 let stepString = NSAttributedString(string: stepText, attributes: bodyAttributes)
                 let estimatedHeight: CGFloat = 50
                 checkPageSpace(estimatedHeight)

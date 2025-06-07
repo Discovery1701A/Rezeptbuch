@@ -33,7 +33,7 @@ struct Model {
             scaledItem.quantity /= scale  // Menge skalieren
             scaledItems.append(scaledItem)
         }
-        return scaledItems
+        return scaledItems.sorted { $0.number ?? 0 < $1.number ?? 1 }
     }
     
     /// Skaliert die Zutaten eines rechteckigen Kuchens auf neue Längen- und Breitenwerte.
@@ -45,7 +45,7 @@ struct Model {
             item.quantity /= scale  // Menge skalieren
             scaledItems.append(item)
         }
-        return scaledItems
+        return scaledItems.sorted { $0.number ?? 0 < $1.number ?? 1 }
     }
     
     /// Skaliert die Zutaten basierend auf der Anzahl der Portionen (z.B. von 4 auf 8 Portionen verdoppeln).
@@ -57,7 +57,8 @@ struct Model {
             item.quantity /= scale  // Menge skalieren
             scaledItems.append(item)
         }
-        return scaledItems
+        
+        return scaledItems.sorted { $0.number ?? 0 < $1.number ?? 1 }
     }
     
     /// Skaliert die Zutaten automatisch, indem die Änderung an einer einzelnen Zutat auf alle übertragen wird.
@@ -77,7 +78,7 @@ struct Model {
             item.quantity *= scale  // Alle Mengen anpassen
             scaledItems.append(item)
         }
-        return scaledItems
+        return scaledItems.sorted { $0.number ?? 0 < $1.number ?? 1 }
     }
 }
 
