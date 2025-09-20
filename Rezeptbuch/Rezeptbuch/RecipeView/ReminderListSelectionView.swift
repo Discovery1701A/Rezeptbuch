@@ -60,6 +60,7 @@ struct ReminderListSelectionView: View {
                 .foregroundColor(.white)
                 .cornerRadius(10)
             }
+           
             .padding()
             .alert(isPresented: $showOpenRemindersAlert) {
                 Alert(

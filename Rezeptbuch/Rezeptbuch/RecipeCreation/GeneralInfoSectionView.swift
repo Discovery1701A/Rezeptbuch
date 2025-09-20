@@ -43,6 +43,7 @@ struct GeneralInfoSectionView: View {
                             TextField("Durchmesser (cm)", text: $size[0])
                                 .keyboardType(.decimalPad) // Nur Zahlen
                         }
+                      
                     } else {
                         // Eckig: Eingabe von Länge und Breite
                         HStack {
@@ -58,6 +59,7 @@ struct GeneralInfoSectionView: View {
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .padding()
                         }
+                        
                     }
                 } else {
                     // Kein Kuchen: Eingabe der Portionenanzahl
@@ -65,6 +67,7 @@ struct GeneralInfoSectionView: View {
                         .keyboardType(.decimalPad)
                 }
             }
+           
         }
     }
 }

@@ -185,7 +185,7 @@ struct RecipeCreationView: View {
     var body: some View {
         NavigationView {
             content // Deine Hauptansicht mit Feldern & Sektionen
-            
+                
                 .navigationBarTitle("Rezept erstellen") // Titel der Ansicht
 
                 // Toolbar oben rechts
@@ -527,3 +527,4 @@ extension Array {
         // Wenn nein → gibt nil zurück (statt Absturz)
     }
 }
+

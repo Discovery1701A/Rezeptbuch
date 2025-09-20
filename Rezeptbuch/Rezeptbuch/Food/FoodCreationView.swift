@@ -68,19 +68,23 @@ struct FoodCreationView: View {
                     Text("Lebensmittelname:")
                     TextField("Name eingeben", text: $foodName)
                 }
+                
                 HStack {
                     Text("Kategorie:")
                     TextField("Kategorie eingeben", text: $foodCategory)
                 }
+                
                 HStack {
                     Text("Info:")
                     TextField("Zusätzliche Infos", text: $foodInfo)
                 }
+               
                 HStack {
                     Text("Dichte (g/cm³):")
                     TextField("Dichte (g/cm³)", text: $fooddensity)
                         .keyboardType(.decimalPad)
                 }
+                
             }
 
             // MARK: Tags
@@ -98,22 +102,27 @@ struct FoodCreationView: View {
                     TextField("Kalorien", text: $calories)
                         .keyboardType(.numberPad)
                 }
+                
                 HStack {
                     Text("Protein (g):")
                     TextField("Protein (g)", text: $protein)
                         .keyboardType(.decimalPad)
                 }
+                
                 HStack {
                     Text("Kohlenhydrate (g):")
                     TextField("Kohlenhydrate (g)", text: $carbohydrates)
                         .keyboardType(.decimalPad)
                 }
+               
                 HStack {
                     Text("Fett (g):")
                     TextField("Fett (g)", text: $fat)
                         .keyboardType(.decimalPad)
                 }
+               
             }
+            
 
             // MARK: Speichern
             Section {

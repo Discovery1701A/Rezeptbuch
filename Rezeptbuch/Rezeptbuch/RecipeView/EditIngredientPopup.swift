@@ -64,6 +64,7 @@ struct EditIngredientPopup: View {
                         Text(unit.rawValue).tag(unit)
                     }
                 }
+               
                 .pickerStyle(WheelPickerStyle())
                 .disabled(ingredient.unit == .piece)  // Deaktiviert Picker für "Stück"
                 .onChange(of: selectedUnit) { newUnit in
@@ -83,6 +84,7 @@ struct EditIngredientPopup: View {
                     lastUnit = newUnit
                 }
             }
+           
             .padding()
             
             HStack {

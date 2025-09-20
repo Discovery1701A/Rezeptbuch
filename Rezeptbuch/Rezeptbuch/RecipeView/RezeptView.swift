@@ -405,6 +405,7 @@ struct RecipeView: View {
                         summary.calculate(from: ingredients)
                     }
                 }
+              
             }
         }
     }

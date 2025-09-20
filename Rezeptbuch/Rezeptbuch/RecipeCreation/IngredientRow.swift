@@ -62,10 +62,11 @@ struct IngredientRow: View {
                     Text("Menge")
                         .textSelection(.disabled)
                     TextField("Menge", text: $quantity)
-#if os(iOS)
+
                         .keyboardType(.decimalPad)
-#endif
+
                 }
+             
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Einheit")

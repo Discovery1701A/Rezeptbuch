@@ -48,7 +48,7 @@ struct FilterSection<Item: Hashable & Identifiable & Named>: View {
                     }
                 }
             }
-
+            
             // 📜 Horizontale Liste der (gefilterten) Items
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
